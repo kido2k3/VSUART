@@ -3,7 +3,7 @@
 //-- Date            : 25/12/28
 //-- Author          : kido
 //-- IP Name         : tb (template for tb)
-//-- History         : ver.1.00 (25/12/25) 1st release
+//-- History         : ver.1.00 (25/12/28) 1st release
 //--
 //===========================================================================
 module tb;

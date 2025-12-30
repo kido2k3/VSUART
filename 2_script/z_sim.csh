@@ -1,10 +1,12 @@
 #!/bin/csh -f
 #------------------------------------------------
+set VIVADO_DIR = "/mnt/d/phong/li_env/01_download/Vivado/Vivado/2024.2"
+set PRJ_DIR = "/mnt/d/phong/li_env/VSUART"
+#------------------------------------------------
 if ($#argv < 2) then
   goto Usage
 endif
 #------------------------------------------------
-set VIVADO_DIR = "/mnt/d/phong/li_env/01_download/Vivado/Vivado/2024.2"
 set TB_TOP = $argv[2]
 echo $TB_TOP
 echo $argv[1]
@@ -15,10 +17,10 @@ else
 endif
 echo $CVR_NAME
 #------------------------------------------------
-if (! -e ./log) then
-  mkdir ./log
+if (! -e $PRJ_DIR/log) then
+  mkdir $PRJ_DIR/log
 else
-  rm ./log/*
+  rm $PRJ_DIR/log/* -r
 endif
 #------------------------------------------------
 if ($argv[1] == "-m") then
@@ -99,8 +101,10 @@ endif
 #------------------------
 #-- Compile source !!! --
 #------------------------
-# xvlog -sv -i ./src -f filelist.f --log ./log/xvlog_$TB_TOP.log
-xvlog ./config.v ./src/* -f ./vxlog.f
+find $PRJ_DIR -maxdepth 2 -name "*.v" > $PRJ_DIR/filelist.f
+find $PRJ_DIR -maxdepth 2 -name "*.sv" >> $PRJ_DIR/filelist.f
+sed -i '/tb\.sv/d' $PRJ_DIR/filelist.f
+xvlog -f $PRJ_DIR/2_script/vxlog.f -f $PRJ_DIR/filelist.f
 if ($status != 0) then
   echo ""
   echo "##### Compile error !!! #####"
@@ -110,7 +114,7 @@ endif
 #--------------------------
 #-- Elaborate source !!! --
 #--------------------------
-xelab $TB_TOP -cc_db $CVR_NAME -cov_db_name $CVR_NAME -f xelab.f
+xelab $TB_TOP -cc_db $CVR_NAME -cov_db_name $CVR_NAME -f $PRJ_DIR/2_script/xelab.f
 if ($status != 0) then
   echo ""
   echo "##### Elaborate error !!! #####"
@@ -158,9 +162,9 @@ goto END
 #== END
 #============================================================================
 END:
-find ./log -maxdepth 1 -name "*.log" > log_list.txt
-foreach f ( `cat log_list.txt` )
-    sed '/^$/d' "$f" > "$f.tmp"
-    mv "$f.tmp" "$f"
-end
-rm -f log_list.txt
+# find ./log -maxdepth 1 -name "*.log" > $PRJ_DIR/log_list.txt
+# foreach f ( `cat log_list.txt` )
+#     sed '/^$/d' "$f" > "$f.tmp"
+#     mv "$f.tmp" "$f"
+# end
+# rm -f $PRJ_DIR/log_list.txt
