@@ -44,7 +44,7 @@ module tb_uart_baudrate_generator;
     end
 //---------------------------------------------------------------------------
     // instantiate module here
-    uart_baudrate_generator u_baudrate_generator (
+    uart_baudrate_generator u_uart_baudrate_generator (
         .clk              (clk),
         .rst_n            (rst_n),
         .i_brg_divisor    (i_brg_divisor),

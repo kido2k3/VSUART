@@ -1,5 +1,6 @@
-./*.log
-./log/*.backup
+*.log
+log/*
+coverage/*
 modelsim.ini
 *.vcd
 *.wlf

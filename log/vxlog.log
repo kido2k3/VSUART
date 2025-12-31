@@ -1,4 +1,0 @@
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/mnt/d/phong/li_env/VSUART/0_rtl/baudrate_generator.v" into library work
-INFO: [VRFC 10-311] analyzing module baudrate_generator
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/mnt/d/phong/li_env/VSUART/1_tb/tb_baudrate_generator.sv" into library work
-INFO: [VRFC 10-311] analyzing module tb_baudrate_generator
