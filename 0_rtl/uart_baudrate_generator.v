@@ -4,7 +4,7 @@
 //-- Author          : kido
 //-- IP Name         : uart_baudrate_generator
 //-- History         : ver.1.00 (25/12/31) 1st release
-//--
+//--                 : ver.1.01 (25/12/30)
 //===========================================================================
 module uart_baudrate_generator (
     input               clk,

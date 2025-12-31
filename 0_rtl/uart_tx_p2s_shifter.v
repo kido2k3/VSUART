@@ -3,8 +3,8 @@
 //-- Date            : 25/12/27
 //-- Author          : kido
 //-- IP Name         : uart_tx_p2s_shifter (UART TX parallel to serial shift register)
-//-- History         : ver.1.00 (25/12/30) 1st release
-//--
+//-- History         : ver.1.00 (25/12/27)
+//--                 :
 //===========================================================================
 module uart_tx_p2s_shifter (
     input               clk,
