@@ -101,8 +101,9 @@ endif
 #------------------------
 #-- Compile source !!! --
 #------------------------
-find $PRJ_DIR -maxdepth 2 -name "*.v" > $PRJ_DIR/filelist.f
-find $PRJ_DIR -maxdepth 2 -name "*.sv" >> $PRJ_DIR/filelist.f
+find $PRJ_DIR -maxdepth 3 -name "*.v" > $PRJ_DIR/filelist.f
+find $PRJ_DIR -maxdepth 3 -name "*.sv" >> $PRJ_DIR/filelist.f
+find $PRJ_DIR -maxdepth 3 -name "*.vh" >> $PRJ_DIR/filelist.f
 sed -i '/tb\.sv/d' $PRJ_DIR/filelist.f
 xvlog -f $PRJ_DIR/2_script/vxlog.f -f $PRJ_DIR/filelist.f
 if ($status != 0) then

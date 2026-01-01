@@ -8,16 +8,18 @@
 //===========================================================================
 module syn_fifo #(
     parameter                           P_DATA_W    = 8,
-    parameter                           P_DEPTH     = 8
+    parameter                           P_DEPTH     = 8,
+    parameter                           P_CNT_W     = $floor($clog2(P_DEPTH)) + 1
 )(
     input                               clk, 
     input                               rst_n, 
     input       [P_DATA_W - 1   : 0]    i_data,
     input                               i_wr_en,
     input                               i_rd_en,
+    output reg  [P_CNT_W - 1    : 0]    o_cnt,
     output                              o_full,
     output                              o_empty,
-    output reg  [P_DATA_W - 1   : 0]    o_data
+    output      [P_DATA_W - 1   : 0]    o_data
 );
 //---------------------------------------------------------------------------
     // PARAMETER HERE
@@ -33,21 +35,23 @@ module syn_fifo #(
         if(!rst_n) begin
             wr_ptr <= 0;
             rd_ptr <= 0;
-            o_data <= 0;
+            o_cnt  <= 0;
         end else begin
             // wirte data
             if(i_wr_en && !o_full) begin
-                wr_ptr <= wr_ptr + 1;
+                o_cnt  <= o_cnt + 1'd1;
+                wr_ptr <= wr_ptr + 1'd1;
                 fifo[wr_ptr[0 +: (P_PTR_W - 1)]] <= i_data;
             end
 //---------------------------------------------------------------------------
             // read data
             if(i_rd_en && !o_empty) begin
-                rd_ptr <= rd_ptr + 1;
-                o_data <= fifo[rd_ptr[0 +: (P_PTR_W - 1)]];
+                o_cnt  <= o_cnt - 1'd1;
+                rd_ptr <= rd_ptr + 1'd1;
             end
         end
     end
+    assign o_data = fifo[rd_ptr[0 +: (P_PTR_W - 1)]];
 //---------------------------------------------------------------------------
     // check empty or full
     assign {o_full, o_empty} =      (wr_ptr == rd_ptr) ? 2'b01 :

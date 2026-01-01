@@ -1,31 +1,29 @@
 //===========================================================================
 //-- File Version    : 1.00
-//-- Date            : 25/12/27
+//-- Date            : 25/12/31
 //-- Author          : kido
-//-- IP Name         : uart_tx_p2s_shifter (UART TX parallel to serial shift register)
-//-- History         : ver.1.00 (25/12/27)
+//-- IP Name         : uart_tx_parity_gen (UART TX parity generator)
+//-- History         : ver.1.00 (25/12/31)
 //--                 :
 //===========================================================================
-module uart_tx_p2s_shifter #(
+module uart_tx_parity_gen #(
     parameter           P_DATA_W    = 9
 )(
     input                           clk,
     input   [P_DATA_W - 1   : 0]    i_data,
-    input                           i_load,            // load parallel data in
-    input                           i_shift_right,     // shift right control
+    input                           i_en,              // enable signal
+    input                           i_mode_parity,     // 0: even parity, 1: odd parity
     output                          o_data
 );
 // LOCAL VARIABLE HERE-------------------------------------------------------
-    reg [P_DATA_W - 1 : 0] r_data;
+    reg r_data;
 //---------------------------------------------------------------------------
     always @(posedge clk) begin
-        if (i_load) begin
-            r_data  <= i_data;
-        end  else if (i_shift_right) begin
-            r_data  <= r_data >> 1;
+        if (i_en) begin
+            r_data  <= (i_mode_parity) ? ~^i_data[7: 0] : ^i_data[7: 0];
         end
     end
-    assign  o_data = r_data[0];
+    assign  o_data = r_data;
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 endmodule
