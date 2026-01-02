@@ -21,11 +21,8 @@ module tb_uart_tx;
     class item;
         bit   [P_DATA_W - 1   : 0]        i_data;
         bit                               i_wr_en;
-        bit   [15                 : 0]    i_brg_divisor;
-        bit                               i_brg_hb_en;    // High Baud Rate Enable bit
         bit                               i_tx_en;
         bit                               i_tx_pulse;
-        bit                               i_fifo_empty;
         bit                               i_tx_brk;
         bit   [1              : 0]        i_mode_pdata;   //-- 'b11: 9-bit data; no parity
                                                     //-- 'b10: 8-bit data; even parity
@@ -36,15 +33,12 @@ module tb_uart_tx;
         logic                              o_srt_st;       //-- 1: busy; 0: empty
         logic                              o_tx;            //-- serial data
     endclass
-        reg   [P_DATA_W - 1   : 0]        i_data;
-        reg                               i_wr_en;
-        reg   [15                 : 0]    i_brg_divisor;
-        reg                               i_brg_hb_en;    // High Baud Rate Enable bit
-        reg                               i_tx_en;
-        reg                               i_tx_pulse;
-        reg                               i_fifo_empty;
-        reg                               i_tx_brk;
-        reg   [1              : 0]        i_mode_pdata;   //-- 'b11: 9-bit data; no parity
+        reg   [P_DATA_W - 1   : 0]        i_data = 0;
+        reg                               i_wr_en = 0;
+        reg                               i_tx_en = 0;
+        reg                               i_tx_pulse = 0;
+        reg                               i_tx_brk = 0;
+        reg   [1              : 0]        i_mode_pdata = 0;   //-- 'b11: 9-bit data; no parity
                                                     //-- 'b10: 8-bit data; even parity
                                                     //-- 'b01: 8-bit data; odd parity
                                                     //-- 'b00: 8-bit data; no parity
@@ -77,12 +71,8 @@ module tb_uart_tx;
         .rst_n            (rst_n),
         .i_data           (i_data),
         .i_wr_en          (i_wr_en),
-        .i_brg_divisor    (i_brg_divisor),
-        .i_brg_hb_en      (i_brg_hb_en),
-        // High Baud Rate Enable bit
         .i_tx_en          (i_tx_en),
         .i_tx_pulse       (i_tx_pulse),
-        .i_fifo_empty     (i_fifo_empty),
         .i_tx_brk         (i_tx_brk),
         .i_mode_pdata     (i_mode_pdata),
         //-- 'b11: 9-bit data, no parity
@@ -106,6 +96,14 @@ module tb_uart_tx;
     end
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
+    initial begin: tx_pulse_driver
+        forever begin
+            i_tx_pulse = 0;
+            repeat(15) @(posedge clk);
+            i_tx_pulse = 1;
+            @(posedge clk);
+        end 
+    end
     initial begin : driver
         $display ("//=====================================//");
         $display ("//-- [%8t] Simulation Start !!! --//", $time);
@@ -117,8 +115,21 @@ module tb_uart_tx;
 //---------------------------------------------------------------------------
         // CODE HERE
         fork
+            begin: wr_en_data
+                @(posedge clk);
+                i_wr_en = 1;
+                i_data = 9'b0_1100_0001;
+                @(posedge clk);
+                i_wr_en = 0;
+            end
+            begin
+                i_tx_en = 1;
+                i_tx_brk = 0;
+                i_mode_pdata = 2'b10;
+            end
         join
 //---------------------------------------------------------------------------
+        repeat(1000) @(posedge clk);
 //---------------------------------------------------------------------------
         repeat(5) @(posedge clk);
         end_block_flag[0] = 1;
@@ -133,7 +144,7 @@ module tb_uart_tx;
     end
 //---------------------------------------------------------------------------
     initial begin: scoreboard
-        wait(end_block_flag[0] & end_block_flag[1]);
+        wait(end_block_flag[0]);
         $display ("//===================================//");
         $display ("//-- [%8t] Simulation End !!! --//", $time);
         $display ("//===================================//");

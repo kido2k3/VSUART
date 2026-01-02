@@ -14,11 +14,8 @@ module uart_tx #(
     input                               rst_n,
     input   [P_DATA_W - 1   : 0]        i_data,
     input                               i_wr_en,
-    input   [15                 : 0]    i_brg_divisor,
-    input                               i_brg_hb_en,    // High Baud Rate Enable bit
     input                               i_tx_en,
     input                               i_tx_pulse,
-    input                               i_fifo_empty,
     input                               i_tx_brk,
     input   [1              : 0]        i_mode_pdata,   //-- 'b11: 9-bit data, no parity
                                                         //-- 'b10: 8-bit data, even parity
@@ -42,6 +39,7 @@ module uart_tx #(
     wire                                fifo_full;
     wire                                srt_shift_right;    // Shift RegisTer shift right
     wire                                srt_st;             // Shift RegisTer status
+    reg                                 r_tx;             // Shift RegisTer status
 // INSTANTIATE MODULE HERE---------------------------------------------------
     syn_fifo #(
         .P_DATA_W    (P_DATA_W),
@@ -100,9 +98,23 @@ module uart_tx #(
         //-- 0: idle, 1: start/stop bit, 2: serial data, 3: parity bit
     );
 //---------------------------------------------------------------------------
-    assign o_tx =   (sel == 2'd0)       ? P_IDLE_S  :
-                    (sel == 2'd1)       ? P_START_S :
-                    (sel == 2'd2)       ? sdata     : parity;
+    always @(posedge clk) begin
+        // if(rst_n) begin
+        //     r_tx <= 1'b1;
+        // end else 
+        if(i_tx_pulse) begin
+            // r_tx <= (sel == 2'd0)       ? P_IDLE_S  :
+            //         (sel == 2'd1)       ? P_START_S :
+            //         (sel == 2'd2)       ? sdata     : parity;
+        end 
+        r_tx <= i_tx_pulse;
+        // r_tx <= (i_tx_pulse)        ? 
+        //             (sel == 2'd0)       ? P_IDLE_S  :
+        //             (sel == 2'd1)       ? P_START_S :
+        //             (sel == 2'd2)       ? sdata     : parity
+        //                                             : r_tx;
+    end
+//---------------------------------------------------------------------------
     assign o_fifo_full      = fifo_full;
     assign o_fifo_empty     = fifo_empty;
     assign o_srt_st         = srt_st;

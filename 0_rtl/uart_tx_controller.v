@@ -19,7 +19,7 @@ module uart_tx_controller (
                                                 //-- 'b00:  8-bit data, no parity
     output              o_fifo_rd_en,           //-- fifo read enable
     output              o_srt_st,               //-- 1: busy, 0: empty
-    output              o_srt_shift_right,      //-- 1: busy, 0: empty
+    output              o_srt_shift_right,      
     output [1 : 0]      o_sel                   //-- 0: idle, 1: start/stop bit, 2: serial data, 3: parity bit
 );
 // FSM STATE HERE------------------------------------------------------------
@@ -86,6 +86,7 @@ module uart_tx_controller (
                             sel             = 2'd2;
                             shifter_busy    = 1'b1;
                             cnt_up          = 1'b1;
+                            right_shift     = 1'b1;
                         end else if (^i_mode_pdata && cur_cnt == 4'd8) begin
                             nxt_st          = P_PARITY_BIT;
                             sel             = 2'd3;
