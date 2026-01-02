@@ -3,8 +3,9 @@
 //-- Date            : 25/12/31
 //-- Author          : kido
 //-- IP Name         : uart_baudrate_generator
-//-- History         : ver.1.00 (25/12/31) 1st release
-//--                 : ver.1.01 (25/12/30)
+//-- History         : ver.1.00 (25/12/30) 1st release
+//--                 : ver.1.01 (25/12/31)
+//--                 : ver.1.02 (25/12/31): fixed divisor > 15, eject divisor = 0
 //===========================================================================
 module uart_baudrate_generator (
     input               clk,
@@ -16,13 +17,13 @@ module uart_baudrate_generator (
 );
 // LOCAL VARIABLE HERE-------------------------------------------------------
     // counter for create tx pulse
-    reg     [15     : 0] tx_cnt;
+    reg     [3      : 0] tx_cnt;
     // selected tx divisor via high baud rate bit
     wire    [3      : 0] tx_divisor;
     // counter for create rx pulse
-    reg     [3      : 0] rx_cnt;
+    reg     [15     : 0] rx_cnt;
     // next of tx_cnt
-    wire    [15     : 0] tx_cnt_nxt;
+    wire    [3      : 0] tx_cnt_nxt;
     // next of rx_cnt
     wire    [15     : 0] rx_cnt_nxt;
 //---------------------------------------------------------------------------
@@ -38,14 +39,14 @@ module uart_baudrate_generator (
 //---------------------------------------------------------------------------
     always @(posedge clk) begin
         if(!rst_n) begin
-            tx_cnt <= 16'd0;
+            tx_cnt <= 4'd0;
         end else begin
             tx_cnt <= tx_cnt_nxt;
         end
     end
     assign tx_divisor = (i_brg_hb_en) ? 4'd3 : 4'd15;
     assign tx_cnt_nxt = (o_rx_pulse == 1'b1) 
-                            ? ((tx_cnt == tx_divisor)  ? 3'b0 : tx_cnt + 1'b1) 
+                            ? ((tx_cnt == tx_divisor)  ? 4'd0 : tx_cnt + 1'b1) 
                             : tx_cnt;
     assign o_tx_pulse = (tx_cnt == tx_divisor && o_rx_pulse);
 //---------------------------------------------------------------------------

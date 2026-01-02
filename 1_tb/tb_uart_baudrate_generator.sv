@@ -66,8 +66,8 @@ module tb_uart_baudrate_generator;
         $display ("//=====================================//");
 // INITIAL DATA HERE---------------------------------------------------------
         my_item = new();
-        my_item.i_brg_divisor = 3;
-        my_item.i_brg_hb_en   = 1;
+        my_item.i_brg_divisor = 16;
+        my_item.i_brg_hb_en   = 0;
         i_brg_hb_en = my_item.i_brg_hb_en;
         i_brg_divisor = my_item.i_brg_divisor;
         wait_for_rst = 0;
