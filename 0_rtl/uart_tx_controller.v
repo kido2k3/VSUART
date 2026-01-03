@@ -21,6 +21,7 @@ module uart_tx_controller (
     output              o_fifo_rd_en,           //-- fifo read enable
     output              o_srt_st,               //-- 1: busy, 0: empty
     output              o_srt_shift_right,      
+    output              o_tx_brk_done,      
     output [1 : 0]      o_sel                   //-- 0: idle, 1: start/stop bit, 2: serial data, 3: parity bit
 );
 // FSM STATE HERE------------------------------------------------------------
@@ -149,6 +150,7 @@ module uart_tx_controller (
     assign o_srt_st             = shifter_busy;       
     assign o_sel                = sel;
     assign o_srt_shift_right    = right_shift;
+    assign o_tx_brk_done        = tx_brk_done;
 //---------------------------------------------------------------------------
 endmodule
 //===========================================================================

@@ -25,6 +25,7 @@ module uart_tx #(
     output                              o_fifo_full,    //-- 0: not full, 1: full
     output                              o_fifo_empty,   //-- 0: not empty, 1: empty
     output                              o_srt_st,       //-- 1: busy, 0: empty
+    output                              o_tx_brk_done,      
     output                              o_tx            //-- serial data
 );
 // LOCAL VARIABLE HERE-------------------------------------------------------
@@ -40,7 +41,8 @@ module uart_tx #(
     wire                                fifo_full;
     wire                                srt_shift_right;    // Shift RegisTer shift right
     wire                                srt_st;             // Shift RegisTer status
-    reg                                 r_tx;             // Shift RegisTer status
+    wire                                tx_brk_done;        // Shift RegisTer status
+    reg                                 r_tx;               // Shift RegisTer status
 // INSTANTIATE MODULE HERE---------------------------------------------------
     syn_fifo #(
         .P_DATA_W    (P_DATA_W),
@@ -96,6 +98,7 @@ module uart_tx #(
         .o_srt_st           (srt_st),
         //-- 1: busy, 0: empty
         .o_srt_shift_right  (srt_shift_right),
+        .o_tx_brk_done      (tx_brk_done),
         .o_sel              (sel)
         //-- 0: idle, 1: start/stop bit, 2: serial data, 3: parity bit
     );
@@ -114,6 +117,7 @@ module uart_tx #(
     assign o_fifo_full      = fifo_full;
     assign o_fifo_empty     = fifo_empty;
     assign o_srt_st         = srt_st;
+    assign o_tx_brk_done    = tx_brk_done;
 //---------------------------------------------------------------------------
 endmodule
 //===========================================================================

@@ -9,7 +9,7 @@
 module syn_fifo #(
     parameter                           P_DATA_W    = 8,
     parameter                           P_DEPTH     = 8,
-    parameter                           P_CNT_W     = $clog2(P_DEPTH)
+    parameter                           P_CNT_W     = $clog2(P_DEPTH - 1)
 )(
     input                               clk, 
     input                               rst_n, 
