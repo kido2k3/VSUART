@@ -24,6 +24,7 @@ module tb_uart_tx;
         bit                               i_tx_en;
         bit                               i_tx_pulse;
         bit                               i_tx_brk;
+        bit                               i_mode_stop;
         bit   [1              : 0]        i_mode_pdata;   //-- 'b11: 9-bit data; no parity
                                                     //-- 'b10: 8-bit data; even parity
                                                     //-- 'b01: 8-bit data; odd parity
@@ -38,6 +39,7 @@ module tb_uart_tx;
         reg                               i_tx_en = 0;
         reg                               i_tx_pulse = 0;
         reg                               i_tx_brk = 0;
+        bit                               i_mode_stop = 0;
         reg   [1              : 0]        i_mode_pdata = 0;   //-- 'b11: 9-bit data; no parity
                                                     //-- 'b10: 8-bit data; even parity
                                                     //-- 'b01: 8-bit data; odd parity
@@ -49,17 +51,17 @@ module tb_uart_tx;
 //---------------------------------------------------------------------------
     // CLK_GEN
     initial begin
-        clk = 0;
-        forever #(clk_cycle / 2) clk = ~clk;
+        clk <= 0;
+        forever #(clk_cycle / 2) clk <= ~clk;
     end
 //---------------------------------------------------------------------------
     // RST_GEN
     initial begin
-        rst_n = 0;
+        rst_n <= 0;
         @(posedge clk); 
         #0.1;
-        rst_n = 1;
-        wait_for_rst = 1;
+        rst_n <= 1;
+        wait_for_rst <= 1;
     end
 //---------------------------------------------------------------------------
     // instantiate module here
@@ -74,6 +76,7 @@ module tb_uart_tx;
         .i_tx_en          (i_tx_en),
         .i_tx_pulse       (i_tx_pulse),
         .i_tx_brk         (i_tx_brk),
+        .i_mode_stop      (i_mode_stop),
         .i_mode_pdata     (i_mode_pdata),
         //-- 'b11: 9-bit data, no parity
         //-- 'b10: 8-bit data, even parity
@@ -91,16 +94,16 @@ module tb_uart_tx;
 //---------------------------------------------------------------------------
     initial begin
         foreach (end_block_flag[i]) begin
-            end_block_flag[i] = 0;
+            end_block_flag[i] <= 0;
         end
     end
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
     initial begin: tx_pulse_driver
         forever begin
-            i_tx_pulse = 0;
+            i_tx_pulse <= 0;
             repeat(15) @(posedge clk);
-            i_tx_pulse = 1;
+            i_tx_pulse <= 1;
             @(posedge clk);
         end 
     end
@@ -109,7 +112,7 @@ module tb_uart_tx;
         $display ("//-- [%8t] Simulation Start !!! --//", $time);
         $display ("//=====================================//");
 // INITIAL DATA HERE---------------------------------------------------------
-        wait_for_rst = 0;
+        wait_for_rst <= 0;
         wait(wait_for_rst);
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -117,22 +120,37 @@ module tb_uart_tx;
         fork
             begin: wr_en_data
                 @(posedge clk);
-                i_wr_en = 1;
-                i_data = 9'b0_1100_0001;
+                i_wr_en <= 1;
+                i_data <= 9'b0_1100_0011;
+                i_mode_pdata <= 2'b10;
+                i_mode_stop <= 0;
                 @(posedge clk);
-                i_wr_en = 0;
+                i_wr_en <= 0;
+                repeat(210) @(posedge clk);
+                i_wr_en <= 1;
+                i_data <= 9'b1_1100_0001;
+                i_mode_pdata <= 2'b11;
+                i_mode_stop <= 0;
+                @(posedge clk);
+                i_wr_en <= 0;
+                repeat(210) @(posedge clk);
+                i_wr_en <= 1;
+                i_data <= 9'd257;
+                i_mode_pdata <= 2'b11;
+                i_mode_stop <= 1;
+                @(posedge clk);
+                i_wr_en <= 0;
             end
             begin
-                i_tx_en = 1;
-                i_tx_brk = 0;
-                i_mode_pdata = 2'b10;
+                i_tx_en <= 1;
+                i_tx_brk <= 0;
             end
         join
 //---------------------------------------------------------------------------
         repeat(1000) @(posedge clk);
 //---------------------------------------------------------------------------
         repeat(5) @(posedge clk);
-        end_block_flag[0] = 1;
+        end_block_flag[0] <= 1;
     end
 //---------------------------------------------------------------------------
     // OTHER CODE 

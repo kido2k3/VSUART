@@ -13,6 +13,7 @@ module uart_tx_controller (
     input               i_tx_pulse,
     input               i_fifo_empty,
     input               i_tx_brk,
+    input               i_mode_stop,            //-- 0: 1-stop-bit, 1: 2-stop-bits
     input  [1 : 0]      i_mode_pdata,           //-- 'b11: 9-bit data, no parity
                                                 //-- 'b10: 8-bit data, even parity
                                                 //-- 'b01:  8-bit data, odd parity
@@ -75,6 +76,7 @@ module uart_tx_controller (
                             sel             = 2'd2;
                             shifter_busy    = 1'b1;
                             cnt_rst_n       = 1'b0;
+                            right_shift     = 1'b1;
                         end else begin
                             nxt_st          = P_BREAK_TRANS;
                             cnt_rst_n       = 1'b0;
@@ -102,14 +104,14 @@ module uart_tx_controller (
                         cnt_rst_n       = 1'b0;
                     end
                     P_STOP_BIT:begin
-                        if(cur_cnt < 4'd2 && i_mode_pdata) begin
+                        if(cur_cnt < 4'd2 && i_mode_stop) begin
                             nxt_st      = P_STOP_BIT;
                             sel         = 4'd1;
                             cnt_up      = 1'b1;
-                        end else if(cur_cnt == 4'd1 && !i_mode_pdata || cur_cnt == 4'd2 || i_tx_brk) begin
+                        end else if(cur_cnt == 4'd1 && !i_mode_stop || cur_cnt == 4'd2 || i_tx_brk) begin
                             nxt_st      = P_IDLE;
                             tx_brk_done = 1'b1;
-                            sel         = 1'b0;
+                            sel         = 1'b0; 
                         end
                     end
                     P_BREAK_TRANS:begin
@@ -129,7 +131,7 @@ module uart_tx_controller (
     // determine next counter
     assign nxt_cnt =    (!i_tx_en)      ? 4'd0 :
                         (!i_tx_pulse)   ? cur_cnt :
-                        (!cnt_rst_n)    ? 4'd0 :
+                        (!cnt_rst_n)    ? 4'd1 :
                         (cnt_up)        ? cur_cnt + 1'd1 : cur_cnt;
     // determine current register
     always @(posedge clk) begin

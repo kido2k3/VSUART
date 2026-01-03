@@ -1,9 +1,9 @@
 //===========================================================================
 //-- File Version    : 1.00
-//-- Date            : 25/12/31
+//-- Date            : 26/01/03
 //-- Author          : kido
 //-- IP Name         : uart_tx
-//-- History         : ver.1.00 (25/12/31)
+//-- History         : ver.1.00 (26/01/03)
 //--                 :
 //===========================================================================
 module uart_tx #(
@@ -17,6 +17,7 @@ module uart_tx #(
     input                               i_tx_en,
     input                               i_tx_pulse,
     input                               i_tx_brk,
+    input                               i_mode_stop,    //-- 0: 1-stop-bit, 1: 2-stop-bits
     input   [1              : 0]        i_mode_pdata,   //-- 'b11: 9-bit data, no parity
                                                         //-- 'b10: 8-bit data, even parity
                                                         //-- 'b01: 8-bit data, odd parity
@@ -84,6 +85,7 @@ module uart_tx #(
         .i_tx_pulse         (i_tx_pulse),
         .i_fifo_empty       (fifo_empty),
         .i_tx_brk           (i_tx_brk),
+        .i_mode_stop        (i_mode_stop),
         .i_mode_pdata       (i_mode_pdata),
         //-- 'b11: 9-bit data, no parity
         //-- 'b10: 8-bit data, even parity
@@ -99,22 +101,16 @@ module uart_tx #(
     );
 //---------------------------------------------------------------------------
     always @(posedge clk) begin
-        // if(rst_n) begin
-        //     r_tx <= 1'b1;
-        // end else 
-        if(i_tx_pulse) begin
-            // r_tx <= (sel == 2'd0)       ? P_IDLE_S  :
-            //         (sel == 2'd1)       ? P_START_S :
-            //         (sel == 2'd2)       ? sdata     : parity;
+        if(!rst_n) begin
+            r_tx <= 1'b1;
+        end else if(i_tx_pulse) begin
+            r_tx <= (sel == 2'd0)       ? P_IDLE_S  :
+                    (sel == 2'd1)       ? P_START_S :
+                    (sel == 2'd2)       ? sdata     : parity;
         end 
-        r_tx <= i_tx_pulse;
-        // r_tx <= (i_tx_pulse)        ? 
-        //             (sel == 2'd0)       ? P_IDLE_S  :
-        //             (sel == 2'd1)       ? P_START_S :
-        //             (sel == 2'd2)       ? sdata     : parity
-        //                                             : r_tx;
     end
 //---------------------------------------------------------------------------
+    assign o_tx             = r_tx;
     assign o_fifo_full      = fifo_full;
     assign o_fifo_empty     = fifo_empty;
     assign o_srt_st         = srt_st;
