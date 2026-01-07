@@ -13,6 +13,11 @@ if (! -e ./log) then
   mkdir ./log
 endif
 
+if ($argv[1] == "-g") then
+  echo "Goto GTKwave."
+  goto GTKwave
+endif
+
 if ($argv[1] == "-m") then
   echo "Goto ModelSim Simulator."
   goto ModelSim
@@ -36,7 +41,7 @@ echo ""
 echo "-----------------------------------------------------------------------"
 echo "-- Usage"
 echo "-----------------------------------------------------------------------"
-echo "--   zgo_sim tool top"
+echo "--   z_wave tool top"
 echo "--     tool   : -m:Model Sim, -v:Vivado Sim, -i:Icarus Verilog"
 echo "--     tb_top : TestBench module name"
 echo "--"

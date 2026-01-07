@@ -1,11 +1,13 @@
 //===========================================================================
-//-- File Version    : 1.00
-//-- Date            : 25/12/28
+//-- File Version    : 1.10
+//-- Date            : 26/01/07
 //-- Author          : kido
 //-- IP Name         : tb (template for tb)
 //-- History         : ver.1.00 (25/12/28) 1st release
+//--                 : ver.1.10 (26/01/07) 1st release
 //--
 //===========================================================================
+`timescale 10ns/1ns
 module tb;
 //---------------------------------------------------------------------------
     // VARIABLE OF CLOCK
@@ -18,6 +20,7 @@ module tb;
     // INSERT VARIABLE HERE
     class item;
     endclass
+    reg i_d = 0;
 //---------------------------------------------------------------------------
     // CLK_GEN
     initial begin
@@ -54,6 +57,8 @@ module tb;
 //---------------------------------------------------------------------------
         // CODE HERE
         fork
+            begin
+            end
         join
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -70,7 +75,7 @@ module tb;
     end
 //---------------------------------------------------------------------------
     initial begin: scoreboard
-        wait(end_block_flag[0] & end_block_flag[1]);
+        wait(end_block_flag[0]);
         $display ("//===================================//");
         $display ("//-- [%8t] Simulation End !!! --//", $time);
         $display ("//===================================//");
@@ -78,8 +83,8 @@ module tb;
     end
 //---------------------------------------------------------------------------
     initial begin
-        // $dumpfile();     // $dumpfile(<filename>);
-        // $dumpvars (0);        // Dumps all variables from all module instances
+        $dumpfile("wave.vcd");     // $dumpfile(<filename>);
+        $dumpvars (0);        // Dumps all variables from all module instances
         // $dumpvars (0, tb_switch_modeling);    // Dumps all variables within module 'tb' and in all sub-modules
         // $dumpvars (1, tb);    // Dumps all variables within module 'tb', not in any sub-modules
         // $dumpvars (0, tb.ram_ctrl, tb.alu2.a);  // Dumps all variables in 'tb.ram_ctrl' and in all its sub-modules, and the variable 'tb.alu2.a' in module 'alu2'
