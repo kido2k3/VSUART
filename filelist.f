@@ -1,5 +1,6 @@
 /mnt/d/phong/li_env/VSUART/0_rtl/common/syn_fifo.v
 /mnt/d/phong/li_env/VSUART/0_rtl/uart_baudrate_generator.v
+/mnt/d/phong/li_env/VSUART/0_rtl/uart_rx_s2p_shifter.v
 /mnt/d/phong/li_env/VSUART/0_rtl/uart_rx_sampling.v
 /mnt/d/phong/li_env/VSUART/0_rtl/uart_tx.v
 /mnt/d/phong/li_env/VSUART/0_rtl/uart_tx_controller.v
