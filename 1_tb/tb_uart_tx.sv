@@ -25,14 +25,15 @@ module tb_uart_tx;
         bit                               i_tx_pulse;
         bit                               i_tx_brk;
         bit                               i_mode_stop;
-        bit   [1              : 0]        i_mode_pdata;   //-- 'b11: 9-bit data; no parity
-                                                    //-- 'b10: 8-bit data; even parity
-                                                    //-- 'b01: 8-bit data; odd parity
-                                                    //-- 'b00: 8-bit data; no parity
-        logic                              o_fifo_full;    //-- 0: not full; 1: full
-        logic                              o_fifo_empty;   //-- 0: not empty; 1: empty
-        logic                              o_srt_st;       //-- 1: busy; 0: empty
+        bit   [1              : 0]        i_mode_pdata;     //-- 'b11: 9-bit data; no parity
+                                                            //-- 'b10: 8-bit data; even parity
+                                                            //-- 'b01: 8-bit data; odd parity
+                                                            //-- 'b00: 8-bit data; no parity
+        logic                              o_fifo_full;     //-- 0: not full; 1: full
+        logic                              o_fifo_empty;    //-- 0: not empty; 1: empty
+        logic                              o_srt_st;        //-- 1: busy; 0: empty
         logic                              o_tx;            //-- serial data
+        logic                              o_tx_brk_done;
     endclass
         reg   [P_DATA_W - 1   : 0]        i_data = 0;
         reg                               i_wr_en = 0;
@@ -40,14 +41,14 @@ module tb_uart_tx;
         reg                               i_tx_pulse = 0;
         reg                               i_tx_brk = 0;
         bit                               i_mode_stop = 0;
-        reg   [1              : 0]        i_mode_pdata = 0;   //-- 'b11: 9-bit data; no parity
-                                                    //-- 'b10: 8-bit data; even parity
-                                                    //-- 'b01: 8-bit data; odd parity
-                                                    //-- 'b00: 8-bit data; no parity
-        wire                              o_fifo_full;    //-- 0: not full; 1: full
-        wire                              o_fifo_empty;   //-- 0: not empty; 1: empty
-        wire                              o_srt_st;       //-- 1: busy; 0: empty
-        wire                              o_tx;            //-- serial data
+        reg   [1              : 0]        i_mode_pdata = 0;     //-- 'b11: 9-bit data; no parity
+                                                                //-- 'b10: 8-bit data; even parity
+                                                                //-- 'b01: 8-bit data; odd parity
+                                                                //-- 'b00: 8-bit data; no parity
+        wire                              o_fifo_full;          //-- 0: not full; 1: full
+        wire                              o_fifo_empty;         //-- 0: not empty; 1: empty
+        wire                              o_srt_st;             //-- 1: busy; 0: empty
+        wire                              o_tx;                 //-- serial data
 //---------------------------------------------------------------------------
     // CLK_GEN
     initial begin
@@ -88,8 +89,9 @@ module tb_uart_tx;
         //-- 0: not empty, 1: empty
         .o_srt_st         (o_srt_st),
         //-- 1: busy, 0: empty
-        .o_tx             (o_tx)
+        .o_tx             (o_tx),
         //-- serial data
+        .o_tx_brk_done    (o_tx_brk_done)
     );
 //---------------------------------------------------------------------------
     initial begin
@@ -128,12 +130,14 @@ module tb_uart_tx;
                 i_wr_en <= 0;
                 repeat(210) @(posedge clk);
                 i_wr_en <= 1;
+                i_tx_brk <= 1;
                 i_data <= 9'b1_1100_0001;
                 i_mode_pdata <= 2'b11;
                 i_mode_stop <= 0;
                 @(posedge clk);
                 i_wr_en <= 0;
                 repeat(210) @(posedge clk);
+                i_tx_brk <= 0;
                 i_wr_en <= 1;
                 i_data <= 9'd257;
                 i_mode_pdata <= 2'b11;
@@ -143,7 +147,6 @@ module tb_uart_tx;
             end
             begin
                 i_tx_en <= 1;
-                i_tx_brk <= 0;
             end
         join
 //---------------------------------------------------------------------------
@@ -170,8 +173,8 @@ module tb_uart_tx;
     end
 //---------------------------------------------------------------------------
     initial begin
-        // $dumpfile();     // $dumpfile(<filename>);
-        // $dumpvars (0);        // Dumps all variables from all module instances
+        $dumpfile("wave.vcd");     // $dumpfile(<filename>);
+        $dumpvars (0);        // Dumps all variables from all module instances
         // $dumpvars (0, tb_switch_modeling);    // Dumps all variables within module 'tb' and in all sub-modules
         // $dumpvars (1, tb);    // Dumps all variables within module 'tb', not in any sub-modules
         // $dumpvars (0, tb.ram_ctrl, tb.alu2.a);  // Dumps all variables in 'tb.ram_ctrl' and in all its sub-modules, and the variable 'tb.alu2.a' in module 'alu2'
