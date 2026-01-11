@@ -25,12 +25,12 @@ module uart_tx_controller (
     output [1 : 0]      o_sel                   //-- 0: idle, 1: start/stop bit, 2: serial data, 3: parity bit
 );
 // FSM STATE HERE------------------------------------------------------------
-    localparam  P_IDLE          = 3'd0;
-    localparam  P_START_BIT     = 3'd1;
-    localparam  P_DATA_FRAME    = 3'd2;
-    localparam  P_PARITY_BIT    = 3'd3;
-    localparam  P_STOP_BIT      = 3'd4;
-    localparam  P_BREAK_TRANS   = 3'd5;
+    localparam  ST_IDLE          = 3'd0;
+    localparam  ST_START_BIT     = 3'd1;
+    localparam  ST_DATA_FRAME    = 3'd2;
+    localparam  ST_PARITY_BIT    = 3'd3;
+    localparam  ST_STOP_BIT      = 3'd4;
+    localparam  ST_BREAK_TRANS   = 3'd5;
 // LOCAL VARIABLE HERE-------------------------------------------------------
     reg [2  : 0]    cur_st;
     reg [2  : 0]    nxt_st;
@@ -49,7 +49,7 @@ module uart_tx_controller (
 //---------------------------------------------------------------------------
     // determine next state, and output
     always @(*) begin
-        nxt_st          = P_IDLE;
+        nxt_st          = ST_IDLE;
         fifo_rd_en      = 0;
         sel             = 0;
         shifter_busy    = 0;
@@ -63,65 +63,65 @@ module uart_tx_controller (
             end else begin
                 nxt_st = cur_st;
                 case (cur_st)
-                    P_IDLE: begin
+                    ST_IDLE: begin
                         if(!i_fifo_empty || i_tx_brk) begin
-                            nxt_st          = P_START_BIT;
+                            nxt_st          = ST_START_BIT;
                             fifo_rd_en      = 1'b1;
                             shifter_busy    = 1'b1;
                             sel             = 2'd1;
                         end
                     end
-                    P_START_BIT:begin
+                    ST_START_BIT:begin
                         if(!i_tx_brk) begin
-                            nxt_st          = P_DATA_FRAME;
+                            nxt_st          = ST_DATA_FRAME;
                             sel             = 2'd2;
                             shifter_busy    = 1'b1;
                             cnt_rst_n       = 1'b0;
                             right_shift     = 1'b1;
                         end else begin
-                            nxt_st          = P_BREAK_TRANS;
+                            nxt_st          = ST_BREAK_TRANS;
                             cnt_rst_n       = 1'b0;
                         end
                     end
-                    P_DATA_FRAME:begin
+                    ST_DATA_FRAME:begin
                         if(cur_cnt < 4'd8 || cur_cnt == 4'd8 && i_mode_pdata == 2'b11) begin
-                            nxt_st          = P_DATA_FRAME;
+                            nxt_st          = ST_DATA_FRAME;
                             sel             = 2'd2;
                             shifter_busy    = 1'b1;
                             cnt_up          = 1'b1;
                             right_shift     = 1'b1;
                         end else if (^i_mode_pdata && cur_cnt == 4'd8) begin
-                            nxt_st          = P_PARITY_BIT;
+                            nxt_st          = ST_PARITY_BIT;
                             sel             = 2'd3;
                         end else if(&i_mode_pdata && cur_cnt == 4'd9 || ~|i_mode_pdata && cur_cnt == 4'd8) begin
-                            nxt_st          = P_STOP_BIT;
+                            nxt_st          = ST_STOP_BIT;
                             sel             = 2'd1;
                             cnt_rst_n       = 1'b0;
                         end
                     end
-                    P_PARITY_BIT:begin
-                        nxt_st          = P_STOP_BIT;
+                    ST_PARITY_BIT:begin
+                        nxt_st          = ST_STOP_BIT;
                         sel             = 2'd1;
                         cnt_rst_n       = 1'b0;
                     end
-                    P_STOP_BIT:begin
+                    ST_STOP_BIT:begin
                         if(cur_cnt < 4'd2 && i_mode_stop) begin
-                            nxt_st      = P_STOP_BIT;
+                            nxt_st      = ST_STOP_BIT;
                             sel         = 4'd1;
                             cnt_up      = 1'b1;
                         end else if(cur_cnt == 4'd1 && !i_mode_stop || cur_cnt == 4'd2 || i_tx_brk) begin
-                            nxt_st      = P_IDLE;
+                            nxt_st      = ST_IDLE;
                             tx_brk_done = 1'b1;
                             sel         = 1'b0; 
                         end
                     end
-                    P_BREAK_TRANS:begin
+                    ST_BREAK_TRANS:begin
                         if(cur_cnt < 4'd12) begin
-                            nxt_st      = P_BREAK_TRANS;
+                            nxt_st      = ST_BREAK_TRANS;
                             sel         = 2'd1;
                             cnt_up      = 1'b1;
                         end else if(cur_cnt == 4'd12) begin
-                            nxt_st      = P_STOP_BIT;
+                            nxt_st      = ST_STOP_BIT;
                             sel         = 2'd1;
                         end
                     end
@@ -138,7 +138,7 @@ module uart_tx_controller (
     always @(posedge clk) begin
         if(!rst_n) begin
             cur_cnt     <= 4'd0;
-            cur_st      <= P_IDLE;
+            cur_st      <= ST_IDLE;
         end else begin
             cur_cnt     <= nxt_cnt;
             cur_st      <= nxt_st;
