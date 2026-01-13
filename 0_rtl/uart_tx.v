@@ -1,10 +1,10 @@
 //===========================================================================
-//-- File Version    : 1.00
-//-- Date            : 26/01/03
+//-- File Version    : 1.01
+//-- Date            : 26/01/13
 //-- Author          : kido
 //-- IP Name         : uart_tx
 //-- History         : ver.1.00 (26/01/03)
-//--                 :
+//--                 : ver.1.01 (26/01/13): fix fifo wr_en when disable
 //===========================================================================
 module uart_tx #(
     parameter           P_FIFO_D        = 32,
@@ -51,7 +51,7 @@ module uart_tx #(
         .clk         (clk),
         .rst_n       (rst_n),
         .i_data      (i_data),
-        .i_wr_en     (i_wr_en),
+        .i_wr_en     (i_wr_en & i_tx_en),
         .i_rd_en     (fifo_rd_en),
         .o_cnt       (),
         .o_full      (fifo_full),

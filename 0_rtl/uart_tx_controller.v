@@ -1,10 +1,10 @@
 //===========================================================================
-//-- File Version    : 1.00
-//-- Date            : 25/12/31
+//-- File Version    : 1.01
+//-- Date            : 26/01/13
 //-- Author          : kido
 //-- IP Name         : uart_tx_controller
 //-- History         : ver.1.00 (25/12/31)
-//--                 :
+//--                 : ver.1.01 (26/01/13): fix sel in transition from start to break
 //===========================================================================
 module uart_tx_controller (
     input               clk,
@@ -81,6 +81,7 @@ module uart_tx_controller (
                         end else begin
                             nxt_st          = ST_BREAK_TRANS;
                             cnt_rst_n       = 1'b0;
+                            sel             = 2'd1;
                         end
                     end
                     ST_DATA_FRAME:begin
