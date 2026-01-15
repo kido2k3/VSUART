@@ -1,10 +1,11 @@
 //===========================================================================
-//-- File Version    : 1.01
-//-- Date            : 26/01/13
+//-- File Version    : 1.02
+//-- Date            : 26/01/15
 //-- Author          : kido
 //-- IP Name         : uart_tx_controller
 //-- History         : ver.1.00 (25/12/31)
 //--                 : ver.1.01 (26/01/13): fix sel in transition from start to break
+//--                 : ver.1.02 (26/01/15): fix tx stop bit
 //===========================================================================
 module uart_tx_controller (
     input               clk,
@@ -22,7 +23,7 @@ module uart_tx_controller (
     output              o_srt_st,               //-- 1: busy, 0: empty
     output              o_srt_shift_right,      
     output              o_tx_brk_done,      
-    output [1 : 0]      o_sel                   //-- 0: idle, 1: start/stop bit, 2: serial data, 3: parity bit
+    output [1 : 0]      o_sel                   //-- 0: idle/stop bit, 1: start bit, 2: serial data, 3: parity bit
 );
 // FSM STATE HERE------------------------------------------------------------
     localparam  ST_IDLE          = 3'd0;
@@ -96,19 +97,19 @@ module uart_tx_controller (
                             sel             = 2'd3;
                         end else if(&i_mode_pdata && cur_cnt == 4'd9 || ~|i_mode_pdata && cur_cnt == 4'd8) begin
                             nxt_st          = ST_STOP_BIT;
-                            sel             = 2'd1;
+                            sel             = 2'd0;
                             cnt_rst_n       = 1'b0;
                         end
                     end
                     ST_PARITY_BIT:begin
                         nxt_st          = ST_STOP_BIT;
-                        sel             = 2'd1;
+                        sel             = 2'd0;
                         cnt_rst_n       = 1'b0;
                     end
                     ST_STOP_BIT:begin
                         if(cur_cnt < 4'd2 && i_mode_stop) begin
                             nxt_st      = ST_STOP_BIT;
-                            sel         = 4'd1;
+                            sel         = 2'd0;
                             cnt_up      = 1'b1;
                         end else if(cur_cnt == 4'd1 && !i_mode_stop || cur_cnt == 4'd2 || i_tx_brk) begin
                             nxt_st      = ST_IDLE;
@@ -123,7 +124,7 @@ module uart_tx_controller (
                             cnt_up      = 1'b1;
                         end else if(cur_cnt == 4'd12) begin
                             nxt_st      = ST_STOP_BIT;
-                            sel         = 2'd1;
+                            sel         = 2'd0;
                         end
                     end
                 endcase

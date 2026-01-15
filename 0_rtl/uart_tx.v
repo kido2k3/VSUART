@@ -1,10 +1,11 @@
 //===========================================================================
-//-- File Version    : 1.01
-//-- Date            : 26/01/13
+//-- File Version    : 1.02
+//-- Date            : 26/01/15
 //-- Author          : kido
 //-- IP Name         : uart_tx
 //-- History         : ver.1.00 (26/01/03)
 //--                 : ver.1.01 (26/01/13): fix fifo wr_en when disable
+//--                 : ver.1.02 (26/01/15): fix tx_brk_done
 //===========================================================================
 module uart_tx #(
     parameter           P_FIFO_D        = 32,
@@ -41,8 +42,8 @@ module uart_tx #(
     wire                                fifo_full;
     wire                                srt_shift_right;    // Shift RegisTer shift right
     wire                                srt_st;             // Shift RegisTer status
-    wire                                tx_brk_done;        // Shift RegisTer status
-    reg                                 r_tx;               // Shift RegisTer status
+    wire                                tx_brk_done;        
+    reg                                 r_tx;               
 // INSTANTIATE MODULE HERE---------------------------------------------------
     syn_fifo #(
         .P_DATA_W    (P_DATA_W),
@@ -100,7 +101,7 @@ module uart_tx #(
         .o_srt_shift_right  (srt_shift_right),
         .o_tx_brk_done      (tx_brk_done),
         .o_sel              (sel)
-        //-- 0: idle, 1: start/stop bit, 2: serial data, 3: parity bit
+        //-- 0: idle/stop bit, 1: start, 2: serial data, 3: parity bit
     );
 //---------------------------------------------------------------------------
     always @(posedge clk) begin
@@ -117,7 +118,7 @@ module uart_tx #(
     assign o_fifo_full      = fifo_full;
     assign o_fifo_empty     = fifo_empty;
     assign o_srt_st         = srt_st;
-    assign o_tx_brk_done    = tx_brk_done;
+    assign o_tx_brk_done    = (i_tx_brk) ? tx_brk_done : 1'b0;
 //---------------------------------------------------------------------------
 endmodule
 //===========================================================================
