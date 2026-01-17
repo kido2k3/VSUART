@@ -1,0 +1,5 @@
+../0_rtl/apb_dut.sv
+../0_rtl/apb_dut_wrapper.sv
+../0_rtl/apb_slave.v
+../0_rtl/apb2reg.v
+../0_rtl/rw_reg.v

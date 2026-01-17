@@ -41,7 +41,7 @@ echo "--------------------------------------------------"
 echo "----          Compile UVM testbench           ----"
 echo "--------------------------------------------------"
 
-xvlog -sv -i ../env -i ../src -i ../test  ../top.sv -L uvm --log ../log/xvlog_$TB_TOP.log
+xvlog -sv -i ../3_env -i ../0_rtl -i ../1_tb  ../top.sv -L uvm --log ../log/xvlog_$TB_TOP.log
 
 if ($status != 0) then
   echo ""
@@ -89,8 +89,4 @@ if ($status != 0) then
   exit 1
 endif
 
-rm -f *.log
-rm -f *.wdb
-rm -f *.pb
-rm -f *.jou
-rm -f *.out
+

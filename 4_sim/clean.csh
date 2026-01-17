@@ -6,7 +6,7 @@ rm -f *.log
 rm -f *.wdb
 rm -f *.pb
 rm -f *.jou
-rm -f *.out
+
 
 rm -rf work
 rm -rf xsim.dir
