@@ -45,9 +45,11 @@ class apb_driver extends uvm_driver #(apb_transaction);
     @(posedge this.vif.pclk);
     this.vif.penable <= 1;
     @(posedge this.vif.pclk);
+    
     data = this.vif.prdata;
+    @(posedge this.vif.pclk);
     this.vif.psel    <= 0;
-    this.vif.penable <= 0;
+    this.vif.penable <= 0;  
   endtask
 
   virtual protected task drive_write(input bit [31:0] addr, input bit [31:0] data);

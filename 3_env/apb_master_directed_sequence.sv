@@ -23,24 +23,26 @@ class apb_master_directed_sequence extends uvm_sequence #(apb_transaction);
     apb_transaction tr;
 
 
-    for (int i = 0; i < sequence_length; i++) begin
+    //for (int i = 0; i < sequence_length; i++) begin
+    for (int i = 0; i < 10; i++) begin
       // ---- Write transaction ----
       tr = apb_transaction::type_id::create("tr_write",, get_full_name());
       tr.addr = 32'h0000_0000 + i * 4;
       tr.pwrite = apb_transaction::WRITE;
-      tr.data = 32'hA000_0000 + i;
+      tr.data = 32'h0000_0000 + i;
 
       start_item(tr);
-      finish_item(tr);
-
-      // ---- Read transaction ----
+      finish_item(tr);      
+    end
+    for (int i = 0; i < 8; i++) begin
+    // ---- Read transaction ----
       tr = apb_transaction::type_id::create("tr_read",, get_full_name());
       tr.addr = 32'h0000_0000 + i * 4;
       tr.pwrite = apb_transaction::READ;
 
       start_item(tr);
       finish_item(tr);
-    end
+     end
   endtask
 
 endclass
