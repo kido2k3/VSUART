@@ -29,7 +29,7 @@
 `define VSUART_STA_ADDR 14'h0008
 `define VSUART_STA_POR 32'h0000_0000
 
-`define VSUART_STA_MASK 32'h0000_0000
+`define VSUART_STA_MASK 32'h0000_0018
 
 // VSUART_PRS at address 14'h000C
 `define VSUART_PRS_ADDR 14'h000C
@@ -53,7 +53,7 @@
 `define VSUART_IFS_ADDR 14'h0018
 `define VSUART_IFS_POR 32'h0000_0000
 
-`define VSUART_IFS_MASK 32'h0000_0000
+`define VSUART_IFS_MASK 32'h0001_0101
 
 // VSUART_MODE detail
 `define MODE_UEN 3'b000
@@ -91,10 +91,6 @@
 `define IFS_RXIFS 1'b0
 `define IFS_ERRIFS 1'b0
 
-// VSUART_IFC detail
-`define IFC_TXIFC 1'b0
-`define IFC_RXIFC 1'b0
-`define IFC_ERRIFC 1'b0
 
 
 //===========================================================================
