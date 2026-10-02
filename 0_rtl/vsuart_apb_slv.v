@@ -15,9 +15,8 @@ module vsuart_apb_slv #(
     parameter REG_ADDR_W        = ADDR_W - 2
 ) (
     // GLOBAL RESET
-    input                       rst_n,
+    input                               rst_n,
     // APB INTERFACE
-    input                               pclk,
     input                               preset_n,
     input   [ADDR_W - 1 : 0]            i_paddr,
     input                               i_psel,
@@ -39,6 +38,7 @@ module vsuart_apb_slv #(
     // UART SIDE
     input                               i_tx_ready, 
     input                               i_rx_ready, 
+    input                               i_rx_empty, 
     output  [FIFO_DATA_W - 1  : 0]      o_tx_wdata,
     output                              o_tx_wren,
     input   [FIFO_DATA_W - 1  : 0]      i_rx_rdata,
@@ -48,7 +48,7 @@ module vsuart_apb_slv #(
     // PARAMETER HERE
 //---------------------------------------------------------------------------
     // VARIABLE
-    wire                            ready;
+    wire                            _rst_n;
     // decoded register address 
     wire    [REG_ADDR_W - 1 : 0]  reg_addr;
     // check address of data: 16'hFFFF
@@ -61,6 +61,8 @@ module vsuart_apb_slv #(
     genvar id;
 //---------------------------------------------------------------------------
     // REGISTER SIDE
+    // reset
+    assign _rst_n = rst_n & preset_n;
     // address 
     assign reg_addr = i_paddr[ADDR_W - 1 : 2];
     // mask generation
@@ -69,25 +71,11 @@ module vsuart_apb_slv #(
             assign strb_mask[id*8 +: 8] = (i_pstrb[id]) ? 8'hFF : 0;
         end
     endgenerate
-    
-    always @(*) begin
-        case (reg_addr)
-            `ADDR_UART_MODE: addr_mask = `UART_MODE_MASK;
-            `ADDR_UART_CR: addr_mask = `UART_CR_MASK;
-            `ADDR_UART_STA: addr_mask = `UART_STA_MASK;
-            `ADDR_UART_PRS: addr_mask = `UART_PRS_MASK;
-            `ADDR_UART_BRG: addr_mask = `UART_BRG_MASK;
-            `ADDR_UART_IE: addr_mask = `UART_IE_MASK;
-            `ADDR_UART_IFS: addr_mask = `UART_IFS_MASK;
-            `ADDR_UART_IFC: addr_mask = `UART_IFC_MASK;
-            default: addr_mask = 0;
-        endcase
-    end
     // output
-    assign o_reg_wmask = addr_mask & strb_mask;
-    assign o_reg_wdata = i_pwdata;
-    assign o_reg_wen = i_pwrite & i_penable & i_psel & ready;
-    assign o_reg_addr = reg_addr;
+    assign o_reg_wmask = (~_rst_n) ? 0 : strb_mask;
+    assign o_reg_wdata = (~_rst_n) ? 0 : i_pwdata;
+    assign o_reg_wen = i_pwrite & i_penable & i_psel & o_pready & _rst_n;
+    assign o_reg_addr = (~_rst_n) ? 0 : reg_addr;
 //---------------------------------------------------------------------------
     // UART SIDE
     // address for data access 16'hFFFF
@@ -95,15 +83,15 @@ module vsuart_apb_slv #(
     
     // tx
     assign o_tx_wdata = i_pwdata;
-    assign o_tx_wren = data_addr & i_pwrite & i_penable & i_psel & ready;
+    assign o_tx_wren = data_addr & i_pwrite & i_penable & i_psel & o_pready & _rst_n;
 
     // rx
-    assign o_rx_rden = data_addr & ~i_pwrite & i_penable & i_psel & ready;
+    assign o_rx_rden = data_addr & ~i_pwrite & i_penable & i_psel & o_pready & _rst_n;
 //---------------------------------------------------------------------------
     // APB SIDE
-    assign ready = i_reg_ready & i_tx_ready & i_rx_ready;
-    assign o_pready = ready;
-    assign o_prdata = (data_addr) ? i_rx_rdata : i_reg_rdata;
-    assign o_pslverr = i_reg_slverr;
+    assign o_pready = ~_rst_n | (i_reg_ready & i_tx_ready & i_rx_ready);
+    assign o_prdata = (~_rst_n) ? 0 : (data_addr) ? i_rx_rdata : i_reg_rdata;
+    assign o_pslverr = (~_rst_n) ? 0 : 
+        (data_addr) ? (~i_pwrite & i_penable & i_psel & i_rx_empty) : i_reg_slverr;
 //---------------------------------------------------------------------------
 endmodule

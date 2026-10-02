@@ -1,39 +1,37 @@
 //===========================================================================
-//-- File Version    : 1.00
-//-- Date            : 26/5/30
 //-- Author          : kido
-//-- IP Name         : vuart_prs (prescaler)
+//-- IP Name         : vsuart_prs (prescaler)
 //-- History         : ver.1.00 (26/5/30) 1st release
 //===========================================================================
-module vuart_prs (
+module vsuart_prs (
     input               clk,
     input               rst_n,
     input               i_en,
-    input   [3 : 0]     i_brg,
-    output              o_
+    input   [3 : 0]     i_prs,
+    output              o_u_clk
 );
 // LOCAL VARIABLE HERE ------------------------------------------------------
-    wire    rx_cken,
-    reg     [15 : 0] cnt;
-    reg     [4 : 0] cnt_tx;
-    wire    [4 : 0] over_sampling;
+    reg     _clk;
+    reg [4 : 0] r_cnt;
 //---------------------------------------------------------------------------
-    assign over_sampling = (i_bsel) ? 3 : 15;
 //---------------------------------------------------------------------------
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            cnt <= 0;
+            _clk <= 0;
         end else if(i_en) begin
-            if(cnt == 0) begin 
-                cnt <= i_brg;
+            if(r_cnt == i_prs + 1) begin
+                _clk <= ~_clk;
+                r_cnt <= 0;
             end else begin
-                cnt <= cnt - 1;
+                r_cnt <= r_cnt + 1;
             end
         end else begin
-            cnt <= 0;
-        end
+            _clk <= 0;
+            r_cnt <= 0;
+        end    
     end
-    assign rx_cken = (i_en) ? (cnt == 0) : 1'd0; 
+    // clk
+    assign o_u_clk = _clk;
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 endmodule

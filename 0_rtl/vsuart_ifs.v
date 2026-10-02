@@ -2,15 +2,15 @@
 //-- File Version    : 1.00
 //-- Date            : 26/5/25
 //-- Author          : kido
-//-- IP Name         : vsuart_apb_ifs (Interrupt Flag Signal gen)
+//-- IP Name         : vsuart_ifs (Interrupt Flag Signal gen)
 //-- History         : ver.1.00 (26/5/25) 1st release
 //--                 :
 //===========================================================================
-module vsuart_apb_ifs #(
+module vsuart_ifs #(
 ) (
-    input   [2                  : 0]    i_reg_ie,
-    input   [2                  : 0]    i_reg_ifs,
-    output  [2                  : 0]    o_ifs
+    input   [2      : 0]    i_reg_ie,
+    input   [2      : 0]    i_reg_ifs,
+    output  [2      : 0]    o_ifs
 );
 //---------------------------------------------------------------------------
     // PARAMETER HERE
