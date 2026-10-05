@@ -8,7 +8,7 @@ module vsuart_prs (
     input               rst_n,
     input               i_en,
     input   [3 : 0]     i_prs,
-    output              o_u_clk
+    output              u_clk
 );
 // LOCAL VARIABLE HERE ------------------------------------------------------
     reg     _clk;
@@ -31,7 +31,7 @@ module vsuart_prs (
         end    
     end
     // clk
-    assign o_u_clk = _clk;
+    assign u_clk = _clk;
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 endmodule

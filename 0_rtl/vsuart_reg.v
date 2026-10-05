@@ -6,7 +6,6 @@
 //===========================================================================
 module vsuart_reg #(
     parameter REG_ADDR_W        = 14,
-    parameter REG_NUM           = 8,
     parameter REG_DATA_W        = 32
 ) (
     input                               clk,

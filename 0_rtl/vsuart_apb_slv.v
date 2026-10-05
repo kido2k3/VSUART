@@ -1,6 +1,4 @@
 //===========================================================================
-//-- File Version    : 1.00
-//-- Date            : 26/5/23
 //-- Author          : kido
 //-- IP Name         : vsuart apb slave
 //-- History         : ver.1.00 (26/5/23) 1st release
@@ -37,10 +35,10 @@ module vsuart_apb_slv #(
     input                               i_reg_slverr,
     // UART SIDE
     input                               i_tx_ready, 
-    input                               i_rx_ready, 
-    input                               i_rx_empty, 
     output  [FIFO_DATA_W - 1  : 0]      o_tx_wdata,
     output                              o_tx_wren,
+    input                               i_rx_ready, 
+    input                               i_rx_empty, 
     input   [FIFO_DATA_W - 1  : 0]      i_rx_rdata,
     output                              o_rx_rden
 );

@@ -1,15 +1,21 @@
 //===========================================================================
-//-- File Version    : 1.01
-//-- Date            : 26/03/05
 //-- Author          : manhndd
 //-- Name            : vsuart_define
-//-- History         : ver.0.01
+//-- History         : ver.0.01 (26/03/05)
 //--                 : 
 //===========================================================================
 `ifndef vsuart_define
 `define vsuart_define
 //---------------------------------------------------------------------------
+// UART state
+`define IDLE        5'b00001
+`define START_BIT   5'b00010
+`define DATA		5'b00100
+`define PARITY		5'b01000
+`define STOP_BIT 	5'b10000
 // Common defines
+`define FIFO_DEPTH 32
+`define FIFO_DATA_W 9
 `define ADDR_W 16
 `define DATA_W 32
 

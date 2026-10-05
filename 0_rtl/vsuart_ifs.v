@@ -1,6 +1,4 @@
 //===========================================================================
-//-- File Version    : 1.00
-//-- Date            : 26/5/25
 //-- Author          : kido
 //-- IP Name         : vsuart_ifs (Interrupt Flag Signal gen)
 //-- History         : ver.1.00 (26/5/25) 1st release
