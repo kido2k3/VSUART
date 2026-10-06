@@ -23,7 +23,7 @@ module vsuart_tx_ctrl (
 	// interrupt
 	output				o_ifs_txifs0,
 	output				o_ifs_txifs1,
-	output				o_ifs_txifs2,
+	output				o_ifs_txifs2
 
 );
 // LOCAL VARIABLE HERE-------------------------------------------------------
