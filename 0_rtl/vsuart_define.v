@@ -1,15 +1,24 @@
 //===========================================================================
-//-- File Version    : 1.01
-//-- Date            : 26/03/05
 //-- Author          : manhndd
 //-- Name            : vsuart_define
-//-- History         : ver.0.01
+//-- History         : ver.0.01 (26/03/05)
 //--                 : 
 //===========================================================================
 `ifndef vsuart_define
 `define vsuart_define
 //---------------------------------------------------------------------------
+// UART state
+`define IDLE        5'b00001
+`define START_BIT   5'b00010
+`define DATA		5'b00100
+`define PARITY		5'b01000
+`define STOP_BIT 	5'b10000
 // Common defines
+<<<<<<< HEAD
+=======
+`define FIFO_DEPTH 32
+`define FIFO_DATA_W 9
+>>>>>>> origin
 `define ADDR_W 16
 `define DATA_W 32
 
@@ -25,8 +34,13 @@
 
 // VSUART_STA at address 14'h0008
 `define VSUART_STA_ADDR (14'h0008 >> 2)
+<<<<<<< HEAD
 `define VSUART_STA_POR 32'h0000_0024
 `define VSUART_STA_MASK 32'h0000_0058
+=======
+`define VSUART_STA_POR 32'h0000_0000
+`define VSUART_STA_MASK 32'h0000_0018
+>>>>>>> origin
 
 // VSUART_PRS at address 14'h000C
 `define VSUART_PRS_ADDR (14'h000C >> 2)
@@ -40,7 +54,11 @@
 
 // VSUART_IE at address 14'h0014
 `define VSUART_IE_ADDR (14'h0014 >> 2)
+<<<<<<< HEAD
 `define VSUART_IE_POR 32'h0000_0000
+=======
+`define VSUART_IE_POR 32'h0001_0101
+>>>>>>> origin
 `define VSUART_IE_MASK 32'h0001_0101
 
 // VSUART_IFS at address 14'h0018
@@ -84,8 +102,11 @@
 `define IFS_RXIFS 1'b0
 `define IFS_ERRIFS 1'b0
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> origin
 //===========================================================================
 `endif
