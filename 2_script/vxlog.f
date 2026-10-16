@@ -1,3 +1,0 @@
---log ./log/vxlog.log
--sv
--i ./src
