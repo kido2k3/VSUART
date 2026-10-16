@@ -28,9 +28,9 @@ module vsuart_sync_u2a #(
 	// apb side
 	input                               pclk,
 	input                               i_rx_ren,
+	output	[FIFO_DATA_W - 1  : 0]      o_rx_rdata,
 	input	[1 : 0] 					i_cr_txisel,
 	input	[1 : 0] 					i_cr_rxisel,
-	output	[FIFO_DATA_W - 1  : 0]      o_rx_rdata,
 	output								o_sta_rbdsta,
 	// cdc
 	output								o_ifs_errifs,
