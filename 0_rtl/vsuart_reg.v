@@ -290,7 +290,6 @@ module vsuart_reg #(
 //---------------------------------------------------------------------------
 	// rdata start
 	always @(*) begin
-		reg_rdata = 0;
 		if (i_reg_wen) begin
 			reg_rdata = 0;
 		end else begin
@@ -302,6 +301,7 @@ module vsuart_reg #(
 				`VSUART_BRG_ADDR: begin reg_rdata = reg_brg; end
 				`VSUART_IE_ADDR: begin reg_rdata = reg_ie; end
 				`VSUART_IFS_ADDR: begin reg_rdata = reg_ifs; end
+				default: begin reg_rdata = 0; end 
 			endcase
 		end
 	end

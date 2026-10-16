@@ -1,35 +1,33 @@
 //===========================================================================
-//-- File Version    : 1.00
-//-- Date            : 26/5/23
 //-- Author          : kido
 //-- IP Name         : vsuart_rx_fifo
-//-- History         : ver.1.00 (26/5/23) 1st release
+//-- History         : ver.1.00 (26/10/8) 1st release
 //--                 :
 //===========================================================================
 module vsuart_rx_fifo #(
-    parameter P_DEPTH       = 8, 
-    parameter P_DATA_W      = 8
+    parameter FIFO_DEPTH       = 8, 
+    parameter FIFO_DATA_W      = 8
 )(
     // WRITE INTERFACE: i_ (input), w_ (write)
-    input                               w_clk, 
-    input                               w_rst_n, 
-    input                               i_w_en, 
-    input           [P_DATA_W - 1   :0] i_w_data,
-    output                              o_w_full,
+    input                                   w_clk, 
+    input                                   w_rst_n, 
+    input                                   i_w_en, 
+    input           [FIFO_DATA_W - 1   :0]  i_w_data,
+    output                                  o_w_full,
     // READ INTERFACE (APB SIDE)
-    input                               r_clk, 
-    input                               r_rst_n, 
-    input                               i_r_en,
-    output          [2              :0] o_r_ifs,
-    output                              o_r_empty,
-    output  reg     [P_DATA_W - 1   :0] o_r_data
+    input                                   r_clk, 
+    input                                   r_rst_n, 
+    input                                   i_r_en,
+    output          [2              :0]     o_r_ifs,
+    output                                  o_r_empty,
+    output  reg     [FIFO_DATA_W - 1   :0]  o_r_data
 );
 //---------------------------------------------------------------------------
     // PARAMETER HERE
     // P_PTR_W: 1 bit extra to diff empty and full
-    localparam  P_PTR_W = $clog2(P_DEPTH) + 1; 
-    localparam  P_075_DEPTH = P_DEPTH * 3 / 4; 
-    //localparam  P_PTR_W = 4; // log2(P_DEPTH) + 1
+    localparam  P_PTR_W = $clog2(FIFO_DEPTH) + 1; 
+    localparam  DEPTH_075 = FIFO_DEPTH * 3 / 4; 
+    //localparam  P_PTR_W = 4; // log2(FIFO_DEPTH) + 1
 //---------------------------------------------------------------------------
     // VARIABLE
     genvar i;
@@ -41,7 +39,7 @@ module vsuart_rx_fifo #(
     reg     r_empty_r;
     wire    r_empty_nxt;
     // fifo memory
-    reg [P_DATA_W - 1   : 0] fifo_mem [P_DEPTH];
+    reg [FIFO_DATA_W - 1   : 0] fifo_mem [FIFO_DEPTH];
     // pointer (binary): _r (register), _g (gray)
     reg     [P_PTR_W - 1    : 0] w_ptr_r;
     reg     [P_PTR_W - 1    : 0] r_ptr_r;
@@ -147,7 +145,7 @@ module vsuart_rx_fifo #(
 
     // counter in fifo (read side)
     assign fifo_cnt = (w_ptr_bin > r_ptr_r) ? w_ptr_bin - r_ptr_r : r_ptr_r - w_ptr_bin;
-    assign less_than_075 = fifo_cnt < P_075_DEPTH; 
+    assign less_than_075 = fifo_cnt < DEPTH_075; 
     // interrupt
     always @(posedge r_clk or negedge r_rst_n) begin
         if(!r_rst_n)

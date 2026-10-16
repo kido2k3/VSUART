@@ -52,24 +52,24 @@ module vsuart_tx #(
 		.o_tx_cken      (tx_cken)
 	);
 
-	vsuart_tx_cnt u_vsuart_tx_cnt (
+	bit_cnt u_bit_cnt (
 		.clk                 (clk),
 		.rst_n               (rst_n),
-		.i_tx_cken           (tx_cken),
+		.i_cken           	 (tx_cken),
 		// Enable bit
 		.i_cnt_en            (cnt_en),
 		// state of FSM
-		.i_tx_st             (tx_st),
+		.i_st             	 (tx_st),
 		// parity-data select bit
 		.i_mode_pdsel        (i_mode_pdsel),
 		// stop bit select bit
 		.i_mode_spsel        (i_mode_spsel),
-		.o_tx_data_done      (tx_data_done),
-		.o_tx_parity_done    (tx_parity_done),
-		.o_tx_stop_done      (tx_stop_done)
+		.o_data_done      	 (tx_data_done),
+		.o_parity_done    	 (tx_parity_done),
+		.o_stop_done      	 (tx_stop_done)
 	);
 
-	vsuart_tx_gen #(
+	vsuart_tx_gen u_vsuart_tx_gen(
 		.i_tx_st     (tx_st),
 		.i_data      (data),
 		.i_parity    (parity),
@@ -98,7 +98,6 @@ module vsuart_tx #(
 		.o_ifs_txifs0		 (o_ifs_txifs0),
 		.o_ifs_txifs1		 (o_ifs_txifs1),
 		.o_ifs_txifs2		 (o_ifs_txifs2)
-
 	);
 
 	vsuart_tx_parity #(

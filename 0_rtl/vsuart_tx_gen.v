@@ -3,8 +3,7 @@
 //-- IP Name         : vsuart_tx_gen
 //-- History         : ver.1.00 (26/10/4) 1st release
 //===========================================================================
-module vsuart_tx_gen #(
-)(
+module vsuart_tx_gen (
     input	[4  : 0]	i_tx_st,
 	input				i_data,
 	input				i_parity,

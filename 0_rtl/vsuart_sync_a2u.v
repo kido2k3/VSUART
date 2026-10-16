@@ -1,9 +1,9 @@
 //===========================================================================
 //-- Author          : kido
-//-- IP Name         : vsuart_a2u (apb to uart synchronizer)
+//-- IP Name         : vsuart_sync_a2u (apb to uart synchronizer)
 //-- History         : ver.1.00 (26/10/3)
 //===========================================================================
-module vsuart_a2u #(
+module vsuart_sync_a2u #(
     parameter FIFO_DEPTH = 32,
     parameter FIFO_DATA_W = 9
 )(

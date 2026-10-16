@@ -24,7 +24,6 @@ module vsuart_tx_ctrl (
 	output				o_ifs_txifs0,
 	output				o_ifs_txifs1,
 	output				o_ifs_txifs2
-
 );
 // LOCAL VARIABLE HERE-------------------------------------------------------
     reg [4  : 0]    r_st_cur;
@@ -43,9 +42,9 @@ module vsuart_tx_ctrl (
 	// next state
     always @(*) begin
 		st_nxt = r_st_cur;
-        case (r_cur_st)
+        case (r_st_cur)
             `IDLE: begin
-				if(i_tx_empty) begin
+				if(!i_tx_empty) begin
 					st_nxt = `START_BIT;
 				end
 			end
@@ -75,12 +74,13 @@ module vsuart_tx_ctrl (
 					end
 				end
 			end
+			default: st_nxt = r_st_cur;
         endcase
     end
 	// read fifo enable
 	assign o_tx_ren = 	(i_tx_cken == 0) ? 0 :
-						(r_st_cur == `IDLE && nxt_st == `START_BIT) ? 1 :
-						(r_st_cur == `STOP_BIT && nxt_st == `START_BIT) ? 1 : 0;
+						(r_st_cur == `IDLE && st_nxt == `START_BIT) ? 1 :
+						(r_st_cur == `STOP_BIT && st_nxt == `START_BIT) ? 1 : 0;
 	// enable brg
 	assign o_brg_en = r_st_cur != `IDLE;
 	// state of FSM

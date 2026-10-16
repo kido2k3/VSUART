@@ -9,7 +9,7 @@ module vsuart_tx_p2s_shifter #(
 )(
     input                           clk,
     input                           i_tx_cken,
-    input   [DATA_W - 1   : 0]    i_data,
+    input   [DATA_W - 1   : 0]      i_data,
     input                           i_load,            // load parallel data in
     input                           i_shift_right,     // shift right control
     output                          o_data
