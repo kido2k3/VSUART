@@ -26,7 +26,7 @@ typedef enum bit { UART_DATA_8 = 1'b0 ,
  `include "uart_drv.sv"
  `include "uart_mon.sv"
  `include "uart_agent.sv"
- `include "uart_base_seq.sv"
- `include "uart_test.sv"
+// `include "uart_base_seq.sv"
+ //`include "uart_test.sv"
 
 endpackage

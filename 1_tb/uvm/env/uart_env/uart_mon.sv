@@ -1,8 +1,8 @@
 //===========================================================================
-//-- Author :
-//-- Name : uart_mon (uart monitor)
-//-- History : ver.1.00 (26/10/17) 1st release
-//-- :
+//-- Author         : Trizrd
+//-- Name           : uart_mon (uart monitor)
+//-- History        : ver.1.00 (26/10/17) 1st release
+//--                :
 //===========================================================================
 class uart_mon extends uvm_monitor;
  `uvm_component_utils(uart_mon)

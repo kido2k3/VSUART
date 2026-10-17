@@ -1,8 +1,8 @@
 //===========================================================================
-//-- Author : Trizrd
-//-- Name : uart_if(uart interface)
-//-- History : ver.1.00 (26/10/17) 1st release
-//-- :
+//-- Author         : Trizrd
+//-- Name           : uart_if (uart interface)
+//-- History        : ver.1.00 (26/10/17) 1st release
+//--                :
 //===========================================================================
 `timescale 100ps/100ps
 

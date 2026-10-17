@@ -1,8 +1,8 @@
 //===========================================================================
-//-- Author : Trizrd
-//-- Name : uart_agent
-//-- History : ver.1.00 (26/10/17) 1st release
-//-- :
+//-- Author         : Trizrd
+//-- Name           : uart_agent 
+//-- History        : ver.1.00 (26/10/17) 1st release
+//--                :
 //===========================================================================
 
 class uart_agent extends uvm_agent;
