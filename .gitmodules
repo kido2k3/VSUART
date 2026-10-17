@@ -1,0 +1,3 @@
+[submodule "3_third_party/VLSI_COMMON"]
+	path = 3_third_party/VLSI_COMMON
+	url = git@github.com:kido2k3/VLSI_COMMON.git

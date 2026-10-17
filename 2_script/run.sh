@@ -189,7 +189,7 @@ file_gen(){
     
     #--- tb gen ----
     # incdir
-    list=$(find ../1_tb/ -type d)
+    list=$(find -L ../1_tb/ -type d)
     for dir in $list; do
         echo "+incdir+$dir" >> $tb_file
     done

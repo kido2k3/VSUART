@@ -8,9 +8,13 @@
 `include "clk_rst_pkg.sv"
 import clk_rst_pkg::*;
 
+//** apb master package**
+`include "apb_mst_pkg.sv"
+import apb_mst_pkg::*;
 package vsuart_pkg;
     import uvm_pkg::*;
     import clk_rst_pkg::*;
+    import apb_mst_pkg::*;
     // vsuart file
     `include "vsuart_cfg.sv"
     `include "vsuart_env.sv"
