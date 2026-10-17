@@ -23,6 +23,11 @@ class vsuart_env extends uvm_agent;
         
         // set cfg
         uvm_config_db #(clk_cfg) :: set (this, "*", "c_cfg", cfg.c_cfg);
+
+        // set clock for uart
+        cfg.uart_cfg.sys_clk_freq = cfg.c_cfg._sys_freq * 1_000_000;
+        uvm_config_db #(uart_cfg) :: set (this, "uart.*", "uart_cfg", cfg.uart_cfg);
+        
         // initialize
         clk_rst  = clk_rst_agt::type_id::create("clk_rst", this);
 
