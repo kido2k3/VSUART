@@ -8,9 +8,11 @@
 class vsuart_cfg extends uvm_object;
     
     clk_cfg c_cfg;
+    uvm_reg_addr_t base_addr = 0; // CSR base address of the register map
 
     `uvm_object_utils_begin(vsuart_cfg)
         `uvm_field_object(c_cfg, UVM_ALL_ON)
+        `uvm_field_int(base_addr, UVM_ALL_ON | UVM_HEX)
     `uvm_object_utils_end
     
     function new(string name = "vsuart_cfg");
