@@ -76,10 +76,7 @@ module vsuart #(
 	wire  ie_errie;
 	// ifs register
 	wire  ifs_txifs;
-	wire  ifs_txifs;
 	wire  ifs_rxifs;
-	wire  ifs_rxifs;
-	wire  ifs_errifs;
 	wire  ifs_errifs;
 	// uart clk
 	wire u_clk;
@@ -110,6 +107,9 @@ module vsuart #(
 	wire  								rx_sta_prerr;
 	wire  								rx_sta_rista;
 	wire  								rx_sta_rbosta;
+//     initial begin
+//         $display("hello world");
+//     end
 //---------------------------------------------------------------------------
 	// apb slave
 	vsuart_apb_slv #(
@@ -281,7 +281,6 @@ module vsuart #(
 		.o_ifs_errifs    (ifs_errifs),
 		.o_ifs_txifs     (ifs_txifs),
 		.o_ifs_rxifs     (ifs_rxifs),
-		.o_ifs_errifs    (ifs_errifs),
 		.o_sta_trsta     (sta_trsta),
 		.o_sta_tista     (sta_tista),
 		.o_sta_frerr     (sta_frerr),

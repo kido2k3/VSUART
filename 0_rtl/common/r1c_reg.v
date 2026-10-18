@@ -39,7 +39,7 @@ module r1c_reg #(
     always @(posedge clk or negedge rst_n) begin
         if(~rst_n) begin
             mem_r <= POR_VAL;
-        end else if (i_addr == ADDR && i_ren_clr) begin
+        end else if (i_addr_clr == ADDR && i_ren_clr) begin
             // user clear
             mem_r <= (MASK_CLR & {DATA_W{1'b0}}) | (~MASK_CLR & mem_r);
         end else begin

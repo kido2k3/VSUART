@@ -56,13 +56,13 @@ module vsuart_tx_ctrl (
 					if(i_mode_pdsel == 1 || i_mode_pdsel == 2)begin
 						st_nxt = `PARITY;
 					end else begin
-						st_nxt = `STOP;
+						st_nxt = `STOP_BIT;
 					end
 				end
 			end
 			`PARITY: begin
 				if(i_tx_parity_done) begin
-					st_nxt = `STOP;
+					st_nxt = `STOP_BIT;
 				end
 			end
 			`STOP_BIT: begin

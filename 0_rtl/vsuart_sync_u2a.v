@@ -36,7 +36,6 @@ module vsuart_sync_u2a #(
 	output								o_ifs_errifs,
 	output								o_ifs_txifs,
 	output								o_ifs_rxifs,
-	output								o_ifs_errifs,
 	output								o_sta_trsta,
 	output								o_sta_tista,
 	output  							o_sta_frerr,
@@ -80,7 +79,7 @@ module vsuart_sync_u2a #(
 	cdc_unit ifs_txifs2_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_ifs_txifs2), .o_data(ifs_txifs2));
 	cdc_unit sta_trsta_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_sta_trsta), .o_data(o_sta_trsta));
 	cdc_unit sta_tista_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_sta_tista), .o_data(o_sta_tista));
-	cdc_unit sta_prerr_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_sta_frerr), .o_data(sta_frerr));
+	cdc_unit sta_frerr_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_sta_frerr), .o_data(sta_frerr));
 	cdc_unit sta_prerr_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_sta_prerr), .o_data(sta_prerr));
 	cdc_unit sta_rista_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_sta_rista), .o_data(o_sta_rista));
 	cdc_unit sta_rbosta_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_sta_rbosta), .o_data(sta_rbosta));
@@ -99,22 +98,22 @@ module vsuart_sync_u2a #(
 	assign o_ifs_errifs = o_sta_frerr | o_sta_prerr; 
 	// rx fifo
 	vsuart_rx_fifo #(
-		.FIFO_DEPTH     (FIFO_DEPTH),
-		.FIFO_DATA_W    (FIFO_DATA_W)
+		.P_DEPTH     (FIFO_DEPTH),
+		.P_DATA_W    (FIFO_DATA_W)
 	) u_vsuart_rx_fifo (
 		// WRITE INTERFACE: i_ (input), w_ (write)
-		.w_clk          (u_clk),
-		.w_rst_n        (rst_n),
-		.i_w_en         (i_rx_wen),
-		.i_w_data       (i_rx_wdata),
-		.o_w_full       (o_rx_full),
+		.wclk          (u_clk),
+		.wrst_n        (rst_n),
+		.w_en          (i_rx_wen),
+		.i_data        (i_rx_wdata),
+		.o_full        (o_rx_full),
 		// READ INTERFACE (APB SIDE)
-		.r_clk          (pclk),
-		.r_rst_n        (rst_n),
-		.i_r_en         (i_rx_ren),
-		.o_r_ifs        (ifs_rxifs),
-		.o_r_empty      (o_sta_rbdsta),
-		.o_r_data       (o_rx_rdata)
+		.rclk          (pclk),
+		.rrst_n        (rst_n),
+		.r_en          (i_rx_ren),
+		.o_r_ifs       (ifs_rxifs),
+		.o_empty       (o_sta_rbdsta),
+		.o_data        (o_rx_rdata)
 	);
 //---------------------------------------------------------------------------
 endmodule

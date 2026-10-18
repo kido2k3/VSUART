@@ -25,8 +25,8 @@ module cdc_unit_hs #(
 //---------------------------------------------------------------------------
     // VARIABLE
     // synchronized FF _r (register)
-    reg [P_W - 1 : 0]   r_data_r [P_FF_NUM];
-    reg [P_W - 1 : 0]   w_data_r [P_FF_NUM];
+    reg [P_W - 1 : 0]   r_data_r [0:P_FF_NUM-1];
+    reg [P_W - 1 : 0]   w_data_r [0:P_FF_NUM-1];
 //---------------------------------------------------------------------------
     // READ SIDE
     // first FF
@@ -60,7 +60,6 @@ module cdc_unit_hs #(
     end
     // other FF
     generate
-        genvar id;
         for(id = 1; id < P_FF_NUM; id = id + 1) begin
             always @(posedge w_clk or negedge w_rst_n) begin
                 if(!w_rst_n)

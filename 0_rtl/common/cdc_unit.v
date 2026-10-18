@@ -19,7 +19,7 @@ module cdc_unit #(
     // PARAMETER HERE
 //---------------------------------------------------------------------------
     // VARIABLE
-    reg [P_W - 1 : 0]   data_r [P_FF_NUM];
+    reg [P_W - 1 : 0]   data_r [0:P_FF_NUM-1];
 //---------------------------------------------------------------------------
     // first FF
     always @(posedge clk or negedge rst_n) begin

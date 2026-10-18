@@ -186,7 +186,19 @@ file_gen(){
     # reset file
     echo "" > $src_file
     echo "" > $tb_file
-    
+    #--- src gen ---
+    list=$(find -L ../0_rtl -name "*define*")
+    for file in $list; do
+        echo $file >> $src_file
+    done
+    list=$(find -L ../0_rtl/common -type f)
+    for file in $list; do
+        echo $file >> $src_file
+    done
+    list=$(find -L ../0_rtl -name "*vsuart*" ! -name "*define*"| awk '{ print length($0), $0 }' | sort -nr | cut -d' ' -f2-)
+    for file in $list; do
+        echo $file >> $src_file
+    done
     #--- tb gen ----
     # incdir
     list=$(find -L ../1_tb/ -type d)

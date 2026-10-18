@@ -15,7 +15,7 @@ module vsuart_rx_checker(
     input           i_mode_parity,     // 0: even parity, 1: odd parity
 	output 			o_sta_frerr,
 	output			o_sta_prerr
-)
+);
 // LOCAL VARIABLE HERE-------------------------------------------------------
 	reg r_sta_frerr;
 	reg r_sta_prerr;
@@ -28,7 +28,7 @@ module vsuart_rx_checker(
 		if (!rst_n) begin
 			r_sta_frerr <= 0;
 			r_sta_prerr <= 0;
-		end else if (i_tx_st == `IDLE || i_tx_st == `START_BIT) begin
+        end else if (i_rx_cken && ~|{i_prerr_en, i_frerr_en}) begin
 			r_sta_frerr <= 0;
 			r_sta_prerr <= 0;
 		end else if (i_rx_cken && i_prerr_en) begin

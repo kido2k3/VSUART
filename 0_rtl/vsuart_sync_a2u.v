@@ -60,22 +60,22 @@ module vsuart_sync_a2u #(
     );
     
     // tx fifo
-    a_fifo #(
+    asc_fifo #(
         .P_DEPTH      (FIFO_DEPTH),
         .P_DATA_W     (FIFO_DATA_W)
     ) u_tx_fifo (
         // WRITE INTERFACE: i_ (input), w_ (write)
-        .w_clk        (pclk),
-        .w_rst_n      (rst_n),
-        .i_w_en       (i_tx_wen),
-        .i_w_data     (i_tx_wdata),
-        .o_w_full     (o_sta_tbsta),
+        .wclk        (pclk),
+        .wrst_n      (rst_n),
+        .w_en        (i_tx_wen),
+        .i_data      (i_tx_wdata),
+        .o_full      (o_sta_tbsta),
         // READ INTERFACE
-        .r_clk        (u_clk),
-        .r_rst_n      (rst_n),
-        .i_r_en       (i_tx_ren),
-        .o_r_empty    (o_tx_empty),
-        .o_r_data     (o_tx_rdata)
+        .rclk        (u_clk),
+        .rrst_n      (rst_n),
+        .r_en        (i_tx_ren),
+        .o_empty     (o_tx_empty),
+        .o_data      (o_tx_rdata)
     );
 //---------------------------------------------------------------------------
     // domain pclk
