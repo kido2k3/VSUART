@@ -22,7 +22,6 @@ tb_file="./tb_file.f"
 # main
 main(){
     parse_args "$@"
-
     if ! [[ -d $log_dir ]]; then
         mkdir $log_dir
     fi
@@ -84,7 +83,9 @@ parse_args() {
                 exit 0
                 ;;
             -*)
-                shift
+                echo "Error: unknown option $1"
+                show_help
+                exit 1
                 ;;
         esac
     done
@@ -180,6 +181,7 @@ vcs_run(){
             -l ${log_dir}/${test}_${seed}.log
     fi
 }
+# run by iverilog 
 
 # f file generation for vcs option
 file_gen(){
@@ -231,5 +233,5 @@ file_gen(){
 }
 
 # ********* main *****
-main
+main "$@"
 # ********************
