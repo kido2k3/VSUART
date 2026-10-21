@@ -72,8 +72,8 @@ module vsuart_sync_u2a #(
 	edge_det #(.MODE(1)) u_sta_prerr(.clk(pclk), .rst_n(rst_n), .i_data(sta_prerr), .o_data(o_sta_prerr));
 	edge_det #(.MODE(1)) u_sta_rbosta(.clk(pclk), .rst_n(rst_n), .i_data(sta_rbosta), .o_data(o_sta_rbosta));
 	// edge_det end
+    assign o_ifs_errifs = o_sta_frerr & o_sta_prerr;
 	// cdc unit start
-	cdc_unit ifs_errifs_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_ifs_errifs), .o_data(o_ifs_errifs));
 	cdc_unit ifs_txifs0_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_ifs_txifs0), .o_data(ifs_txifs0));
 	cdc_unit ifs_txifs1_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_ifs_txifs1), .o_data(ifs_txifs1));
 	cdc_unit ifs_txifs2_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_ifs_txifs2), .o_data(ifs_txifs2));
