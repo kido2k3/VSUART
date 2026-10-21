@@ -14,8 +14,7 @@ module vsuart_rx_start(
 // LOCAL VARIABLE HERE-------------------------------------------------------
 	wire	rx_sync;
 //---------------------------------------------------------------------------
-	cdc_unit #(
-	) u_cdc_unit (
+	cdc_unit u_cdc_unit (
 		.clk         (clk),
 		.rst_n       (rst_n),
 		.i_data      (i_rx),
