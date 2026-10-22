@@ -366,9 +366,9 @@ module vsuart_reg #(
 	always @(*) begin
 		if(wr_disabled_prs & reg_mode[2]) begin
 			reg_slverr = 1;
-		end else if(wr_disabled_mode & uart_disabled) begin
+		end else if(wr_disabled_mode & !uart_disabled) begin
 			reg_slverr = 1;
-		end else if(wr_disabled_brg & uart_disabled) begin
+		end else if(wr_disabled_brg & !uart_disabled) begin
 			reg_slverr = 1;
 		end else begin
 			reg_slverr = 0;
