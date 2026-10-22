@@ -1,9 +1,9 @@
 //===========================================================================
 //-- Author         : manhndd
-//-- Name           : vsuart_ral_pkg (vsuart register layer package)
+//-- Name           : ral_pkg (vsuart register layer package)
 //-- History        : ver.1.00 (26/10/17) 1st release
 //===========================================================================
-package vsuart_ral_pkg;
+package ral_pkg;
     import uvm_pkg::*;
     import apb_mst_pkg::*;
     import clk_rst_pkg::*;

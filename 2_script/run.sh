@@ -32,7 +32,7 @@ main(){
     if [[ "$tool" == "vcs" ]]; then
         vcs_run
     elif [[ "$tool" == "xrun" ]]; then
-        echo "XRUN"
+        xrun_run
     else
         echo "Unknown tool"
     fi
@@ -169,19 +169,54 @@ vcs_run(){
             -timescale=100ps/100ps \
             -l $log_dir/vcs.log
         # check
-        if (( status == 1 )); then
+        if [[ $? -ne 0 ]]; then
             exit 1
         fi
     fi
     if [[ $sim -eq 1 ]]; then
         simv \
-            simv_ops \
+            $simv_ops \
             +ntb_random_seed=${seed} \
             +UVM_TESTNAME=$test \
             -l ${log_dir}/${test}_${seed}.log
     fi
 }
-# run by iverilog 
+# run by xrun
+xrun_run(){
+    xrun_ops="-64bit -sv -uvmhome CDNS-1.2 -nowarn DLCPTH -timescale 100ps/100ps -access +rwc"
+    # sim options
+    xsim_ops="+UVM_NO_RELNOTES +UVM_VERBOSITY=$verbosity -svseed $seed +UVM_TESTNAME=$test"
+    # add wave
+    if [[ $wave -eq 1 ]]; then
+        xrun_ops="${xrun_ops} +define+WAVE +define+XRUN"
+    fi
+    # add coverage
+    if [[ $cov -eq 1 ]]; then
+        xrun_ops="${xrun_ops} -coverage functional -covoverwrite"
+    fi
+    # compile + elaborate
+    if [[ $comp -eq 1 ]]; then
+        xrun \
+            $xrun_ops \
+            -f $src_file \
+            -f $tb_file \
+            -top tb_vsuart \
+            -elaborate \
+            -l $log_dir/xrun_comp.log
+        # check
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
+    fi
+    # simulate the elaborated snapshot
+    if [[ $sim -eq 1 ]]; then
+        xrun \
+            $xrun_ops \
+            -R \
+            $xsim_ops \
+            -l ${log_dir}/${test}_${seed}.log
+    fi
+}
 
 # f file generation for vcs option
 file_gen(){
@@ -207,8 +242,9 @@ file_gen(){
     for dir in $list; do
         echo "+incdir+$dir" >> $tb_file
     done
-    # testbench
-    list=$(find ../1_tb/ -type f -name "*tb*")
+
+    echo "+incdir+../3_third_party/VLSI_COMMON/01_uvm_env/apb_mst_env" >> $tb_file
+    list=$(find ../1_tb/ -type f -name "tb_*.sv")
     echo $list >> $tb_file
     # sequence
     list=$(find ../1_tb/uvm/seq -type f -name "*base*" ! -name "*vsuart*")

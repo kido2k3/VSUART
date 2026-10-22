@@ -25,9 +25,7 @@ class vsuart_base_seq extends uvm_sequence;
         r_seq.req.rst_time = rst_time;
         r_seq.req.rst_type = rst_item::NO_CLK_PENDING;
         // run
-        #1000;
         r_seq.start(r_seqr);
-        #1000;
     endtask
 
     // task: initial reset
@@ -36,9 +34,7 @@ class vsuart_base_seq extends uvm_sequence;
         r_seq.req.rst_time = rst_time;
         r_seq.req.rst_type = rst_item::CLK_PENDING;
         // run
-        #1000;
         r_seq.start(r_seqr);
-        #1000;
     endtask
 
     // task: write rg if its desired value differs from the mirror
@@ -72,7 +68,6 @@ class vsuart_base_seq extends uvm_sequence;
                       cfg.clks_per_bit, actual, err, 100.0 * err / cfg.clks_per_bit), UVM_LOW)
             cfg.clks_per_bit = actual;
         end
-        uart_disable();
         ral.MODE.BSEL.set(bsel);
         ral.MODE.PDSEL.set(pdsel_of(cfg));
         ral.MODE.SPSEL.set(cfg.stop_bit_sel == UART_STOP_2);

@@ -3,6 +3,8 @@
 //-- Name           : base_test
 //-- History        : ver.1.00 (26/10/14) 1st release
 //--                : ver.1.01 (26/10/17) connect apb sequencer + ral to vseq
+//--                : ver.1.02 (26/10/17) connect uart sequencer to vseq
+//--                : ver.1.03 (26/10/20) ral from env.reg_env, uart_cfg to vseq
 //--                :
 //===========================================================================
 class base_test extends uvm_test;
@@ -59,7 +61,9 @@ class base_test extends uvm_test;
     function void connect_vseq_with_seqr();
         seq.r_seqr = env.clk_rst.seqr;
         seq.a_seqr = env.apb_agt.seqr;
-        seq.ral    = env.ral;
+        seq.ral    = env.reg_env.ral;
+        seq.u_cfg  = cfg.u_cfg;
+        seq.u_seqr = env.uart.sqr;
     endfunction
     // run phase
     virtual task run_phase (uvm_phase phase);

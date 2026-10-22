@@ -2,23 +2,21 @@
 //-- Author         : kido
 //-- Name           : vsuart_env (vsuart environment)
 //-- History        : ver.1.00 (26/10/15) 1st release
-//--                : ver.1.01 (26/10/17) add apb agent + register layer
-//--                :          (ral, apb_reg_adapter, vsuart_reg_predictor)
+//--                : ver.1.01 (26/10/20) register layer moved to ral_env,
+//--                :                     no analysis imps / write methods
+//--                : ver.1.02 (26/10/21) clk_rst agent passed to reg_env (mirror reset)
+//--                : ver.1.03 (26/10/21) reg_env no longer takes the clk_rst agent
+//--                : ver.1.04 (26/10/21) clk_rst agent passed to reg_env again (ral_rst_sub)
 //===========================================================================
-class vsuart_env extends uvm_agent;
+class vsuart_env extends uvm_env;
     `uvm_component_utils(vsuart_env)
 
     clk_rst_agt clk_rst;
     apb_mst_agt apb_agt;
-    vsuart_cfg cfg;
-
-    // register layer
-    vsuart_reg_block ral;
-    apb_reg_adapter adapter;
-    vsuart_reg_predictor predictor;
-
-    // observed reset (from clk_rst monitor) -> reset ral mirror
-    uvm_analysis_imp #(rst_item, vsuart_env) rst_imp;
+    uart_agent  uart;
+    ifs_agt     ifs;
+    ral_env     reg_env;  // register model + adapter + predictor
+    vsuart_cfg  cfg;
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
@@ -27,7 +25,7 @@ class vsuart_env extends uvm_agent;
     function void build_phase(uvm_phase phase);
         `uvm_info("build_phase", "Entered...", UVM_LOW)
         super.build_phase(phase);
-        // get cfg
+
         if (! uvm_config_db #(vsuart_cfg) :: get (this, "", "cfg", cfg)) begin
             `uvm_fatal ("NOT_CFG", "vsuart configured not found")
         end
@@ -35,41 +33,20 @@ class vsuart_env extends uvm_agent;
         // set cfg
         uvm_config_db #(clk_cfg) :: set (this, "*", "c_cfg", cfg.c_cfg);
 
-        // set clock for uart
-        cfg.uart_cfg.sys_clk_freq = cfg.c_cfg._sys_freq * 1_000_000;
-        uvm_config_db #(uart_cfg) :: set (this, "uart.*", "uart_cfg", cfg.uart_cfg);
-        
+        // set clock for uart: uart_if is clocked by sys_clk
+        cfg.u_cfg.if_clk_freq = cfg.c_cfg._sys_freq * 1_000_000;
+        uvm_config_db #(uart_cfg) :: set (this, "uart*", "uart_cfg", cfg.u_cfg);
+
         // initialize
         clk_rst  = clk_rst_agt::type_id::create("clk_rst", this);
         apb_agt  = apb_mst_agt::type_id::create("apb_agt", this);
-        rst_imp  = new("rst_imp", this);
-
-        // register layer: uvm_reg_block is not a uvm_component
-        ral = vsuart_reg_block::type_id::create({get_full_name(), ".ral"});
-        ral.build(cfg.base_addr);
-        adapter   = apb_reg_adapter::type_id::create("adapter");
-        predictor = vsuart_reg_predictor::type_id::create("predictor", this);
+        uart     = uart_agent::type_id::create("uart", this);
+        ifs      = ifs_agt::type_id::create("ifs", this);
+        reg_env  = ral_env::type_id::create("reg_env", this);
+        reg_env.base_addr = cfg.base_addr;
+        reg_env.apb_agt   = apb_agt;
+        reg_env.rst_agt   = clk_rst;
 
         `uvm_info("build_phase", "Exit...", UVM_LOW)
     endfunction
-
-    function void connect_phase(uvm_phase phase);
-        `uvm_info("connect_phase", "Entered...", UVM_LOW)
-        // frontdoor: ral -> adapter.reg2bus -> apb sequencer
-        ral.default_map.set_sequencer(apb_agt.seqr, adapter);
-        // explicit prediction: every observed apb transfer updates the mirror
-        predictor.map     = ral.default_map;
-        predictor.adapter = adapter;
-        apb_agt.mon.as_port.connect(predictor.bus_in);
-        // reset the mirror after every observed rst_n pulse
-        clk_rst.mon.as_port.connect(rst_imp);
-        `uvm_info("connect_phase", "Exit...", UVM_LOW)
-    endfunction
-
-    // function: called by clk_rst monitor when rst_n is released.
-    function void write(rst_item t);
-        `uvm_info("RAL", "System reset observed, reset register model", UVM_LOW)
-        ral.reset("HARD");
-    endfunction
-
 endclass
