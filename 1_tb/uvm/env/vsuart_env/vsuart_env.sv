@@ -13,7 +13,7 @@ class vsuart_env extends uvm_env;
 
     clk_rst_agt clk_rst;
     apb_mst_agt apb_agt;
-    uart_agent  uart;
+    uart_agt    uart;
     ifs_agt     ifs;
     ral_env     reg_env;  // register model + adapter + predictor
     vsuart_cfg  cfg;
@@ -40,7 +40,7 @@ class vsuart_env extends uvm_env;
         // initialize
         clk_rst  = clk_rst_agt::type_id::create("clk_rst", this);
         apb_agt  = apb_mst_agt::type_id::create("apb_agt", this);
-        uart     = uart_agent::type_id::create("uart", this);
+        uart     = uart_agt::type_id::create("uart", this);
         ifs      = ifs_agt::type_id::create("ifs", this);
         reg_env  = ral_env::type_id::create("reg_env", this);
         reg_env.base_addr = cfg.base_addr;

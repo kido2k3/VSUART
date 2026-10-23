@@ -183,7 +183,7 @@ vcs_run(){
 }
 # run by xrun
 xrun_run(){
-    xrun_ops="-64bit -sv -uvmhome CDNS-1.2 -nowarn DLCPTH -timescale 100ps/100ps -access +rwc"
+    xrun_ops="-nohistory -64bit -sv -uvmhome CDNS-1.2 -nowarn DLCPTH -nowarn SPDUSD -timescale 100ps/100ps -access +rwc"
     # sim options
     xsim_ops="+UVM_NO_RELNOTES +UVM_VERBOSITY=$verbosity -svseed $seed +UVM_TESTNAME=$test"
     # add wave
@@ -243,7 +243,7 @@ file_gen(){
         echo "+incdir+$dir" >> $tb_file
     done
 
-    echo "+incdir+../3_third_party/VLSI_COMMON/01_uvm_env/apb_mst_env" >> $tb_file
+    # echo "+incdir+../3_third_party/VLSI_COMMON/01_uvm_env/apb_mst_env" >> $tb_file
     list=$(find ../1_tb/ -type f -name "tb_*.sv")
     echo $list >> $tb_file
     # sequence

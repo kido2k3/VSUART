@@ -8,9 +8,9 @@
 class vsuart_base_seq extends uvm_sequence;
     `uvm_object_utils(vsuart_base_seq)
 
-    clk_rst_seqr   r_seqr;
-    apb_mst_seqr   a_seqr;
-    uart_sequencer u_seqr;
+    clk_rst_seqr    r_seqr;
+    apb_mst_seqr    a_seqr;
+    uart_seqr       u_seqr;
 
     // register model (env.reg_env.ral) and UART agent configuration
     ral_blk        ral;

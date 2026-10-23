@@ -7,7 +7,8 @@
 #!/bin/bash
 
 cd ..
-git submodule update --init --recursive
+
+git submodule update --remote
 cd 3_third_party/VLSI_COMMON
 git sparse-checkout init --cone
 git sparse-checkout set 01_uvm_env/apb_mst_env
