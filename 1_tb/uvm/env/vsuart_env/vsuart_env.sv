@@ -30,11 +30,10 @@ class vsuart_env extends uvm_env;
             `uvm_fatal ("NOT_CFG", "vsuart configured not found")
         end
 
-        // set cfg
+        // set clk cfg
         uvm_config_db #(clk_cfg) :: set (this, "*", "c_cfg", cfg.c_cfg);
 
-        // set clock for uart: uart_if is clocked by sys_clk
-        cfg.u_cfg.if_clk_freq = cfg.c_cfg._sys_freq * 1_000_000;
+        // set uart cfg
         uvm_config_db #(uart_cfg) :: set (this, "uart*", "uart_cfg", cfg.u_cfg);
 
         // initialize

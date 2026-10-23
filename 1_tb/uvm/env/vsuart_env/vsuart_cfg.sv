@@ -20,6 +20,7 @@ class vsuart_cfg extends uvm_object;
         super.new(name);
         c_cfg = clk_cfg::type_id::create("c_cfg");
         u_cfg = uart_cfg::type_id::create("u_cfg");
+        u_cfg.if_clk_freq = c_cfg._uart_freq * 1_000_000;
     endfunction
     
     // function: set system frequency
