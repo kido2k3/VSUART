@@ -26,8 +26,8 @@ import uart_pkg::*;
 import ifs_pkg::*;
 
 //** register layer: model, adapter, predictor, sequences **
-`include "vsuart_ral_pkg.sv"
-import vsuart_ral_pkg::*;
+`include "ral_pkg.sv"
+import ral_pkg::*;
 
 package vsuart_pkg;
     import uvm_pkg::*;
@@ -35,7 +35,7 @@ package vsuart_pkg;
     import apb_mst_pkg::*;
     import uart_pkg::*;
     import ifs_pkg::*;
-    import vsuart_ral_pkg::*;
+    import ral_pkg::*;
     // vsuart file
     `include "vsuart_cfg.sv"
     `include "vsuart_env.sv"
