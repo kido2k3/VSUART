@@ -4,6 +4,7 @@
 //-- History        : ver.1.00 (26/10/17) 1st release
 //--                :
 //===========================================================================
+`include "uart_if.sv"
 package uart_pkg;
  import uvm_pkg::*;
  `include "uvm_macros.svh"
@@ -22,10 +23,10 @@ typedef enum bit { UART_DATA_8 = 1'b0 ,
 
  `include "uart_cfg.sv"
  `include "uart_item.sv"
- `include "uart_sequencer.sv"
+ `include "uart_seqr.sv"
  `include "uart_drv.sv"
  `include "uart_mon.sv"
- `include "uart_agent.sv"
+ `include "uart_agt.sv"
 // `include "uart_base_seq.sv"
  //`include "uart_test.sv"
 

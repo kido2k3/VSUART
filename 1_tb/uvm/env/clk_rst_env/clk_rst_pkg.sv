@@ -4,9 +4,6 @@
 //-- History        : ver.1.00 (26/10/15) 1st release
 //--                :
 //===========================================================================
-//***** uvm package ****
-`include "uvm_pkg.sv"
-import uvm_pkg::*;
 
 `include "clk_rst_if.sv"
 package clk_rst_pkg;

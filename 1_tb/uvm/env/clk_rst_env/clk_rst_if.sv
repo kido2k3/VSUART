@@ -16,4 +16,4 @@ interface clk_rst_if;
         uart_clk = 0;
         rst_n = 1;
     end
-endinterface;
+endinterface

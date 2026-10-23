@@ -3,6 +3,8 @@
 //-- Name           : ifs_pkg (interrupt package)
 //-- History        : ver.1.00 (26/10/17) 1st release
 //===========================================================================
+
+`include "ifs_if.sv"
 package ifs_pkg;
     import uvm_pkg::*;
     `include "uvm_macros.svh"

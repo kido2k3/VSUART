@@ -35,16 +35,16 @@ class clk_rst_drv extends uvm_driver #(rst_item);
     //run phase
     virtual task run_phase (uvm_phase phase);
         fork
-            clk_gen(1, vif.sys_clk, cfg._sys_freq);
-            clk_gen(1, vif.apb_clk, cfg._apb_freq);
+            clk_gen(1, cfg._sys_freq, vif.sys_clk);
+            clk_gen(1, cfg._apb_freq, vif.apb_clk);
             // uart clk cant be suspended by reset
-            clk_gen(0, vif.uart_clk, cfg._uart_freq);
+            clk_gen(0, cfg._uart_freq, vif.uart_clk);
             rst_gen();
         join
     endtask
     
     // task: clock generation
-    task clk_gen(bit is_pending = 1, ref logic clk, int clk_freq);
+    task clk_gen(bit is_pending = 1, int clk_freq, ref logic clk);
         int hcycle; // half-cycle, timescale is 100ps/100ps
         int cnt = 0;
         hcycle = int'(1.0/clk_freq * 10_000 / 2);
