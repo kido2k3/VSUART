@@ -5,22 +5,23 @@
 //--                : ver.1.01 (26/10/17) add register layer (ral) + uart agent
 //--                : ver.1.02 (26/10/17) add ifs (interrupt) agent
 //===========================================================================
+//***** uvm package ****
+import uvm_pkg::*;
+`include "uvm_macros.svh"
+
 //** clk reset package**
 `include "clk_rst_pkg.sv"
 import clk_rst_pkg::*;
 
 //** apb master package**
-`include "apb_mst_if.sv"
 `include "apb_mst_pkg.sv"
 import apb_mst_pkg::*;
 
 //** uart package**
-`include "uart_if.sv"
 `include "uart_pkg.sv"
 import uart_pkg::*;
 
 //** ifs (interrupt) package**
-`include "ifs_if.sv"
 `include "ifs_pkg.sv"
 import ifs_pkg::*;
 
