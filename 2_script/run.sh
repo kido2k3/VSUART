@@ -18,7 +18,7 @@ verbosity="UVM_LOW"
 log_dir="./log"
 src_file="./src_file.f"
 tb_file="./tb_file.f"
-
+gen_file=0
 # main
 main(){
     parse_args "$@"
@@ -27,7 +27,9 @@ main(){
     fi
 
     # *.f file gen
-    file_gen
+    if [[ gen_file -eq 1 ]]; then
+        file_gen
+    fi
 
     if [[ "$tool" == "vcs" ]]; then
         vcs_run
@@ -189,6 +191,7 @@ xrun_run(){
     # add wave
     if [[ $wave -eq 1 ]]; then
         xrun_ops="${xrun_ops} +define+WAVE +define+XRUN"
+    echo "phong"
     fi
     # add coverage
     if [[ $cov -eq 1 ]]; then

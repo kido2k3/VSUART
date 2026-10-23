@@ -26,7 +26,7 @@ module wptr_handler #(
     assign b_wptr_nxt = o_b_wptr + (i_w_en & !o_full);
     assign g_wptr_nxt = (b_wptr_nxt >>1) ^ b_wptr_nxt;
 //---------------------------------------------------------------------------
-    always @(posedge wclk) begin
+    always @(posedge wclk or negedge wrst_n) begin
         if(!wrst_n) begin
             o_b_wptr <= 0; // set default value
             o_g_wptr <= 0;

@@ -78,6 +78,9 @@ module vsuart #(
 	wire  ifs_txifs;
 	wire  ifs_rxifs;
 	wire  ifs_errifs;
+	wire  reg_ifs_txifs;
+	wire  reg_ifs_rxifs;
+	wire  reg_ifs_errifs;
 	// uart clk
 	wire u_clk;
 	wire                        tx_wen;
@@ -193,11 +196,11 @@ module vsuart #(
 		.o_ie_errie      (ie_errie),
 		// ifs register
 		.i_ifs_txifs     (ifs_txifs),
-		.o_ifs_txifs     (ifs_txifs),
+		.o_ifs_txifs     (reg_ifs_txifs),
 		.i_ifs_rxifs     (ifs_rxifs),
-		.o_ifs_rxifs     (ifs_rxifs),
+		.o_ifs_rxifs     (reg_ifs_rxifs),
 		.i_ifs_errifs    (ifs_errifs),
-		.o_ifs_errifs    (ifs_errifs)
+		.o_ifs_errifs    (reg_ifs_errifs)
 	);
 	// interrupt
 	vsuart_ifs u_vsuart_ifs (
@@ -206,9 +209,9 @@ module vsuart #(
 		.i_ie_rxte       (ie_rxte),
 		.i_ie_errie      (ie_errie),
 		// interrupt flag
-		.i_ifs_txifs     (ifs_txifs),
-		.i_ifs_rxifs     (ifs_rxifs),
-		.i_ifs_errifs    (ifs_errifs),
+		.i_ifs_txifs     (reg_ifs_txifs),
+		.i_ifs_rxifs     (reg_ifs_rxifs),
+		.i_ifs_errifs    (reg_ifs_errifs),
 		// interrupt output
 		.o_txifs         (o_txifs),
 		.o_rxifs         (o_rxifs),

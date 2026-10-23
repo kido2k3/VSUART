@@ -55,7 +55,7 @@ module vsuart_rx_fifo #(
     // not less than 3/4
     assign not_less_075 =   (o_r_ifs[2]) ? 1'b1 :
                             cnt[P_PTR_W - 2 : 0] >= DEPTH_075;
-    assign o_r_ifs[0] = o_empty;
+    assign o_r_ifs[0] = !o_empty;
     assign o_r_ifs[1] = not_less_075;
     assign o_r_ifs[2] = cnt[P_PTR_W - 1] && ~|cnt[P_PTR_W - 2 : 0];
 //---------------------------------------------------------------------------

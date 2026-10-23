@@ -26,7 +26,7 @@ module rptr_handler #(
     assign b_rptr_nxt = o_b_rptr + (i_r_en & !o_empty);
     assign g_rptr_nxt = (b_rptr_nxt >>1) ^ b_rptr_nxt;
 //---------------------------------------------------------------------------
-    always @(posedge rclk) begin
+    always @(posedge rclk or negedge rrst_n) begin
         if(!rrst_n) begin
             o_b_rptr <= 0; // set default value
             o_g_rptr <= 0;

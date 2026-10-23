@@ -18,8 +18,12 @@ module edge_det #(
     // VARIABLE HERE
     reg r_data;
 //------------------------------------------------------------------------
-    always @(posedge clk) begin
-        r_data <= i_data;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            r_data <= 0;
+        end else begin
+            r_data <= i_data;
+        end
     end
     generate
         if(MODE == 0) begin

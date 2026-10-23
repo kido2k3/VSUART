@@ -31,7 +31,6 @@ class vsuart_uart_cfg_seq extends vsuart_base_seq;
                 stop_bit_sel inside {UART_STOP_1, UART_STOP_2};
                 data_width == UART_DATA_9 -> parity_sel == UART_PAR_NONE; })
             `uvm_fatal(get_type_name, "uart_cfg randomize failed")
-        u_cfg.set_baudrate(baud);
         configure(u_cfg);
 
         // 3. enable the UART

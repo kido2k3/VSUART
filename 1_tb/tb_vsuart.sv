@@ -6,35 +6,35 @@ import vsuart_pkg::*;
 
 module tb_vsuart;
     
-clk_rst_if clk_rst_vif();
-apb_mst_if apb_mst_vif(clk_rst_vif.apb_clk);
-assign apb_mst_vif.rst_n = clk_rst_vif.rst_n;
+    clk_rst_if clk_rst_vif();
+    apb_mst_if apb_mst_vif(clk_rst_vif.apb_clk);
+    assign apb_mst_vif.rst_n = clk_rst_vif.rst_n;
 
-uart_if uart_vif(.clk(clk_rst_vif.sys_clk), .rst_n(clk_rst_vif.rst_n));
+    uart_if uart_vif(.clk(clk_rst_vif.sys_clk), .rst_n(clk_rst_vif.rst_n));
 
-ifs_if ifs_vif(.clk(clk_rst_vif.apb_clk), .rst_n(clk_rst_vif.rst_n));
+    ifs_if ifs_vif(.clk(clk_rst_vif.apb_clk), .rst_n(clk_rst_vif.rst_n));
 
-// DUT: the APB address is 16-bit, the agent drives the lower bits of paddr
-vsuart u_dut (
-    .sys_clk    (clk_rst_vif.sys_clk),
-    .rst_n      (clk_rst_vif.rst_n),
-    .pclk       (clk_rst_vif.apb_clk),
-    .preset_n   (clk_rst_vif.rst_n),
-    .i_paddr    (apb_mst_vif.paddr[15:0]),
-    .i_psel     (apb_mst_vif.psel),
-    .i_penable  (apb_mst_vif.penable),
-    .i_pwrite   (apb_mst_vif.pwrite),
-    .i_pwdata   (apb_mst_vif.pwdata),
-    .i_pstrb    (apb_mst_vif.pstrb),
-    .o_pready   (apb_mst_vif.pready),
-    .o_prdata   (apb_mst_vif.prdata),
-    .o_pslverr  (apb_mst_vif.pslverr),
-    .i_rx       (uart_vif.u_rx),
-    .o_tx       (uart_vif.u_tx),
-    .o_txifs    (ifs_vif.txifs),
-    .o_rxifs    (ifs_vif.rxifs),
-    .o_errifs   (ifs_vif.errifs)
-);
+    // DUT: the APB address is 16-bit, the agent drives the lower bits of paddr
+    vsuart u_dut (
+        .sys_clk    (clk_rst_vif.sys_clk),
+        .rst_n      (clk_rst_vif.rst_n),
+        .pclk       (clk_rst_vif.apb_clk),
+        .preset_n   (clk_rst_vif.rst_n),
+        .i_paddr    (apb_mst_vif.paddr[15:0]),
+        .i_psel     (apb_mst_vif.psel),
+        .i_penable  (apb_mst_vif.penable),
+        .i_pwrite   (apb_mst_vif.pwrite),
+        .i_pwdata   (apb_mst_vif.pwdata),
+        .i_pstrb    (apb_mst_vif.pstrb),
+        .o_pready   (apb_mst_vif.pready),
+        .o_prdata   (apb_mst_vif.prdata),
+        .o_pslverr  (apb_mst_vif.pslverr),
+        .i_rx       (uart_vif.u_rx),
+        .o_tx       (uart_vif.u_tx),
+        .o_txifs    (ifs_vif.txifs),
+        .o_rxifs    (ifs_vif.rxifs),
+        .o_errifs   (ifs_vif.errifs)
+    );
 
     initial begin
     `ifdef WAVE

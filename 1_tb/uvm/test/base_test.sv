@@ -53,12 +53,12 @@ class base_test extends uvm_test;
 
     virtual function void connect_phase(uvm_phase phase);
         `uvm_info("connect_phase", "Entered...", UVM_LOW)
-        connect_vseq_with_seqr();
+        connect_env_with_seq();
         `uvm_info("connect_phase", "Exit...", UVM_LOW)
     endfunction
 
     // function: connect virtual sequence with sequencer
-    function void connect_vseq_with_seqr();
+    function void connect_env_with_seq();
         seq.r_seqr = env.clk_rst.seqr;
         seq.a_seqr = env.apb_agt.seqr;
         seq.ral    = env.reg_env.ral;
