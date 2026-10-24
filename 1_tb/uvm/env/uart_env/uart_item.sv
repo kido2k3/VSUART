@@ -9,7 +9,6 @@ class uart_item extends uvm_sequence_item;
 //for sequence generate
   rand uart_tx_rx_e         uart_dir;
   rand bit [8:0]            data;        
-  rand uart_par_e           parity;
   rand bit                  parity_error;   // 1 -> send a wrong parity bit on purpose
   rand bit                  frame_error;
   time start_time;                   // when the start bit began
@@ -27,8 +26,8 @@ class uart_item extends uvm_sequence_item;
  
 
   function string convert2string();
-    return $sformatf("%s data=0x%03h parity=%s perr=%0b",
-                     uart_dir.name(), data, parity.name(), parity_error);// for debug purpose may fix in the incomming version
+    return $sformatf("%s data=0x%03h perr=%0b",
+                     uart_dir.name(), data, parity_error);// for debug purpose may fix in the incomming version
   endfunction
 
 endclass

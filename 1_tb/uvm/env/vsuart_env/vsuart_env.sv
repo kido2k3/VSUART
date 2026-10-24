@@ -8,6 +8,7 @@
 //--                : ver.1.03 (26/10/21) reg_env no longer takes the clk_rst agent
 //--                : ver.1.04 (26/10/21) clk_rst agent passed to reg_env again (ral_rst_sub)
 //--                : ver.1.05 (26/10/23) ral_cfg via config_db, reg_env connected in connect_phase
+//--                : ver.1.06 (26/10/24) add scb, connect scb with mon
 //===========================================================================
 class vsuart_env extends uvm_env;
     `uvm_component_utils(vsuart_env)
@@ -18,7 +19,7 @@ class vsuart_env extends uvm_env;
     ifs_agt     ifs;
     ral_env     reg_env;  // register model + adapter + predictor
     vsuart_cfg  cfg;
-
+    vsuart_scb  scb;
     function new(string name, uvm_component parent);
         super.new(name, parent);
     endfunction
@@ -46,6 +47,7 @@ class vsuart_env extends uvm_env;
         uart     = uart_agt::type_id::create("uart", this);
         ifs      = ifs_agt::type_id::create("ifs", this);
         reg_env  = ral_env::type_id::create("reg_env", this);
+        scb      = vsuart_scb::type_id::create("scb", this);
 
         `uvm_info("build_phase", "Exit...", UVM_LOW)
     endfunction
@@ -60,7 +62,13 @@ class vsuart_env extends uvm_env;
 
         // register layer <-> clk_rst agent: mirror reset on rst_n release
         clk_rst.mon.as_port.connect(reg_env.rst_sub.analysis_export);
-
+        
+        // scb <-> mon
+        apb_agt.mon.as_port.connect(scb.apb_mst_ap_imp);
+        uart.mon.as_tx_port.connect(scb.uart_tx_ap_imp);
+        uart.mon.as_rx_port.connect(scb.uart_rx_ap_imp);
+        clk_rst.mon.as_port.connect(scb.rst_ap_imp);
+        ifs.mon.as_port.connect(scb.ifs_ap_imp);
         `uvm_info("connect_phase", "Exit...", UVM_LOW)
     endfunction
 endclass

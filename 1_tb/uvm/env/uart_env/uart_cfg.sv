@@ -30,8 +30,12 @@ class uart_cfg extends uvm_object;
         super.new(name);
     endfunction
 
-    constraint baud_range_cst{
+    constraint baud_range_cstr{
         baudrate inside {[50:921600]};
+    }
+
+    constraint mode_cstr{
+        data_width == UART_DATA_9 -> parity_sel == UART_PAR_NONE;
     }
     
     function void post_randomize;

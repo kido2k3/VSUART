@@ -113,7 +113,7 @@ class uart_mon extends uvm_monitor;
         exp_par = (cfg.parity_sel == UART_PAR_EVEN) ? (^d) : (~^d);
         if (par_bit !== exp_par) item.parity_error = 1;
     end
-    else item.parity = UART_PAR_NONE ;
+//     else item.parity = UART_PAR_NONE ;
 
     //--------step 5th check the stop bit--------
     n_stop = (cfg.stop_bit_sel == UART_STOP_2) ? 2 : 1 ;
@@ -126,7 +126,7 @@ class uart_mon extends uvm_monitor;
     //--------step 6th rewrite item--------
     item.data = d;
     item.uart_dir = dir ? UART_TX : UART_RX;
-    item.parity = par_bit ? UART_PAR_EVEN : UART_PAR_ODD ;
+    //item.parity = par_bit ? UART_PAR_EVEN : UART_PAR_ODD ;
     item.end_time = $time ;
  endtask
 endclass

@@ -38,6 +38,7 @@ package vsuart_pkg;
     import ral_pkg::*;
     // vsuart file
     `include "vsuart_cfg.sv"
+    `include "vsuart_scb.sv"
     `include "vsuart_env.sv"
 endpackage
 

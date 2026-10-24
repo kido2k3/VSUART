@@ -17,7 +17,7 @@ class apb_mst_base_seq extends uvm_sequence #(_apb_item);
     virtual task body();
         `uvm_info(get_type_name, "Body entered...", UVM_LOW)
         start_item(seq_item);
-        `uvm_info("1kido", $sformatf("\n%s", seq_item.sprint()), UVM_HIGH)
+        `uvm_info("apb_mst_base_seq", $sformatf("\n%s", seq_item.sprint()), UVM_HIGH)
         finish_item(seq_item);
         get_response(rsp);
         `uvm_info(get_type_name, "Body end...", UVM_LOW)

@@ -45,7 +45,6 @@ class vsuart_base_seq extends uvm_sequence;
     // task: apb master write data
     virtual task apb_wr_data();
         assert(apb_wdata_seq.randomize());
-        `uvm_info("kido", $sformatf("\n%s", apb_wdata_seq.seq_item.sprint()), UVM_LOW)
         apb_wdata_seq.start(a_seqr);
     endtask
     // task: during operating reset

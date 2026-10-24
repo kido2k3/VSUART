@@ -12,7 +12,7 @@ class apb_mst_wdata_seq extends apb_mst_base_seq;
     
     constraint data_cstr{
         seq_item.addr == 16'hFFFF;
-        seq_item.trans_type == apb_item::WRITE;
+        seq_item.trans_type == _apb_item::WRITE;
         seq_item.strb == 4'b0011;
     }
 

@@ -40,7 +40,6 @@ class vsuart_uart_cfg_seq extends vsuart_base_seq;
 
         // 4. apb write data
         apb_wr_data();
-        #100000;
         `uvm_info(get_type_name, "Body end...", UVM_LOW)
     endtask
 endclass

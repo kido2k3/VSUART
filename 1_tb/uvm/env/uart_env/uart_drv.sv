@@ -80,11 +80,11 @@ endtask
     bits.push_back(1'b0); //start bits
     for (int i = 0; i< n_data; i++) // configurate 9 bit or 8 bit
         bits.push_back(item.data[i]); //LSB first push data randomly
-    if (item.parity != UART_PAR_NONE) begin
-        p = calc_parity(d);
-        if (item.parity_error) p = ~p ; //generate parity error
-            bits.push_back(p); //if no generate error the parity will push into the data
-    end
+//     if (item.parity != UART_PAR_NONE) begin
+//         p = calc_parity(d);
+//         if (item.parity_error) p = ~p ; //generate parity error
+//             bits.push_back(p); //if no generate error the parity will push into the data
+//    end
     
     repeat (n_stop)// the amount of the stop bit
         bits.push_back(item.frame_error ? 1'b0 : 1'b1); //stop bits go wrong -> test framing
