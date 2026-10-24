@@ -39,9 +39,11 @@ module bit_cnt (
 					r_cnt <= r_cnt - 1;
 				end
 			end else begin
-				r_cnt <= data_cnt;
+				r_cnt <= r_cnt;
 			end
-		end
+		end else begin
+            r_cnt <= data_cnt;
+        end
 	end
 //---------------------------------------------------------------------------
 	assign o_data_done = (i_st == `DATA) ? (r_cnt == 0) : 1'b0;
