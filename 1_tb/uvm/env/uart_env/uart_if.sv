@@ -5,18 +5,18 @@
 //--                :
 //===========================================================================
 interface uart_if(input clk ,rst_n);
-logic u_tx = 1;
-logic u_rx = 1;
+    logic u_tx;
+    logic u_rx = 1;
 
-clocking drv_if @(posedge clk);
-    default output #1;
-    output u_rx;
- endclocking
+    clocking drv_if @(posedge clk);
+        default output #1;
+        output u_rx;
+     endclocking
 
-clocking mon_if @(posedge clk);
-    default input #1;
-    input u_rx ,u_tx;
-endclocking
+    clocking mon_if @(posedge clk);
+        default input #1;
+        input u_rx ,u_tx;
+    endclocking
 
 //-----------------------------------------------------------ASSERTION for UART----------------------------------------------------------- 
 endinterface

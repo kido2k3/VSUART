@@ -18,7 +18,36 @@ class vsuart_base_seq extends uvm_sequence;
 
     // sequence
     rst_base_seq r_seq;
+    rand uart_base_seq uart_seq;
+    rand apb_mst_wdata_seq apb_wdata_seq;
+    rand apb_mst_rdata_seq apb_rdata_seq;
     
+    function new(string name = "vsuart_base_seq");
+        super.new(name);
+        r_seq = rst_base_seq::type_id::create("r_seq");
+        uart_seq = uart_base_seq::type_id::create("uart_seq");
+        apb_wdata_seq = apb_mst_wdata_seq::type_id::create("apb_wdata_seq");
+        apb_rdata_seq = apb_mst_rdata_seq::type_id::create("apb_rdata_seq");
+    endfunction
+
+    // task: write data into dut rx
+    virtual task uart_wdata();
+        assert(uart_seq.randomize());
+        uart_seq.start(u_seqr);
+    endtask
+
+    // task: apb master read data
+    virtual task apb_rd_data();
+        assert(apb_rdata_seq.randomize());
+        apb_rdata_seq.start(a_seqr);
+    endtask
+
+    // task: apb master write data
+    virtual task apb_wr_data();
+        assert(apb_wdata_seq.randomize());
+        `uvm_info("kido", $sformatf("\n%s", apb_wdata_seq.seq_item.sprint()), UVM_LOW)
+        apb_wdata_seq.start(a_seqr);
+    endtask
     // task: during operating reset
     virtual task operate_rst(int interval_time = 8, int rst_time = 60);
         r_seq.req.interval_time = interval_time;
@@ -148,11 +177,6 @@ class vsuart_base_seq extends uvm_sequence;
             UART_PAR_ODD : return 2'b01;
             default      : return 2'b00;
         endcase
-    endfunction
-
-    function new(string name = "vsuart_base_seq");
-        super.new(name);
-        r_seq = rst_base_seq::type_id::create("r_seq");
     endfunction
 
     virtual task body();

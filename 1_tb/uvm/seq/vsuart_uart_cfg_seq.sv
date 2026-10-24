@@ -2,6 +2,7 @@
 //-- Author         : manhndd
 //-- Name           : vsuart_uart_cfg_seq (UART configuration flow)
 //-- History        : ver.1.00 (26/10/22) 1st release
+//                  : add apb write data (for testing)
 //===========================================================================
 
 // Flow, with the tasks of vsuart_base_seq:
@@ -9,6 +10,7 @@
 //   2. u_cfg           : random frame format + baud -> clks_per_bit
 //      configure(u_cfg): MODE/PRS/BRG programmed from u_cfg through the RAL
 //   3. uart_enable()   : UEN = 111 (core, RX, TX)
+//   4. apb write data
 
 class vsuart_uart_cfg_seq extends vsuart_base_seq;
     `uvm_object_utils(vsuart_uart_cfg_seq)
@@ -36,6 +38,9 @@ class vsuart_uart_cfg_seq extends vsuart_base_seq;
         // 3. enable the UART
         uart_enable();
 
+        // 4. apb write data
+        apb_wr_data();
+        #100000;
         `uvm_info(get_type_name, "Body end...", UVM_LOW)
     endtask
 endclass

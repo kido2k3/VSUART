@@ -12,6 +12,10 @@
 +incdir+../1_tb/uvm/test
 ../1_tb/tb_vsuart.sv
 ../1_tb/uvm/seq/rst_base_seq.sv
+../1_tb/uvm/seq/apb_mst_base_seq.sv
+../1_tb/uvm/seq/apb_mst_rdata_seq.sv
+../1_tb/uvm/seq/apb_mst_wdata_seq.sv
+../1_tb/uvm/seq/uart_base_seq.sv
 ../1_tb/uvm/seq/vsuart_base_seq.sv
 ../1_tb/uvm/seq/vsuart_uart_cfg_seq.sv
 ../1_tb/uvm/test/base_test.sv

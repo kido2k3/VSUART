@@ -53,7 +53,7 @@ class clk_rst_drv extends uvm_driver #(rst_item);
             if(is_pending) wait(!is_rst);
             forever begin
                 #1;
-                if(cnt == hcycle) begin
+                if(cnt == hcycle-1) begin
                     clk = ~clk;
                     cnt = 0;
                 end else 

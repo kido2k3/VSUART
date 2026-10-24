@@ -16,4 +16,9 @@ xsim.dir
 .vscode/
 waves.shm/
 xcelium.d/
+.bpad/
+.simvision/
+clr.sh
+signals.svwf
+*.diag
 
