@@ -21,17 +21,17 @@ class vsuart_uart_cfg_seq extends vsuart_base_seq;
 
     virtual task body();
         `uvm_info(get_type_name, "Body entered...", UVM_LOW)
-        if (u_cfg == null) `uvm_fatal(get_type_name, "u_cfg not connected")
+        if (cfg == null) `uvm_fatal(get_type_name, "cfg not connected")
         init_rst(13, 10000);
 
         uart_disable();
 
         //Configure the UART agent, then the registers from it
-        if (!u_cfg.randomize() with {
+        if (!cfg.u_cfg.randomize() with {
                 stop_bit_sel inside {UART_STOP_1, UART_STOP_2};
                 data_width == UART_DATA_9 -> parity_sel == UART_PAR_NONE; })
             `uvm_fatal(get_type_name, "uart_cfg randomize failed")
-        configure(u_cfg);
+        configure(cfg.u_cfg);
 
         // 3. enable the UART
         uart_enable();

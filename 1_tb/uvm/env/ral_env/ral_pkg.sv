@@ -9,6 +9,9 @@ package ral_pkg;
     import clk_rst_pkg::*;
     `include "uvm_macros.svh"
 
+    // configuration
+    `include "ral_cfg.sv"
+
     // register model
     `include "base_ral_reg.sv"
     `include "ral_reg_mode.sv"
