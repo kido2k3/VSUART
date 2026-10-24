@@ -18,5 +18,7 @@
 ../1_tb/uvm/seq/uart_base_seq.sv
 ../1_tb/uvm/seq/vsuart_base_seq.sv
 ../1_tb/uvm/seq/vsuart_uart_cfg_seq.sv
+../1_tb/uvm/seq/vsuart_rx_frame_formats_seq.sv
 ../1_tb/uvm/test/base_test.sv
 ../1_tb/uvm/test/uart_cfg_test.sv
+../1_tb/uvm/test/vsuart_rx_frame_formats_test.sv

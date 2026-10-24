@@ -22,6 +22,10 @@ class vsuart_base_seq extends uvm_sequence;
     rand apb_mst_wdata_seq apb_wdata_seq;
     rand apb_mst_rdata_seq apb_rdata_seq;
     
+    // for reg access
+    uvm_status_e status;
+    uvm_reg_data_t value;
+
     function new(string name = "vsuart_base_seq");
         super.new(name);
         r_seq = rst_base_seq::type_id::create("r_seq");
@@ -67,7 +71,6 @@ class vsuart_base_seq extends uvm_sequence;
 
     // task: write rg if its desired value differs from the mirror
     virtual task update_reg(uvm_reg rg);
-        uvm_status_e status;
         rg.update(status, .parent(this));
         if (status != UVM_IS_OK) `uvm_error(get_type_name, {rg.get_name(), " update failed"})
     endtask

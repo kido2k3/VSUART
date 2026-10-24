@@ -112,9 +112,10 @@ module vsuart_sync_u2a #(
 		.rrst_n        (rst_n),
 		.r_en          (i_rx_ren),
 		.o_r_ifs       (ifs_rxifs),
-		.o_empty       (o_sta_rbdsta),
+		.o_empty       (fifo_empty),
 		.o_data        (o_rx_rdata)
 	);
+    assign o_sta_rbdsta = !fifo_empty;
 //---------------------------------------------------------------------------
 endmodule
 //===========================================================================
