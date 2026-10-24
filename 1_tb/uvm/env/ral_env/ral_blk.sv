@@ -38,7 +38,7 @@ class ral_blk extends uvm_reg_block;
   endfunction
 
   // called by the predictor for every observed access
-  virtual function void sample(uvm_reg_addr_t offset, bit is_read, uvm_reg_map map);
+  protected virtual function void sample(uvm_reg_addr_t offset, bit is_read, uvm_reg_map map);
     if (get_coverage(UVM_CVR_ADDR_MAP)) cg_addr.sample(offset, is_read);
   endfunction
 

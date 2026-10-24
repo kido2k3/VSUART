@@ -7,6 +7,7 @@
 //--                : ver.1.02 (26/10/21) clk_rst agent passed to reg_env (mirror reset)
 //--                : ver.1.03 (26/10/21) reg_env no longer takes the clk_rst agent
 //--                : ver.1.04 (26/10/21) clk_rst agent passed to reg_env again (ral_rst_sub)
+//--                : ver.1.05 (26/10/23) ral_cfg via config_db, reg_env connected in connect_phase
 //===========================================================================
 class vsuart_env extends uvm_env;
     `uvm_component_utils(vsuart_env)
@@ -36,16 +37,30 @@ class vsuart_env extends uvm_env;
         // set uart cfg
         uvm_config_db #(uart_cfg) :: set (this, "uart*", "uart_cfg", cfg.u_cfg);
 
+        // set ral cfg
+        uvm_config_db #(ral_cfg) :: set (this, "reg_env", "ral_cfg", cfg.r_cfg);
+
         // initialize
         clk_rst  = clk_rst_agt::type_id::create("clk_rst", this);
         apb_agt  = apb_mst_agt::type_id::create("apb_agt", this);
         uart     = uart_agt::type_id::create("uart", this);
         ifs      = ifs_agt::type_id::create("ifs", this);
         reg_env  = ral_env::type_id::create("reg_env", this);
-        reg_env.base_addr = cfg.base_addr;
-        reg_env.apb_agt   = apb_agt;
-        reg_env.rst_agt   = clk_rst;
 
         `uvm_info("build_phase", "Exit...", UVM_LOW)
+    endfunction
+
+    function void connect_phase(uvm_phase phase);
+        `uvm_info("connect_phase", "Entered...", UVM_LOW)
+        super.connect_phase(phase);
+
+        // register predictor <-> apb mon
+        reg_env.ral.default_map.set_sequencer(apb_agt.seqr, reg_env.adp);
+        apb_agt.mon.as_port.connect(reg_env.pred.bus_in);
+
+        // register layer <-> clk_rst agent: mirror reset on rst_n release
+        clk_rst.mon.as_port.connect(reg_env.rst_sub.analysis_export);
+
+        `uvm_info("connect_phase", "Exit...", UVM_LOW)
     endfunction
 endclass

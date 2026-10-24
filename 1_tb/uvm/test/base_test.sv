@@ -63,7 +63,7 @@ class base_test extends uvm_test;
         seq.a_seqr = env.apb_agt.seqr;
         seq.u_seqr = env.uart.sqr;
         seq.ral    = env.reg_env.ral;
-        seq.u_cfg  = cfg.u_cfg;
+        seq.cfg    = cfg;
     endfunction
     // run phase
     virtual task run_phase (uvm_phase phase);

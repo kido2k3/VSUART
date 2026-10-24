@@ -12,9 +12,9 @@ class vsuart_base_seq extends uvm_sequence;
     apb_mst_seqr    a_seqr;
     uart_seqr       u_seqr;
 
-    // register model (env.reg_env.ral) and UART agent configuration
+    // register model (env.reg_env.ral) and vsuart configuration
     ral_blk        ral;
-    uart_cfg       u_cfg;
+    vsuart_cfg     cfg;
 
     // sequence
     rst_base_seq r_seq;
@@ -74,28 +74,32 @@ class vsuart_base_seq extends uvm_sequence;
     endtask
 
 
-    // task: program the frame format and bit time of cfg into the registers
+    // task: program the frame format and baud rate of cfg into the registers
     //   MODE.PDSEL <- data_width + parity_sel, MODE.SPSEL <- stop_bit_sel
-    //   MODE.BSEL, PRS, BRG <- clks_per_bit (see find_divisors)
+    //   MODE.BSEL, PRS, BRG <- baudrate and cfg.c_cfg sys_clk (see find_divisors)
     // These fields are write-protected while the UART is enabled, so the UART is
-    // disabled first. 
-    // This task is in development to adapt with new uart_cfg
+    // disabled first.
     virtual task configure(uart_cfg cfg);
         bit        bsel;
         bit [3:0]  prs;
         bit [15:0] brg;
-        int unsigned err, actual;
+        int unsigned cpb, actual, actual_baud, sys_hz;
         if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
-        if (cfg.clks_per_bit <= 0)
-            `uvm_fatal(get_type_name, $sformatf("clks_per_bit=%0d: set the baud rate first", cfg.clks_per_bit))
-        err = find_divisors(cfg.clks_per_bit, bsel, prs, brg);
-        if (err != 0) begin
-            // no exact divisors: the DUT runs at the closest bit time, so the
+        if (this.cfg == null) `uvm_fatal(get_type_name, "cfg not connected")
+
+        // sys_clk frequency in Hz, from the clock configuration
+        sys_hz = this.cfg.c_cfg._sys_freq * 1_000_000;
+        // sys_clk cycles per bit for the requested baud rate, rounded
+        cpb = (sys_hz + cfg.baudrate / 2) / cfg.baudrate;
+
+        void'(find_divisors(cpb, bsel, prs, brg));
+        actual      = bit_time(bsel, prs, brg);
+        actual_baud = (sys_hz + actual / 2) / actual;
+        if (actual_baud != cfg.baudrate) begin
+            // no exact divisors: the DUT runs at the closest baud rate, so the
             // UART agent (same cfg) is moved to it as well
-            actual = bit_time(bsel, prs, brg);
-            `uvm_info(get_type_name, $sformatf("clks_per_bit=%0d not reachable, closest %0d (deviation %0d cycles, %0.3f%%)",
-                      cfg.clks_per_bit, actual, err, 100.0 * err / cfg.clks_per_bit), UVM_LOW)
-            cfg.clks_per_bit = actual;
+            `uvm_info(get_type_name, $sformatf("baudrate=%0d not reachable, closest %0d (deviation %0.3f%%)",
+                      cfg.baudrate, actual_baud, 100.0 * (real'(actual_baud) - real'(cfg.baudrate)) / cfg.baudrate), UVM_LOW)
         end
         ral.MODE.BSEL.set(bsel);
         ral.MODE.PDSEL.set(pdsel_of(cfg));
@@ -105,8 +109,8 @@ class vsuart_base_seq extends uvm_sequence;
         update_reg(ral.MODE);
         update_reg(ral.PRS);
         update_reg(ral.BRG);
-        `uvm_info(get_type_name, $sformatf("configured: BSEL=%0d PRS=%0d BRG=%0d PDSEL=%b SPSEL=%0d (clks_per_bit=%0d)",
-                  bsel, prs, brg, 2'(ral.MODE.PDSEL.get()), ral.MODE.SPSEL.get(), cfg.clks_per_bit), UVM_MEDIUM)
+        `uvm_info(get_type_name, $sformatf("configured: BSEL=%0d PRS=%0d BRG=%0d PDSEL=%b SPSEL=%0d (baudrate=%0d)",
+                  bsel, prs, brg, 2'(ral.MODE.PDSEL.get()), ral.MODE.SPSEL.get(), cfg.baudrate), UVM_MEDIUM)
     endtask
 
     // task: MODE.UEN = uen (bit 0 TX, bit 1 RX, bit 2 core). Only byte 0 is
