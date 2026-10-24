@@ -34,15 +34,15 @@ task run_phase(uvm_phase phase);
     vif.drv_if.u_rx <= 1'b1; //IDLE
     wait (vif.rst_n === 1'b1) //wait till reset finish
     forever begin
-        seq_item_port.get_next_item(req);// get item from sequencer
+        seq_item_port.get(req);// get item from sequencer
         `uvm_info("DRV", $sformatf("Starting to drive transaction:\n%s", req.sprint()), UVM_HIGH)
         if (req.uart_dir == UART_RX || req.uart_dir == UART_TX_RX) // only RX is transmit must regulate in sequence
             drive_item(req);
         else begin
             `uvm_warning("DRV_TX" , "item with uart_dir == UART_TX ignored (drive only rx)")
-    end
+        end
    
-    seq_item_port.item_done(); // call sequnecer current sequence is completed  
+        seq_item_port.put(req); // call sequnecer current sequence is completed  
     end
 
 endtask

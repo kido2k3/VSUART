@@ -10,8 +10,9 @@ class uart_cfg_test extends base_test;
         super.new(name, parent);
     endfunction
 
-    virtual function void build_phase(uvm_phase phase);
+    virtual function void build_phase(uvm_phase phase);  
         set_type_override_by_type(vsuart_base_seq::get_type(), vsuart_uart_cfg_seq::get_type());
         super.build_phase(phase);
+        cfg.set_sys_freq(112);
     endfunction
 endclass

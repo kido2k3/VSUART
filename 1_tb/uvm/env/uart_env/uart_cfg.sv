@@ -21,7 +21,7 @@ class uart_cfg extends uvm_object;
         `uvm_field_enum(uart_data_type_e, data_width, UVM_ALL_ON)
         `uvm_field_enum(uart_par_e, parity_sel, UVM_ALL_ON)
         `uvm_field_enum(uart_stop_type_e, stop_bit_sel, UVM_ALL_ON)
-        `uvm_field_int(baudrate, UVM_ALL_ON)
+        `uvm_field_int(baudrate, UVM_ALL_ON | UVM_DEC)
         `uvm_field_int(if_clk_freq, UVM_ALL_ON)
         `uvm_field_int(clks_per_bit, UVM_ALL_ON)
     `uvm_object_utils_end

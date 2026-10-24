@@ -20,7 +20,7 @@ module bit_cnt (
 	wire	[3 : 0] data_cnt;
 //---------------------------------------------------------------------------
 	// loading data count
-	assign data_cnt = (i_mode_pdsel == 2'b00) ? 4'd7 : 4'd8;
+	assign data_cnt = (i_mode_pdsel == 2'b11) ? 4'd8 : 4'd7;
 	// counting
 	always @(posedge clk or negedge rst_n) begin
 		if (!rst_n) begin
@@ -28,11 +28,11 @@ module bit_cnt (
 		end else if(i_cnt_en) begin
 			if(i_cken) begin
 				if(r_cnt == 0) begin
-					if(i_st == `DATA) begin
-						r_cnt <= data_cnt;
-					end else if(i_st == `PARITY) begin
-						r_cnt <= 4'd0;
-					end else if(i_st == `STOP_BIT) begin
+                    if(o_data_done) begin
+                        // if nxt_st is parity (pdsel == 'b01. 'b01)
+                        r_cnt <= (^i_mode_pdsel) ? 4'd0 : (i_mode_spsel) ? 4'd1 : 4'd0;
+					end else if(o_parity_done) begin
+                        // parity done -> stop count
 						r_cnt <= (i_mode_spsel) ? 4'd1 : 4'd0;
 					end
 				end else begin

@@ -3,6 +3,7 @@
 //-- Name           : vsuart_uart_cfg_seq (UART configuration flow)
 //-- History        : ver.1.00 (26/10/22) 1st release
 //                  : add apb write data (for testing)
+//                  : set updated configure to database
 //===========================================================================
 
 // Flow, with the tasks of vsuart_base_seq:
@@ -15,7 +16,7 @@
 class vsuart_uart_cfg_seq extends vsuart_base_seq;
     `uvm_object_utils(vsuart_uart_cfg_seq)
 
-    int unsigned baud = 115200;
+    int unsigned baud = 112500;
 
     function new(string name = "vsuart_uart_cfg_seq");
         super.new(name);
@@ -30,9 +31,13 @@ class vsuart_uart_cfg_seq extends vsuart_base_seq;
 
         //Configure the UART agent, then the registers from it
         if (!cfg.u_cfg.randomize() with {
-                stop_bit_sel inside {UART_STOP_1, UART_STOP_2};
-                data_width == UART_DATA_9 -> parity_sel == UART_PAR_NONE; })
+            baudrate == baud;
+        })
             `uvm_fatal(get_type_name, "uart_cfg randomize failed")
+        else begin
+            `uvm_info("updated_cfg", $sformatf("Update new configure to:\n%s", cfg.sprint), UVM_LOW)
+            uvm_config_db #(vsuart_cfg) :: set (null, "*", "cfg", cfg);
+        end
         configure(cfg.u_cfg);
 
         // 3. enable the UART

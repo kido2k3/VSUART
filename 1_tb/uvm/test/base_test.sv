@@ -46,7 +46,7 @@ class base_test extends uvm_test;
         `uvm_info("end_of_elaboration_phase", "Entered...", UVM_LOW)
         
         uvm_top.print_topology();
-        `uvm_info("cfg_print", cfg.sprint(), UVM_LOW)
+        `uvm_info("default_cfg", cfg.sprint(), UVM_LOW)
 
         `uvm_info("end_of_elaboration_phase", "Exiting...", UVM_LOW)
     endfunction
