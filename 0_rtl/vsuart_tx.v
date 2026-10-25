@@ -101,10 +101,10 @@ module vsuart_tx #(
 	);
 
 	vsuart_tx_parity #(
-		.DATA_W         (FIFO_DATA_W)
+		.DATA_W         (FIFO_DATA_W-1)
 	) u_vsuart_tx_parity (
 		.clk              (clk),
-		.i_data           (i_tx_rdata),
+		.i_data           (i_tx_rdata[FIFO_DATA_W-2:0]),
 		// enable signal
 		.i_en             (o_tx_ren),
 		// 0: even parity, 1: odd parity

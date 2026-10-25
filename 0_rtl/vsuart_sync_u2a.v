@@ -59,6 +59,8 @@ module vsuart_sync_u2a #(
 	wire pos_ifs_rxifs0;
 	wire pos_ifs_rxifs1;
 	wire pos_ifs_rxifs2; 
+    // fifo signal
+    wire fifo_empty;
 //---------------------------------------------------------------------------
 	// edge_det start
 	edge_det #(.MODE(1)) u_ifs_txifs0(.clk(pclk), .rst_n(rst_n), .i_data(ifs_txifs0), .o_data(pos_ifs_txifs0));
@@ -71,8 +73,6 @@ module vsuart_sync_u2a #(
 	edge_det #(.MODE(1)) u_sta_frerr(.clk(pclk), .rst_n(rst_n), .i_data(sta_frerr), .o_data(o_sta_frerr));
 	edge_det #(.MODE(1)) u_sta_prerr(.clk(pclk), .rst_n(rst_n), .i_data(sta_prerr), .o_data(o_sta_prerr));
 	edge_det #(.MODE(1)) u_sta_rbosta(.clk(pclk), .rst_n(rst_n), .i_data(sta_rbosta), .o_data(o_sta_rbosta));
-	// edge_det end
-    assign o_ifs_errifs = o_sta_frerr & o_sta_prerr;
 	// cdc unit start
 	cdc_unit ifs_txifs0_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_ifs_txifs0), .o_data(ifs_txifs0));
 	cdc_unit ifs_txifs1_cdc(.clk(pclk), .rst_n(rst_n), .i_data(i_ifs_txifs1), .o_data(ifs_txifs1));
@@ -91,8 +91,8 @@ module vsuart_sync_u2a #(
 							(i_cr_txisel == 2'd2) ? pos_ifs_txifs2 : pos_ifs_txifs3;
 
 	// rx interrupt 
-	assign o_ifs_rxifs = 	(i_cr_txisel[1] == 1'd0) ? pos_ifs_rxifs0 :
-							(i_cr_txisel[0] == 1'd0) ? pos_ifs_rxifs1 : pos_ifs_rxifs2;
+	assign o_ifs_rxifs = 	(i_cr_rxisel[1] == 1'd0) ? pos_ifs_rxifs0 :
+							(i_cr_rxisel[0] == 1'd0) ? pos_ifs_rxifs1 : pos_ifs_rxifs2;
 
 	// error interrupt
 	assign o_ifs_errifs = o_sta_frerr | o_sta_prerr; 

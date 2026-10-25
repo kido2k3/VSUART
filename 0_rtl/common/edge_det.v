@@ -26,9 +26,9 @@ module edge_det #(
         end
     end
     generate
-        if(MODE == 0) begin
+        if(MODE == 0) begin : negedge_det
             assign o_data = (!rst_n) ? 1'b0 : ~i_data & r_data;
-        end else begin
+        end else begin : posedge_det
             assign o_data = (!rst_n) ? 1'b0 : i_data & ~r_data;
         end
     endgenerate

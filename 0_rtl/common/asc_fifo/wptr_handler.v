@@ -11,7 +11,7 @@ module wptr_handler #(
     input                               wrst_n, 
     input                               i_w_en, 
     input       [P_PTR_W - 1    : 0]    i_g_rptr_sync, 
-    output  reg [P_PTR_W - 1    : 0]    o_b_wptr,
+    output  reg [P_PTR_W - 2    : 0]    o_b_wptr,
     output  reg [P_PTR_W - 1    : 0]    o_g_wptr,
     output  reg                         o_full
 );
@@ -19,26 +19,28 @@ module wptr_handler #(
     // PARAMETER HERE
 //---------------------------------------------------------------------------
     // VARIABLE
+    reg  [P_PTR_W - 1 : 0] r_b_wptr;
     wire [P_PTR_W - 1 : 0] b_wptr_nxt;
     wire [P_PTR_W - 1 : 0] g_wptr_nxt;
     wire                  full_nxt;
 //---------------------------------------------------------------------------
-    assign b_wptr_nxt = o_b_wptr + (i_w_en & !o_full);
+    assign b_wptr_nxt = r_b_wptr + {{(P_PTR_W-1){1'b0}},(i_w_en && !o_full)};
     assign g_wptr_nxt = (b_wptr_nxt >>1) ^ b_wptr_nxt;
 //---------------------------------------------------------------------------
     always @(posedge wclk or negedge wrst_n) begin
         if(!wrst_n) begin
-            o_b_wptr <= 0; // set default value
+            r_b_wptr <= 0; // set default value
             o_g_wptr <= 0;
             o_full   <= 0;
         end else begin
-            o_b_wptr <= b_wptr_nxt;
+            r_b_wptr <= b_wptr_nxt;
             o_g_wptr <= g_wptr_nxt;
             o_full   <= full_nxt;
         end
     end
 //---------------------------------------------------------------------------
     assign full_nxt = (g_wptr_nxt == {~i_g_rptr_sync[P_PTR_W - 1 -: 2], i_g_rptr_sync[0 +: P_PTR_W - 2]});
+    assign o_b_wptr = r_b_wptr[P_PTR_W-2:0];
 //---------------------------------------------------------------------------
 endmodule
 //===========================================================================

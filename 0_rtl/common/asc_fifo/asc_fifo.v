@@ -29,8 +29,10 @@ module asc_fifo #(
     // VARIABLE
     wire [P_PTR_W - 1 : 0] g_wptr_sync;
     wire [P_PTR_W - 1 : 0] g_rptr_sync;
-    wire [P_PTR_W - 1 : 0] b_wptr; 
-    wire [P_PTR_W - 1 : 0] b_rptr;
+    // binary pointer to fifo, not used empty, full bit
+    wire [P_PTR_W - 2 : 0] b_wptr; 
+    // binary pointer to fifo, not used empty, full bit
+    wire [P_PTR_W - 2 : 0] b_rptr;
     wire [P_PTR_W - 1 : 0] g_wptr; 
     wire [P_PTR_W - 1 : 0] g_rptr;
 //---------------------------------------------------------------------------
@@ -78,8 +80,7 @@ module asc_fifo #(
 //---------------------------------------------------------------------------
     fifo_mem #(
         .P_DEPTH     (P_DEPTH),
-        .P_DATA_W    (P_DATA_W),
-        .P_PTR_W     (P_PTR_W)        // log2(P_DEPTH) + 1
+        .P_DATA_W    (P_DATA_W)
     ) u_fifo_mem (
         // WRITE INTERFACE
         .wclk        (wclk),
@@ -88,10 +89,7 @@ module asc_fifo #(
         .i_data      (i_data),
         .i_full      (o_full),
         // READ INTERFACE
-        .rclk        (rclk),
-        .r_en        (r_en),
         .b_rptr      (b_rptr),
-        .i_empty     (o_empty),
         .o_data      (o_data)
     );
 //---------------------------------------------------------------------------

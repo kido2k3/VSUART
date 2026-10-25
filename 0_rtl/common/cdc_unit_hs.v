@@ -49,7 +49,7 @@ module cdc_unit_hs #(
         end
     endgenerate
     // output
-    assign o_data = r_data_r[P_FF_NUM - 1];
+    assign o_r_data = r_data_r[P_FF_NUM - 1];
 //---------------------------------------------------------------------------
     // WRITE SIDE
     always @(posedge w_clk or negedge w_rst_n) begin

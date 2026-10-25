@@ -26,13 +26,15 @@ module vsuart_rx_fifo #(
     // PARAMETER HERE
     localparam  P_PTR_W = $clog2(P_DEPTH) + 1; // log2(P_DEPTH) + 1
     //localparam  P_PTR_W = 4; // log2(P_DEPTH) + 1
-    localparam  DEPTH_075 = P_DEPTH * 3 / 4; 
+    localparam DEPTH_075 = P_DEPTH * 3 / 4; 
 //---------------------------------------------------------------------------
     // VARIABLE
     wire [P_PTR_W - 1 : 0] g_wptr_sync;
     wire [P_PTR_W - 1 : 0] g_rptr_sync;
-    wire [P_PTR_W - 1 : 0] b_wptr; 
-    wire [P_PTR_W - 1 : 0] b_rptr;
+    // binary write pointer to fifo, not used empty, full bit
+    wire [P_PTR_W - 2 : 0] b_wptr; 
+    // binary read pointer to fifo, not used empty, full bit
+    wire [P_PTR_W - 2 : 0] b_rptr;
     wire [P_PTR_W - 1 : 0] g_wptr; 
     wire [P_PTR_W - 1 : 0] g_rptr;
     // binary of read pointer in apb domain
@@ -53,8 +55,8 @@ module vsuart_rx_fifo #(
     // fifo full when [P_PTR_W - 1] = 1 and [P_PTR_W - 2 : 0] = 0
     assign cnt = b_wptr - b_rptr_sync;
     // not less than 3/4
-    assign not_less_075 =   (o_r_ifs[2]) ? 1'b1 :
-                            cnt[P_PTR_W - 2 : 0] >= DEPTH_075;
+    assign not_less_075 =   (cnt[P_PTR_W - 1] && ~|cnt[P_PTR_W - 2 : 0]) ? 1'b1 :
+                            cnt[P_PTR_W - 2 : 0] >= DEPTH_075[P_PTR_W - 2 : 0];
     assign o_r_ifs[0] = !o_empty;
     assign o_r_ifs[1] = not_less_075;
     assign o_r_ifs[2] = cnt[P_PTR_W - 1] && ~|cnt[P_PTR_W - 2 : 0];
@@ -103,8 +105,7 @@ module vsuart_rx_fifo #(
 //---------------------------------------------------------------------------
     fifo_mem #(
         .P_DEPTH     (P_DEPTH),
-        .P_DATA_W    (P_DATA_W),
-        .P_PTR_W     (P_PTR_W)        // log2(P_DEPTH) + 1
+        .P_DATA_W    (P_DATA_W)
     ) u_fifo_mem (
         // WRITE INTERFACE
         .wclk        (wclk),
@@ -113,10 +114,7 @@ module vsuart_rx_fifo #(
         .i_data      (i_data),
         .i_full      (o_full),
         // READ INTERFACE
-        .rclk        (rclk),
-        .r_en        (r_en),
         .b_rptr      (b_rptr),
-        .i_empty     (o_empty),
         .o_data      (o_data)
     );
 //---------------------------------------------------------------------------

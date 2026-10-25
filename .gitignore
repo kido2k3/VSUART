@@ -1,3 +1,4 @@
+*.key
 *.swp
 *.log
 log/*

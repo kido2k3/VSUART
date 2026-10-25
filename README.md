@@ -119,7 +119,10 @@ Design specification, verification plan, and architecture documents.
 ```bash
 ./run.sh -regress
 ```
-
+## Lint check
+```
+verilator -Wall --lint-only -f ./src_file.f
+```
 ---
 # 📊 Test Results (T.B.D)
 

@@ -53,8 +53,6 @@ module vsuart_apb_slv #(
     wire    data_addr;
     // for mask generation from strb
     wire    [DATA_W - 1   : 0]    strb_mask;
-    // for mask generation from addr
-    reg     [DATA_W - 1   : 0]    addr_mask;
     // for generation
     genvar id;
 //---------------------------------------------------------------------------
@@ -80,7 +78,7 @@ module vsuart_apb_slv #(
     assign data_addr = &i_paddr;
     
     // tx
-    assign o_tx_wdata = i_pwdata;
+    assign o_tx_wdata = i_pwdata[FIFO_DATA_W - 1  : 0];
     assign o_tx_wren = data_addr & i_pwrite & i_penable & i_psel & o_pready & _rst_n;
 
     // rx
@@ -88,8 +86,9 @@ module vsuart_apb_slv #(
 //---------------------------------------------------------------------------
     // APB SIDE
     assign o_pready = ~_rst_n | (i_reg_ready & i_tx_ready & i_rx_ready);
-    assign o_prdata = (~_rst_n) ? 0 : (data_addr) ? i_rx_rdata : i_reg_rdata;
+    assign o_prdata = (~_rst_n) ? 0 : (data_addr) ? {{(DATA_W-FIFO_DATA_W){1'b0}},i_rx_rdata} : i_reg_rdata;
     assign o_pslverr = (~_rst_n) ? 0 : 
         (data_addr) ? (~i_pwrite & i_penable & i_psel & i_rx_empty) : i_reg_slverr;
 //---------------------------------------------------------------------------
 endmodule
+

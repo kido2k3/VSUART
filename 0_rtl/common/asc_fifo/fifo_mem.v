@@ -7,7 +7,7 @@
 module fifo_mem #(
     parameter P_DEPTH       = 8, 
     parameter P_DATA_W      = 8, 
-    parameter P_PTR_W       = 4     // log2(P_DEPTH) + 1
+    parameter P_PTR_W       = $clog2(P_DEPTH)     // log2(P_DEPTH)
 ) (
     // WRITE INTERFACE
     input                               wclk, 
@@ -16,10 +16,7 @@ module fifo_mem #(
     input           [P_DATA_W - 1   :0] i_data,
     input                               i_full,
     // READ INTERFACE
-    input                               rclk, 
-    input                               r_en,
     input           [P_PTR_W - 1    :0] b_rptr,
-    input                               i_empty,
     output          [P_DATA_W - 1   :0] o_data
 );
 //---------------------------------------------------------------------------
@@ -30,10 +27,10 @@ module fifo_mem #(
 //---------------------------------------------------------------------------
     always@(posedge wclk) begin
         if(w_en & !i_full) begin
-            fifo[b_wptr[P_PTR_W - 2 : 0]] <= i_data;
+            fifo[b_wptr[P_PTR_W - 1 : 0]] <= i_data;
         end
     end
 //---------------------------------------------------------------------------
-    assign o_data = fifo[b_rptr[P_PTR_W - 2 : 0]];
+    assign o_data = fifo[b_rptr[P_PTR_W - 1 : 0]];
 endmodule
 //===========================================================================
