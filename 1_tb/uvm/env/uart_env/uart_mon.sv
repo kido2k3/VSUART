@@ -45,13 +45,15 @@ class uart_mon extends uvm_monitor;
  virtual task run_phase (uvm_phase phase);
     forever begin
         wait(vif.rst_n === 1'b1);// wait till reset deassert
-        fork
-            tx_flow();
-            rx_flow();
-            wait(vif.rst_n === 1'b0);// wait untill reset assert the exit
-        join_any
-        disable fork;// kill both tx_flow and rx_flow to clear the status
-    end
+        fork begin : mon_threads 
+            fork
+                tx_flow();
+                rx_flow();
+                wait(vif.rst_n === 1'b0);// wait untill reset assert the exit
+            join_any
+            disable fork;// kill both tx_flow and rx_flow to clear the status
+        end join
+        end
  endtask
 
  // distinguish tx and rx
@@ -62,10 +64,11 @@ class uart_mon extends uvm_monitor;
  // tx flow: monitor and check in tx pin
  task tx_flow;
     uart_item tx_item;
+    `uvm_info("MON_START", $sformatf("tx_flow started at %0t", $time), UVM_LOW)
     forever begin
          tx_item = uart_item::type_id::create("tx_item");// create object "tx_item"
         collect_frame(1'b1, tx_item);// regulate tx_item
-        `uvm_info("MON_TX", tx_item.convert2string(), UVM_MEDIUM)
+        `uvm_info("MON_TX", tx_item.convert2string(), UVM_LOW)
          n_tx_frames++;
         as_tx_port.write(tx_item);// send to scoreboard
     end
@@ -74,40 +77,49 @@ class uart_mon extends uvm_monitor;
  // rx flow: monitor and check in rx pin
  task rx_flow;
     uart_item rx_item;
+    `uvm_info("MON_START", $sformatf("rx_flow started at %0t", $time), UVM_LOW)
     forever begin
         rx_item = uart_item::type_id::create("rx_item");// create object "rx_item"
         collect_frame(1'b0, rx_item);// regulate rx_item
-        `uvm_info("MON_RX", rx_item.convert2string(), UVM_MEDIUM)
+        `uvm_info("MON_RX", rx_item.convert2string(), UVM_LOW)
         n_rx_frames++;
          as_rx_port.write(rx_item);// send to scoreboard
     end
  endtask
 
  task collect_frame (bit dir , uart_item item);
-    int cpb = cfg.clks_per_bit;
-    int n_data, n_stop;
-    bit [8:0] d ;
+    int cpb, n_data, n_stop;
+    bit [8:0] d;
     bit par_bit, exp_par;
+    bit has_par;
     //--------step 1st : wait for start bit-------- //
     while (get_tx_rx(dir) !== 1'b1) @(vif.mon_if); //IDLE
     while (get_tx_rx(dir) !== 1'b0) @(vif.mon_if); // START
         item.start_time = $time ; //start time
 
-    //--------step 2nd : wait for middle of the start bit--------
+//---------------step 2nd : write the configuaration when saw start bit ---------
+    cpb     = cfg.clks_per_bit;
+    n_data  = (cfg.data_width   == UART_DATA_9)  ? 9 : 8;
+    n_stop  = (cfg.stop_bit_sel == UART_STOP_2)  ? 2 : 1;
+    has_par = (cfg.parity_sel   != UART_PAR_NONE);
+    if (cpb < 2)
+        `uvm_fatal("MON_CFG", $sformatf("clks_per_bit=%0d, cfg not yet calculated (if_clk_freq=%0d baud=%0d)",
+                                        cpb, cfg.if_clk_freq, cfg.baudrate))
+
+    //--------step 3rd : wait for middle of the start bit--------
     repeat (cpb/2) @(vif.mon_if); // come to the middle of the start bit
     if (get_tx_rx(dir) !== 1'b0) // if still not become 0 then warning
         `uvm_warning("MON_STA","Start bit has been glitch")
 
-    //--------step 3rd read data bit (LSb first)--------
-    n_data = (cfg.data_width == UART_DATA_9) ? 9: 8; // get the configurate
+    //--------step 4th read data bit (LSb first)--------
     for (int i = 0; i < n_data; i++)begin
         repeat (cpb) @(vif.mon_if);
         d[i] = get_tx_rx(dir);
     end
 
-    //--------step 4th check the parity--------
+    //--------step 5th check the parity--------
     item.parity_error = 0 ;
-    if (cfg.parity_sel != UART_PAR_NONE) begin
+    if (has_par) begin
         repeat(cpb)@(vif.mon_if);
         par_bit = get_tx_rx(dir);
         exp_par = (cfg.parity_sel == UART_PAR_EVEN) ? (^d) : (~^d);
@@ -115,15 +127,14 @@ class uart_mon extends uvm_monitor;
     end
 //     else item.parity = UART_PAR_NONE ;
 
-    //--------step 5th check the stop bit--------
-    n_stop = (cfg.stop_bit_sel == UART_STOP_2) ? 2 : 1 ;
+    //--------step 6th check the stop bit--------
     item.frame_error = 0 ;
     repeat(n_stop)begin
         repeat(cpb)@(vif.mon_if);
         if(get_tx_rx(dir) !== 1'b1) item.frame_error = 1;
     end
 
-    //--------step 6th rewrite item--------
+    //--------step 7th rewrite item--------
     item.data = d;
     item.uart_dir = dir ? UART_TX : UART_RX;
     //item.parity = par_bit ? UART_PAR_EVEN : UART_PAR_ODD ;
