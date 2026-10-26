@@ -33,13 +33,13 @@ task run_phase(uvm_phase phase);
     vif.drv_if.u_rx <= 1'b1;                     
     wait (vif.rst_n === 1'b1);                   
     forever begin
-        seq_item_port.get_next_item(req);        
+        seq_item_port.get(req);        
         `uvm_info("DRV", $sformatf("Starting to drive transaction:\n%s", req.sprint()), UVM_HIGH)
         if (req.uart_dir == UART_RX || req.uart_dir == UART_TX_RX)
             drive_item(req);
         else
             `uvm_warning("DRV_TX", "item with uart_dir == UART_TX ignored (drive only rx)")
-        seq_item_port.item_done();               
+        seq_item_port.put(req);               
     end
 endtask
 
