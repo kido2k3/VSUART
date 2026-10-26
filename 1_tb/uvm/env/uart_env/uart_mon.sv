@@ -68,7 +68,7 @@ class uart_mon extends uvm_monitor;
     forever begin
          tx_item = uart_item::type_id::create("tx_item");// create object "tx_item"
         collect_frame(1'b1, tx_item);// regulate tx_item
-        `uvm_info("MON_TX", tx_item.convert2string(), UVM_LOW)
+        `uvm_info("MON_TX", tx_item.sprint, UVM_LOW)
          n_tx_frames++;
         as_tx_port.write(tx_item);// send to scoreboard
     end
@@ -81,7 +81,7 @@ class uart_mon extends uvm_monitor;
     forever begin
         rx_item = uart_item::type_id::create("rx_item");// create object "rx_item"
         collect_frame(1'b0, rx_item);// regulate rx_item
-        `uvm_info("MON_RX", rx_item.convert2string(), UVM_LOW)
+        `uvm_info("MON_RX", rx_item.sprint, UVM_LOW)
         n_rx_frames++;
          as_rx_port.write(rx_item);// send to scoreboard
     end
@@ -94,6 +94,9 @@ class uart_mon extends uvm_monitor;
     bit has_par;
     //--------step 1st : wait for start bit-------- //
     while (get_tx_rx(dir) !== 1'b1) @(vif.mon_if); //IDLE
+    if (! uvm_config_db #(uart_cfg) :: get (this, "", "uart_cfg", cfg)) begin
+        `uvm_fatal ("NOT_CFG", "UART configured not found")
+     end
     while (get_tx_rx(dir) !== 1'b0) @(vif.mon_if); // START
         item.start_time = $time ; //start time
 
@@ -136,7 +139,6 @@ class uart_mon extends uvm_monitor;
 
     //--------step 7th rewrite item--------
     item.data = d;
-    item.uart_dir = dir ? UART_TX : UART_RX;
     //item.parity = par_bit ? UART_PAR_EVEN : UART_PAR_ODD ;
     item.end_time = $time ;
  endtask

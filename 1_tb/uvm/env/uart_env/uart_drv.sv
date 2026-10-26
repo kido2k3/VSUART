@@ -34,11 +34,14 @@ task run_phase(uvm_phase phase);
     wait (vif.rst_n === 1'b1);                   
     forever begin
         seq_item_port.get(req);        
-        `uvm_info("DRV", $sformatf("Starting to drive transaction:\n%s", req.sprint()), UVM_HIGH)
-        if (req.uart_dir == UART_RX || req.uart_dir == UART_TX_RX)
-            drive_item(req);
-        else
-            `uvm_warning("DRV_TX", "item with uart_dir == UART_TX ignored (drive only rx)")
+       //update the cfg if changed
+        if (!uvm_config_db#(uart_cfg)::get(this, "", "uart_cfg", cfg))begin
+        `uvm_fatal("NO_CONFIG","Configured not found")
+        end
+        `uvm_info("DRV", $sformatf("Starting to drive transaction:\n%s", req.sprint()), UVM_LOW)
+        
+        `uvm_info("DRIVER_CFG", $sformatf("Update new configure to:\n%s", cfg.sprint()), UVM_LOW)
+            drive_item(req); 
         seq_item_port.put(req);               
     end
 endtask
@@ -51,7 +54,7 @@ task drive_item(uart_item item);
     build_frame(bits, item);
     `uvm_info("DRV_RX", $sformatf("t=%0t drive %0d bits, cpb=%0d, data=%0h",
               $time, bits.size(), cfg.clks_per_bit, item.data), UVM_LOW)
-    @(vif.drv_if);
+    //@(vif.drv_if);
     foreach (bits[i]) begin
         vif.drv_if.u_rx <= bits[i];
         repeat (cfg.clks_per_bit) @(vif.drv_if);

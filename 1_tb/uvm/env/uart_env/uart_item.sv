@@ -7,27 +7,24 @@
 
 class uart_item extends uvm_sequence_item;                     
 //for sequence generate
-  rand uart_tx_rx_e         uart_dir;
-  rand bit [8:0]            data;        
-  rand bit                  parity_error;   // 1 -> send a wrong parity bit on purpose
-  rand bit                  frame_error;
+  rand bit [8:0]       data;        
+  bit                  parity_error;   // 1 -> send a wrong parity bit on purpose
+  bit                  frame_error;
   time start_time;                   // when the start bit began
   time end_time;                     // when the last stop bit ended
 
-  constraint c_err {
-    soft parity_error == 0;  //default not turn on error
-    soft frame_error == 0; //default not turn on error
-  }
-   `uvm_object_utils(uart_item)
+   `uvm_object_utils_begin(uart_item)
+        `uvm_field_int(data, UVM_ALL_ON | UVM_BIN)
+        `uvm_field_int(parity_error,UVM_ALL_ON)
+        `uvm_field_int(frame_error, UVM_ALL_ON)
+        `uvm_field_int(start_time,UVM_ALL_ON)
+        `uvm_field_int(end_time,  UVM_ALL_ON)
+    `uvm_object_utils_end
+  
   function new(string name = "uart_item");
     super.new(name);
-  endfunction
-
- 
-
-  function string convert2string();
-    return $sformatf("%s data=0x%03h perr=%0b",
-                     uart_dir.name(), data, parity_error);// for debug purpose may fix in the incomming version
+     parity_error = 0;   // 1 -> send a wrong parity bit on purpose
+     frame_error = 0;
   endfunction
 
 endclass

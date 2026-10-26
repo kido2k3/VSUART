@@ -48,6 +48,7 @@ class vsuart_rx_frame_formats_seq extends vsuart_base_seq;
         // read RX fifo
         apb_rd_data();
     endtask
+    
     virtual task body();
         `uvm_info(get_type_name, "Body entered...", UVM_LOW)
         single_format_transfer();

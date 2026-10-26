@@ -36,7 +36,7 @@ class vsuart_base_seq extends uvm_sequence;
 
     // task: write data into dut rx
     virtual task uart_wdata();
-        assert(uart_seq.randomize());
+        assert(uart_seq.randomize() with {});
         uart_seq.start(u_seqr);
     endtask
 
