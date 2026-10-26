@@ -21,7 +21,7 @@ module vsuart_prs (
         if (!rst_n) begin
             _clk <= 0;
         end else if(sync_i_en) begin
-            if(r_cnt == i_prs + 1) begin
+            if(r_cnt == i_prs) begin
                 _clk <= ~_clk;
                 r_cnt <= 0;
             end else begin

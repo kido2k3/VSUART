@@ -138,7 +138,7 @@ module vsuart_reg #(
 	wr_reg #(
 		.ADDR_W(REG_ADDR_W),
 		.DATA_W(REG_DATA_W),
-		.ADDR(`VSUART_MODE_ADDR >> 2),
+		.ADDR(`VSUART_MODE_ADDR),
 		.MASK(`VSUART_MODE_MASK),
 		.POR_VAL(`VSUART_MODE_POR)
 	) u_reg_mode(
@@ -155,7 +155,7 @@ module vsuart_reg #(
 	wr_reg #(
 		.ADDR_W(REG_ADDR_W),
 		.DATA_W(REG_DATA_W),
-		.ADDR(`VSUART_CR_ADDR >> 2),
+		.ADDR(`VSUART_CR_ADDR),
 		.MASK(`VSUART_CR_MASK),
 		.POR_VAL(`VSUART_CR_POR)
 	) u_reg_cr(
@@ -172,7 +172,7 @@ module vsuart_reg #(
 	r1c_reg #(
 		.ADDR_W(REG_ADDR_W),
 		.DATA_W(REG_DATA_W),
-		.ADDR(`VSUART_STA_ADDR >> 2),
+		.ADDR(`VSUART_STA_ADDR),
 		.MASK({REG_DATA_W{1'b1}}),
 		.MASK_CLR(`VSUART_STA_MASK),
 		.POR_VAL(`VSUART_STA_POR)
@@ -192,7 +192,7 @@ module vsuart_reg #(
 	wr_reg #(
 		.ADDR_W(REG_ADDR_W),
 		.DATA_W(REG_DATA_W),
-		.ADDR(`VSUART_PRS_ADDR >> 2),
+		.ADDR(`VSUART_PRS_ADDR),
 		.MASK(`VSUART_PRS_MASK),
 		.POR_VAL(`VSUART_PRS_POR)
 	) u_reg_prs(
@@ -209,7 +209,7 @@ module vsuart_reg #(
 	wr_reg #(
 		.ADDR_W(REG_ADDR_W),
 		.DATA_W(REG_DATA_W),
-		.ADDR(`VSUART_BRG_ADDR >> 2),
+		.ADDR(`VSUART_BRG_ADDR),
 		.MASK(`VSUART_BRG_MASK),
 		.POR_VAL(`VSUART_BRG_POR)
 	) u_reg_brg(
@@ -226,7 +226,7 @@ module vsuart_reg #(
 	wr_reg #(
 		.ADDR_W(REG_ADDR_W),
 		.DATA_W(REG_DATA_W),
-		.ADDR(`VSUART_IE_ADDR >> 2),
+		.ADDR(`VSUART_IE_ADDR),
 		.MASK(`VSUART_IE_MASK),
 		.POR_VAL(`VSUART_IE_POR)
 	) u_reg_ie(
@@ -243,7 +243,7 @@ module vsuart_reg #(
 	w1c_reg #(
 		.ADDR_W(REG_ADDR_W),
 		.DATA_W(REG_DATA_W),
-		.ADDR(`VSUART_IFS_ADDR >> 2),
+		.ADDR(`VSUART_IFS_ADDR),
 		.MASK({REG_DATA_W{1'b1}}),
 		.MASK_CLR(`VSUART_IFS_MASK),
 		.POR_VAL(`VSUART_IFS_POR)

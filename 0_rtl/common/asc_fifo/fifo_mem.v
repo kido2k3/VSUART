@@ -27,10 +27,10 @@ module fifo_mem #(
 //---------------------------------------------------------------------------
     always@(posedge wclk) begin
         if(w_en & !i_full) begin
-            fifo[b_wptr[P_PTR_W - 1 : 0]] <= i_data;
+            fifo[b_wptr] <= i_data;
         end
     end
 //---------------------------------------------------------------------------
-    assign o_data = fifo[b_rptr[P_PTR_W - 1 : 0]];
+    assign o_data = fifo[b_rptr];
 endmodule
 //===========================================================================
