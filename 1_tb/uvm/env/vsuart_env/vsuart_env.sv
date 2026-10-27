@@ -9,6 +9,7 @@
 //--                : ver.1.04 (26/10/21) clk_rst agent passed to reg_env again (ral_rst_sub)
 //--                : ver.1.05 (26/10/23) ral_cfg via config_db, reg_env connected in connect_phase
 //--                : ver.1.06 (26/10/24) add scb, connect scb with mon
+//--                : ver.1.07 (26/10/25) uart_cfg passed to scb
 //===========================================================================
 class vsuart_env extends uvm_env;
     `uvm_component_utils(vsuart_env)
@@ -36,7 +37,7 @@ class vsuart_env extends uvm_env;
         uvm_config_db #(clk_cfg) :: set (this, "*", "c_cfg", cfg.c_cfg);
 
         // set uart cfg
-        uvm_config_db #(uart_cfg) :: set (this, "uart*", "uart_cfg", cfg.u_cfg);
+        uvm_config_db #(uart_cfg) :: set (this, "*", "uart_cfg", cfg.u_cfg);
 
         // set ral cfg
         uvm_config_db #(ral_cfg) :: set (this, "reg_env", "ral_cfg", cfg.r_cfg);
