@@ -88,6 +88,7 @@ class vsuart_base_seq extends uvm_sequence;
         int unsigned cpb, actual, actual_baud, sys_hz;
         if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
         if (this.cfg == null) `uvm_fatal(get_type_name, "cfg not connected")
+        check_uen_disabled();
 
         // sys_clk frequency in Hz, from the clock configuration
         sys_hz = this.cfg.c_cfg._sys_freq * 1_000_000;
@@ -111,6 +112,8 @@ class vsuart_base_seq extends uvm_sequence;
         update_reg(ral.MODE);
         update_reg(ral.PRS);
         update_reg(ral.BRG);
+
+
         `uvm_info(get_type_name, $sformatf("configured: BSEL=%0d PRS=%0d BRG=%0d PDSEL=%b SPSEL=%0d (baudrate=%0d)",
                   bsel, prs, brg, 2'(ral.MODE.PDSEL.get()), ral.MODE.SPSEL.get(), cfg.baudrate), UVM_MEDIUM)
     endtask
@@ -129,6 +132,72 @@ class vsuart_base_seq extends uvm_sequence;
     // task: UEN = 0, the protected fields become writable
     virtual task uart_disable();
         uart_enable(3'b000);
+    endtask
+
+    // task: disable the UART and read MODE.UEN back from the DUT to make sure
+    // it is 0 before the protected fields (MODE, PRS, BRG, ...) are written
+    virtual task check_uen_disabled();
+        uvm_status_e   status;
+        uvm_reg_data_t uen;
+        if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
+        ral.MODE.UEN.read(status, uen, .parent(this));
+        if (status != UVM_IS_OK) `uvm_error(get_type_name, "UEN read failed")
+        else if (uen != 0)
+            `uvm_error(get_type_name, $sformatf("UEN=%b after disable, expected 000", 3'(uen)))
+        else
+            `uvm_info(get_type_name, "UEN=000 checked, UART disabled", UVM_HIGH)
+    endtask
+
+    // task: default register setting
+    //   MODE: BSEL=1 (4x), PDSEL=01 (8-bit odd), SPSEL=0 (1 stop)
+    //   CR  : TXISEL=00, RXISEL=00 (interrupt per character)
+    //   PRS=1, BRG=728 (9600 bps), IE: TXTE=RXTE=ERRIE=1
+    // The UART agent (cfg.u_cfg) is set to the same frame format and baud rate.
+    virtual task config_default();
+        if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
+        check_uen_disabled();
+
+        ral.MODE.BSEL.set(1'b1);
+        ral.MODE.PDSEL.set(2'b01);
+        ral.MODE.SPSEL.set(1'b0);
+        ral.CR.TXISEL.set(2'b00);
+        ral.CR.RXISEL.set(2'b00);
+        ral.PRS.PRS.set(4'd1);
+        ral.BRG.BRG.set(16'd728);
+        ral.IE.TXTE.set(1'b1);
+        ral.IE.RXTE.set(1'b1);
+        ral.IE.ERRIE.set(1'b1);
+        update_reg(ral.MODE);
+        update_reg(ral.CR);
+        update_reg(ral.PRS);
+        update_reg(ral.BRG);
+        update_reg(ral.IE);
+
+        if (cfg != null) begin
+            cfg.u_cfg.data_width   = UART_DATA_8;
+            cfg.u_cfg.parity_sel   = UART_PAR_ODD;
+            cfg.u_cfg.stop_bit_sel = UART_STOP_1;
+            cfg.u_cfg.baudrate     = 9600;
+            cfg.u_cfg.clks_per_bit_cal();
+        end
+
+        uart_enable();
+    endtask
+
+    // task: program only MODE.PDSEL/SPSEL
+    virtual task config_datamode(uart_cfg u_cfg);
+        if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
+        check_uen_disabled();
+
+        ral.MODE.PDSEL.set(pdsel_of(u_cfg));
+        ral.MODE.SPSEL.set(u_cfg.stop_bit_sel == UART_STOP_2);
+        update_reg(ral.MODE);
+        `uvm_info(get_type_name, $sformatf("ral_datamode: PDSEL=%b SPSEL=%0d",
+                  2'(ral.MODE.PDSEL.get()), ral.MODE.SPSEL.get()), UVM_HIGH)
+
+        uart_enable();
+        check_uen_disabled();
+
     endtask
 
 
