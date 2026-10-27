@@ -26,6 +26,10 @@ class vsuart_base_seq extends uvm_sequence;
     uvm_status_e status;
     uvm_reg_data_t value;
 
+    // default baudrate
+    int unsigned baud = 9600;
+    // sequence length
+    int unsigned seq_len = 50;
     function new(string name = "vsuart_base_seq");
         super.new(name);
         r_seq = rst_base_seq::type_id::create("r_seq");
@@ -33,6 +37,14 @@ class vsuart_base_seq extends uvm_sequence;
         apb_wdata_seq = apb_mst_wdata_seq::type_id::create("apb_wdata_seq");
         apb_rdata_seq = apb_mst_rdata_seq::type_id::create("apb_rdata_seq");
     endfunction
+    
+    // task: wait for rx fifo have data
+    task wait_rx_fifo_not_empty;
+        do begin
+            // wait until read fifo having data
+            ral.STA.RBDSTA.read(status, value, .parent(this));
+        end while (value == 0);
+    endtask
 
     // task: write data into dut rx
     virtual task uart_wdata();
@@ -155,7 +167,7 @@ class vsuart_base_seq extends uvm_sequence;
     // The UART agent (cfg.u_cfg) is set to the same frame format and baud rate.
     virtual task config_default();
         if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
-        check_uen_disabled();
+        uart_disable();
 
         ral.MODE.BSEL.set(1'b1);
         ral.MODE.PDSEL.set(2'b01);
@@ -179,6 +191,8 @@ class vsuart_base_seq extends uvm_sequence;
             cfg.u_cfg.stop_bit_sel = UART_STOP_1;
             cfg.u_cfg.baudrate     = 9600;
             cfg.u_cfg.clks_per_bit_cal();
+            uvm_config_db #(vsuart_cfg) :: set (null, "*", "cfg", cfg);
+            `uvm_info("updated_cfg", $sformatf("Update new configure to:\n%s", cfg.sprint), UVM_LOW)
         end
 
         uart_enable();
@@ -187,8 +201,7 @@ class vsuart_base_seq extends uvm_sequence;
     // task: program only MODE.PDSEL/SPSEL
     virtual task config_datamode(uart_cfg u_cfg);
         if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
-        check_uen_disabled();
-
+        uart_disable();
         ral.MODE.PDSEL.set(pdsel_of(u_cfg));
         ral.MODE.SPSEL.set(u_cfg.stop_bit_sel == UART_STOP_2);
         update_reg(ral.MODE);
@@ -196,7 +209,8 @@ class vsuart_base_seq extends uvm_sequence;
                   2'(ral.MODE.PDSEL.get()), ral.MODE.SPSEL.get()), UVM_HIGH)
 
         uart_enable();
-        check_uen_disabled();
+        // read to make sure RX transfer when DUT ready
+        ral.MODE.UEN.read(status, value, .parent(this));
 
     endtask
 
@@ -253,7 +267,7 @@ class vsuart_base_seq extends uvm_sequence;
             default      : return 2'b00;
         endcase
     endfunction
-
+    
     virtual task body();
         `uvm_info(get_type_name, "Body entered...", UVM_LOW)
         init_rst(13, 10000);

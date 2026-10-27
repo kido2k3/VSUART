@@ -12,6 +12,7 @@ class vsuart_rx_frame_formats_test extends base_test;
 
     virtual function void build_phase(uvm_phase phase);  
         set_type_override_by_type(vsuart_base_seq::get_type(), vsuart_rx_frame_formats_seq::get_type());
+        set_type_override_by_type(uart_cfg::get_type(), uart_rand_formats_cfg::get_type());
         super.build_phase(phase);
         cfg.set_sys_freq(112);
     endfunction

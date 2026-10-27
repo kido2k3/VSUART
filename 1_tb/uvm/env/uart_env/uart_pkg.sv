@@ -28,6 +28,7 @@ package uart_pkg;
     } uart_data_type_e;
 
     `include "uart_cfg.sv"
+    `include "uart_rand_formats_cfg.sv"
     `include "uart_item.sv"
     `include "uart_seqr.sv"
     `include "uart_drv.sv"
