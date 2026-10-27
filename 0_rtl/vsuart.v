@@ -143,6 +143,7 @@ module vsuart #(
 		.i_reg_rdata     (reg_rdata),
 		.i_reg_ready     (reg_ready),
 		.i_reg_slverr    (reg_slverr),
+        .i_reg_uen_2     (mode_uen[2]),
 		// UART SIDE
 		.i_tx_ready      (tx_ready),
 		.o_tx_wdata      (tx_wdata),

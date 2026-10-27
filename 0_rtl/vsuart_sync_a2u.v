@@ -30,6 +30,7 @@ module vsuart_sync_a2u #(
 // LOCAL VARIABLE HERE-------------------------------------------------------
     wire tx_en;
     wire rx_en;
+    wire tx_wen;
 //---------------------------------------------------------------------------
     // tx enable
     assign tx_en = i_mode_uen[0] & i_mode_uen[2];
@@ -59,6 +60,8 @@ module vsuart_sync_a2u #(
         .o_r_data     (o_rx_en)
     );
     
+    // tx_wen only trigger when tx enable
+    assign tx_wen = i_tx_wen & tx_en;
     // tx fifo
     asc_fifo #(
         .P_DEPTH      (FIFO_DEPTH),
@@ -67,7 +70,7 @@ module vsuart_sync_a2u #(
         // WRITE INTERFACE: i_ (input), w_ (write)
         .wclk        (pclk),
         .wrst_n      (rst_n),
-        .w_en        (i_tx_wen),
+        .w_en        (tx_wen),
         .i_data      (i_tx_wdata),
         .o_full      (o_sta_tbsta),
         // READ INTERFACE
