@@ -25,6 +25,7 @@ module vsuart_sync_u2a #(
 	input  								i_sta_prerr,
 	input  								i_sta_rista,
 	input  								i_sta_rbosta,
+    output                              o_fifo_empty,
 	// apb side
 	input                               pclk,
 	input                               i_rx_ren,
@@ -116,6 +117,7 @@ module vsuart_sync_u2a #(
 		.o_data        (o_rx_rdata)
 	);
     assign o_sta_rbdsta = !fifo_empty;
+    assign o_fifo_empty = fifo_empty;
 //---------------------------------------------------------------------------
 endmodule
 //===========================================================================

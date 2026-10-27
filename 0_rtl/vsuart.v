@@ -110,6 +110,7 @@ module vsuart #(
 	wire  								rx_sta_prerr;
 	wire  								rx_sta_rista;
 	wire  								rx_sta_rbosta;
+    wire                                fifo_empty;
 //     initial begin
 //         $display("hello world");
 //     end
@@ -147,7 +148,7 @@ module vsuart #(
 		.o_tx_wdata      (tx_wdata),
 		.o_tx_wren       (tx_wen),
 		.i_rx_ready      (rx_ready),
-		.i_rx_empty      (sta_rbdsta),
+		.i_rx_empty      (fifo_empty),
 		.i_rx_rdata      (rx_rdata),
 		.o_rx_rden       (rx_ren)
 	);
@@ -273,6 +274,7 @@ module vsuart #(
 		.i_sta_prerr     (rx_sta_prerr),
 		.i_sta_rista     (rx_sta_rista),
 		.i_sta_rbosta    (rx_sta_rbosta),
+        .o_fifo_empty    (fifo_empty),
 		// apb side
 		.pclk            (pclk),
 		.i_rx_ren        (rx_ren),
