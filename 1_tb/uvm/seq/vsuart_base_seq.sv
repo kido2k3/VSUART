@@ -42,7 +42,9 @@ class vsuart_base_seq extends uvm_sequence;
     task wait_rx_fifo_not_empty;
         do begin
             // wait until read fifo having data
-            ral.STA.RBDSTA.read(status, value, .parent(this));
+            //ral.STA.RBDSTA.read(status, value, .parent(this));
+            ral.STA.read(status, value, .parent(this));
+            value = ral.STA.RBDSTA.get_mirrored_value();
         end while (value == 0);
     endtask
 
