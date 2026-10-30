@@ -17,8 +17,8 @@ class uart_item extends uvm_sequence_item;
         `uvm_field_int(data, UVM_ALL_ON | UVM_BIN)
         `uvm_field_int(parity_error,UVM_ALL_ON)
         `uvm_field_int(frame_error, UVM_ALL_ON)
-        `uvm_field_int(start_time,UVM_ALL_ON)
-        `uvm_field_int(end_time,  UVM_ALL_ON)
+        `uvm_field_int(start_time,UVM_ALL_ON | UVM_DEC)
+        `uvm_field_int(end_time,  UVM_ALL_ON | UVM_DEC)
     `uvm_object_utils_end
   
   function new(string name = "uart_item");
