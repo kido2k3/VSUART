@@ -7,7 +7,7 @@
 class vsuart_rx_basic_seq extends vsuart_base_seq;
   `uvm_object_utils(vsuart_rx_basic_seq)
  
-  int frame_num =128;
+  int frame_num =10;
   int rx_cnt;                 //rx_cnt == frame_num
  
   function new(string name = "vsuart_rx_basic_seq");

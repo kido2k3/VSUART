@@ -4,6 +4,12 @@
 #-- History : ver.1.00 (26/10/15) 1st release (not support cov yet)
 #--         :
 #===========================================================================
+#===========================================================================
+#-- Author  : kido
+#-- Name    : run.sh
+#-- History : ver.1.00 (26/10/15) 1st release (not support cov yet)
+#--         :
+#===========================================================================
 #!/bin/bash
 
 comp=1
@@ -26,8 +32,13 @@ main(){
         mkdir $log_dir
     fi
 
-    # *.f file gen
+    # *.f file gen: -gen only generates the .f files and exits (no compile / sim)
     if [[ gen_file -eq 1 ]]; then
+        file_gen
+        exit 0
+    fi
+    # .f files do not exist yet -> generate them, then continue
+    if ! [[ -s $src_file ]] || ! [[ -s $tb_file ]]; then
         file_gen
     fi
 
@@ -70,6 +81,10 @@ parse_args() {
             -s)
                 comp=0
                 sim=1
+                shift
+                ;;
+            -gen)
+                gen_file=1
                 shift
                 ;;
             -seed)
@@ -116,6 +131,7 @@ show_help() {
     echo "  -s                Simulation only"
     echo "  -w                Enable waveform dump"
     echo "  -cov              Enable coverage"
+    echo "  -gen              Re-generate src_file.f and tb_file.f"
     echo "  -seed <value>     Specify random seed (default: random)"
     echo "  -verb <value>     Specify verbosity (default: UVM_LOW)"
     echo "  -h                Show this help message"
@@ -221,54 +237,79 @@ xrun_run(){
     fi
 }
 
+# add_files <dir> <name_pattern> <out_file> [exclude_word1] [exclude_word2]
+#   write every file under <dir> matching <name_pattern> into <out_file>
+#   skip: .git, path with a space, name containing an exclude word
+add_files(){
+    local dir="$1" pat="$2" out="$3" ex1="$4" ex2="$5"
+    local f n
+    [[ -d "$dir" ]] || return 0
+    while IFS= read -r f; do
+        [[ "$f" == *"/.git/"* ]] && continue
+        if [[ "$f" == *" "* ]]; then
+            echo "SKIP, space in path: $f"
+            continue
+        fi
+        n=$(basename "$f")
+        [[ -n "$ex1" && "$n" == *"$ex1"* ]] && continue
+        [[ -n "$ex2" && "$n" == *"$ex2"* ]] && continue
+        echo "$f" >> "$out"
+    done < <(find -L "$dir" -type f -name "$pat" 2>/dev/null | sort)
+}
+
+# add_incdirs <dir> <out_file> : +incdir+ for <dir> and every sub folder
+add_incdirs(){
+    local dir="$1" out="$2" d
+    [[ -d "$dir" ]] || return 0
+    while IFS= read -r d; do
+        [[ "$d" == *"/.git"* ]] && continue
+        if [[ "$d" == *" "* ]]; then
+            echo "SKIP, space in path: $d"
+            continue
+        fi
+        echo "+incdir+$d" >> "$out"
+    done < <(find -L "$dir" -type d 2>/dev/null | sort)
+}
+
 # f file generation for vcs option
 file_gen(){
+    echo "Generating $src_file and $tb_file ..."
     # reset file
-    echo "" > $src_file
-    echo "" > $tb_file
+    : > $src_file
+    : > $tb_file
     #--- src gen ---
-    list=$(find -L ../0_rtl -name "*define*")
-    for file in $list; do
-        echo $file >> $src_file
-    done
-    list=$(find -L ../0_rtl/common -type f)
-    for file in $list; do
-        echo $file >> $src_file
-    done
-    list=$(find -L ../0_rtl -name "*vsuart*" ! -name "*define*"| awk '{ print length($0), $0 }' | sort -nr | cut -d' ' -f2-)
-    for file in $list; do
-        echo $file >> $src_file
-    done
+    # 1) define files first
+    add_files "../0_rtl" "*define*" "$src_file"
+    # 2) everything in common
+    add_files "../0_rtl/common" "*" "$src_file"
+    # 3) vsuart files except define, longest path first
+    local f
+    while IFS= read -r f; do
+        [[ "$f" == *"/.git/"* ]] && continue
+        if [[ "$f" == *" "* ]]; then
+            echo "SKIP, space in path: $f"
+            continue
+        fi
+        echo "$f" >> $src_file
+    done < <(find -L ../0_rtl -type f -name "*vsuart*" ! -name "*define*" | awk '{ print length($0), $0 }' | sort -nr | cut -d' ' -f2-)
     #--- tb gen ----
     # incdir
-    list=$(find -L ../1_tb/ -type d)
-    for dir in $list; do
-        echo "+incdir+$dir" >> $tb_file
-    done
-
+    add_incdirs "../1_tb" "$tb_file"
     # echo "+incdir+../3_third_party/VLSI_COMMON/01_uvm_env/apb_mst_env" >> $tb_file
-    list=$(find ../1_tb/ -type f -name "tb_*.sv")
-    echo $list >> $tb_file
-    # sequence
-    list=$(find ../1_tb/uvm/seq -type f -name "*base*" ! -name "*vsuart*")
-    for dir in $list; do
-        echo $dir >> $tb_file
-    done
-    list=$(find ../1_tb/uvm/seq -type f -name "vsuart_base*" )
-    for dir in $list; do
-        echo $dir >> $tb_file
-    done
-    list=$(find ../1_tb/uvm/seq -type f ! -name "*base*" -name "*vsuart*")
-    for dir in $list; do
-        echo $dir >> $tb_file
-    done
-    #test
-    list=$(find ../1_tb/uvm/test -type f -name "*base*")
-    echo $list >> $tb_file
-    list=$(find ../1_tb/uvm/test -type f ! -name "*base*")
-    for dir in $list; do
-        echo $dir >> $tb_file
-    done
+    # tb top
+    add_files "../1_tb" "tb_*.sv" "$tb_file"
+    # sequence: base (not vsuart), other (no base, no vsuart), vsuart_base, then vsuart (not base)
+    add_files "../1_tb/uvm/seq" "*base*" "$tb_file" "vsuart"
+    add_files "../1_tb/uvm/seq" "*" "$tb_file" "base" "vsuart"
+    add_files "../1_tb/uvm/seq" "vsuart_base*" "$tb_file"
+    add_files "../1_tb/uvm/seq" "*vsuart*" "$tb_file" "base"
+    # test: base first, then the others
+    add_files "../1_tb/uvm/test" "*base*" "$tb_file"
+    add_files "../1_tb/uvm/test" "*" "$tb_file" "base"
+    # check
+    echo "---- suspicious lines in .f files: start with - or contain a space ----"
+    grep -nE '^-| ' $src_file $tb_file
+    echo "---- end of check ----"
 }
 
 # ********* main *****
