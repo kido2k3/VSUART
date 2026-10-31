@@ -12,7 +12,7 @@ module vsuart_prs (
 );
 // LOCAL VARIABLE HERE ------------------------------------------------------
     reg     _clk;
-    reg [4 : 0] r_cnt;
+    reg [3 : 0] r_cnt;
     wire sync_i_en;
 //---------------------------------------------------------------------------
 	cdc_unit ifs_errifs_cdc(.clk(clk), .rst_n(rst_n), .i_data(i_en), .o_data(sync_i_en));
