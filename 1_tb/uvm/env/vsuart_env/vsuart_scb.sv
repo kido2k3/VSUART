@@ -113,6 +113,13 @@ class vsuart_scb extends uvm_scoreboard;
     virtual function void write_apb_mst(_apb_item rcv_item);
         `uvm_info("SCB apb mst", $sformatf("received data:%s", rcv_item.sprint), UVM_HIGH)
         
+        // Report errors for all addresses; failed accesses must not enter data queues.
+        if (rcv_item.slverr) begin
+            `uvm_error("SCB_APB_SLVERR", $sformatf("APB %s slave error: addr=0x%04h data=0x%08h",
+                       rcv_item.trans_type.name(), rcv_item.addr, rcv_item.data))
+            return;
+        end
+
         // only data access, skip transfer aborted by reset
         if (rcv_item.addr != DATA_ADDR) return;
 
@@ -124,20 +131,29 @@ class vsuart_scb extends uvm_scoreboard;
                 tx_pending++;
                 run_ph.raise_objection(this, "tx frame pending");
             end
-        end else if (!rcv_item.slverr) begin //Recevie trans
+        end else begin //Recevie trans
             void'(mb_apb_rd_data.try_put(rcv_item));
         end
+    endfunction
+
+    function void check_uart_errors(string dir, uart_item item);
+        if (item.parity_error)
+            `uvm_error("SCB_UART_PARITY", $sformatf("UART %s parity error: data=0x%03h", dir, item.data))
+        if (item.frame_error)
+            `uvm_error("SCB_UART_FRAME", $sformatf("UART %s frame error: data=0x%03h", dir, item.data))
     endfunction
 
     // function: handle data received from uart TX monitor
     virtual function void write_uart_tx(uart_item rcv_item);
         `uvm_info("SCB uart tx", $sformatf("received data:%s", rcv_item.sprint), UVM_HIGH)
+        check_uart_errors("TX", rcv_item);
         void'(mb_uart_tx_data.try_put(rcv_item));
     endfunction
 
     // function: handle data received from uart RX monitor
     virtual function void write_uart_rx(uart_item rcv_item);
         `uvm_info("SCB uart rx", $sformatf("received data:%s", rcv_item.sprint), UVM_HIGH)
+        check_uart_errors("RX", rcv_item);
         
         void'(mb_uart_rx_data.try_put(rcv_item));
     endfunction
