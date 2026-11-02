@@ -1,4 +1,9 @@
-// TX format sweep using section 6 Default Register setup.
+//===========================================================================
+//-- Author         : nddm
+//-- Name           : vsuart_tx_frame_formats_seq (virtual sequence)
+//-- History        : ver.1.00 (26/10/15) 1st release
+//===========================================================================
+
 class vsuart_tx_frame_formats_seq extends vsuart_base_seq;
     `uvm_object_utils(vsuart_tx_frame_formats_seq)
 
