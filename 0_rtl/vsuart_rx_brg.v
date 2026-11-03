@@ -21,7 +21,7 @@ module vsuart_rx_brg (
 //---------------------------------------------------------------------------
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            r_cnt <= i_brg;
+            r_cnt <= 0;
         end else if(i_brg_en) begin
             if(r_cnt == 0) begin 
                 r_cnt <= i_brg;
@@ -36,7 +36,7 @@ module vsuart_rx_brg (
     // for tx_cken
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            r_cnt_tx <= over_sampling/2;
+            r_cnt_tx <= 0;
         end else if(i_brg_en) begin
             if(r_cnt == 0) begin
                 if(r_cnt_tx == 0) begin 

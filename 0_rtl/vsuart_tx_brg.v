@@ -23,7 +23,7 @@ module vsuart_tx_brg (
     // for rx_cken
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            r_cnt <= i_brg;
+            r_cnt <= 0;
         end else if(i_brg_en) begin
             if(r_cnt == 0) begin 
                 r_cnt <= i_brg;
@@ -39,7 +39,7 @@ module vsuart_tx_brg (
     // for tx_cken
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            r_cnt_tx <= over_sampling;
+            r_cnt_tx <= 0;
         end else if(i_brg_en) begin
             if(rx_cken) begin
                 if(r_cnt_tx == 0) begin 

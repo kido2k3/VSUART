@@ -24,7 +24,7 @@ module bit_cnt (
 	// counting
 	always @(posedge clk or negedge rst_n) begin
 		if (!rst_n) begin
-			r_cnt <= data_cnt;
+			r_cnt <= 0;
 		end else if(i_cnt_en) begin
 			if(i_cken) begin
 				if(r_cnt == 0) begin

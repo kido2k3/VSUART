@@ -11,7 +11,7 @@ module rptr_handler #(
     input                               rrst_n, 
     input                               i_r_en, 
     input       [P_PTR_W - 1    : 0]    i_g_wptr_sync, 
-    output  reg [P_PTR_W - 2    : 0]    o_b_rptr,
+    output      [P_PTR_W - 2    : 0]    o_b_rptr,
     output  reg [P_PTR_W - 1    : 0]    o_g_rptr,
     output  reg                         o_empty
 );

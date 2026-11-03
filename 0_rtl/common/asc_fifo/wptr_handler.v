@@ -11,7 +11,7 @@ module wptr_handler #(
     input                               wrst_n, 
     input                               i_w_en, 
     input       [P_PTR_W - 1    : 0]    i_g_rptr_sync, 
-    output  reg [P_PTR_W - 2    : 0]    o_b_wptr,
+    output      [P_PTR_W - 2    : 0]    o_b_wptr,
     output  reg [P_PTR_W - 1    : 0]    o_g_wptr,
     output  reg                         o_full
 );
