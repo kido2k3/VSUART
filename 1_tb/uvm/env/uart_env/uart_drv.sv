@@ -17,11 +17,11 @@ endfunction
 function void build_phase (uvm_phase phase);
     super.build_phase(phase);
     `uvm_info("build_phase", "Entered...", UVM_LOW)
-    // get virtual interface from uvm_if
+   
     if (!uvm_config_db#(virtual uart_if)::get(this, "", "uart_vif", vif))begin
         `uvm_fatal("NO_IF","Virtual interface not found")
     end
-    //get cfg from uvm_cfg
+
     if (!uvm_config_db#(uart_cfg)::get(this, "", "uart_cfg", cfg))begin
         `uvm_fatal("NO_CONFIG","Configured not found")
     end
@@ -34,7 +34,6 @@ task run_phase(uvm_phase phase);
     wait (vif.rst_n === 1'b1);                   
     forever begin
         seq_item_port.get(req);        
-       //update the cfg if changed
         if (!uvm_config_db#(uart_cfg)::get(this, "", "uart_cfg", cfg))begin
         `uvm_fatal("NO_CONFIG","Configured not found")
         end
@@ -46,7 +45,6 @@ task run_phase(uvm_phase phase);
     end
 endtask
 
-//send one frame
 task drive_item(uart_item item);
     bit bits[$];
     if (cfg.clks_per_bit < 2)
@@ -62,11 +60,6 @@ task drive_item(uart_item item);
     vif.drv_if.u_rx <= 1'b1;
 endtask
 
-//function bit [8:0] valid_data(bit data_type)
-// if (data_type) return data ; // 9bit -> data
-// else return {1'b0 , data[7:0]}; // 8bit -> data[8]=0
-// endfunction
-
  function bit calc_parity(bit [8:0] d);
     bit x = ^d;
     return (cfg.parity_sel == UART_PAR_EVEN) ? x : ~x;
@@ -80,16 +73,17 @@ function void build_frame (ref bit bits[$], uart_item item);
 
     n_data = (cfg.data_width == UART_DATA_9) ? 9 : 8;
     n_stop = (cfg.stop_bit_sel == UART_STOP_2) ? 2 : 1;
-    d = item.data;
+    d = item.data;  
     if (n_data == 8) d[8] = 1'b0;
 
     bits.delete();
-    bits.push_back(1'b0);                        // start bit
+    bits.push_back(1'b0);                     
     for (int i = 0; i < n_data; i++)
-        bits.push_back(d[i]);                    // LSB first
+        bits.push_back(d[i]);  
+                        // LSB first
     if (cfg.parity_sel != UART_PAR_NONE) begin  
         p = calc_parity(d);
-        if (item.parity_error) p = ~p;           // parity error
+        if (item.parity_error) p = ~p;          
         bits.push_back(p);
     end
     repeat (n_stop)

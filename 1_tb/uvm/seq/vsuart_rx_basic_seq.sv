@@ -7,7 +7,7 @@
 class vsuart_rx_basic_seq extends vsuart_base_seq;
   `uvm_object_utils(vsuart_rx_basic_seq)
  
-  int frame_num =128;
+  int frame_num =10;
   int rx_cnt;                 //rx_cnt == frame_num
  
   function new(string name = "vsuart_rx_basic_seq");
@@ -42,7 +42,7 @@ class vsuart_rx_basic_seq extends vsuart_base_seq;
       sent_frame(); // send 128 frame
       apb_rd_data();
       rx_cnt ++;
-      `uvm_info("trizrd frame", $sformatf("frame num = %0d", rx_cnt), UVM_LOW)
+      `uvm_info("trizrd frame", $sformatf("frame num = %0d", rx_cnt), UVM_LOW) // 41,7 ns
     end
 
     wait_rx_fifo_not_empty();
