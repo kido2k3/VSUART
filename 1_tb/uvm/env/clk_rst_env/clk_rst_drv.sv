@@ -2,7 +2,7 @@
 //-- Author         : kido
 //-- Name           : clk_rst_drv (clk_rst driver)
 //-- History        : ver.1.00 (26/10/15) 1st release
-//--                :
+//--                : ver.1.01 (26/11/3) add preset, not parallel with rst_n
 //===========================================================================
 class clk_rst_drv extends uvm_driver #(rst_item);
     `uvm_component_utils(clk_rst_drv)
@@ -71,9 +71,11 @@ class clk_rst_drv extends uvm_driver #(rst_item);
             is_rst = 1;
             
             #(1 * item.interval_time);
-            vif.rst_n = 0;
+            if (item.rst_type == rst_item::APB_RST) vif.preset_n = 0;
+            else vif.rst_n = 0;
             #(1 * item.rst_time);
-            vif.rst_n = 1;
+            if (item.rst_type == rst_item::APB_RST) vif.preset_n = 1;
+            else vif.rst_n = 1;
 
             is_rst = 0;
             seq_item_port.put(item);

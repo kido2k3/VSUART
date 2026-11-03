@@ -4,6 +4,7 @@
 //-- History        : ver.1.00 (26/10/15) 1st release
 //--                : ver.1.01 (26/10/21) configure(), uart_enable(), uart_disable()
 //--                :                     through the register model
+//--                : ver.1.02 (26/11/3) add apb reset
 //===========================================================================
 class vsuart_base_seq extends uvm_sequence;
     `uvm_object_utils(vsuart_base_seq)
@@ -79,6 +80,15 @@ class vsuart_base_seq extends uvm_sequence;
         r_seq.req.interval_time = interval_time;
         r_seq.req.rst_time = rst_time;
         r_seq.req.rst_type = rst_item::CLK_PENDING;
+        // run
+        r_seq.start(r_seqr);
+    endtask
+
+    // task: apb reset
+    virtual task init_rst(int interval_time = 8, int rst_time = 60);
+        r_seq.req.interval_time = interval_time;
+        r_seq.req.rst_time = rst_time;
+        r_seq.req.rst_type = rst_item::APB_RST;
         // run
         r_seq.start(r_seqr);
     endtask

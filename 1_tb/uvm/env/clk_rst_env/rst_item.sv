@@ -2,11 +2,11 @@
 //-- Author         : kido
 //-- Name           : rst_item (reset item)
 //-- History        : ver.1.00 (26/10/15) 1st release
-//--                :
+//--                : ver.1.01 (26/11/3) add apb reset
 //===========================================================================
 class rst_item extends uvm_sequence_item;
 
-    typedef enum {CLK_PENDING, NO_CLK_PENDING} type_e;
+    typedef enum {CLK_PENDING, NO_CLK_PENDING, APB_RST} type_e;
     
     type_e rst_type;
     int interval_time;
