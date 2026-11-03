@@ -123,6 +123,10 @@ Design specification, verification plan, and architecture documents.
 ```
 verilator -Wall --lint-only -f ./src_file.f
 ```
+## Synthesis
+```
+yosys -c yosys_syn.tcl
+```
 ---
 # 📊 Test Results (T.B.D)
 
