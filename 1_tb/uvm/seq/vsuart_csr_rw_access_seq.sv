@@ -40,8 +40,6 @@ class vsuart_csr_rw_access_seq extends vsuart_base_seq;
         if (ral == null)
             `uvm_fatal("REG_SETUP", "RAL model is null")
 
-        // Keep the RAL mirror updated during frontdoor accesses and bit bash.
-        ral.default_map.set_auto_predict(1);
 
         init_rst(13, 10000);
         uart_disable();
