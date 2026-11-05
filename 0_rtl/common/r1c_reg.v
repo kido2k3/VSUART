@@ -31,9 +31,13 @@ module r1c_reg #(
     // VARIABLE
     reg [DATA_W - 1: 0] mem_r;
     wire [DATA_W - 1: 0] mask;
+    wire [DATA_W - 1: 0] mem_nxt;
 //---------------------------------------------------------------------------
     // mask gen
     assign mask = i_wmask & MASK;
+    
+    // next mem gen
+    assign mem_nxt = (mask & i_wdata) | (~mask & mem_r);
 
     // register write
     always @(posedge clk or negedge rst_n) begin
@@ -41,10 +45,10 @@ module r1c_reg #(
             mem_r <= POR_VAL;
         end else if (i_addr_clr == ADDR && i_ren_clr) begin
             // user clear
-            mem_r <= (MASK_CLR & {DATA_W{1'b0}}) | (~MASK_CLR & mem_r);
+            mem_r <= (MASK_CLR & {DATA_W{1'b0}}) | (~MASK_CLR & mem_nxt);
         end else begin
             // internal write
-            mem_r <= (mask & i_wdata) | (~mask & mem_r);
+            mem_r <= mem_nxt;
         end
     end
 

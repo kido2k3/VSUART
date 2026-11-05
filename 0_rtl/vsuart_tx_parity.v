@@ -17,7 +17,7 @@ module vsuart_tx_parity #(
 //---------------------------------------------------------------------------
     always @(posedge clk) begin
         if (i_en) begin
-            r_data  <= (i_mode_parity) ? ~^i_data[DATA_W - 1: 0] : ^i_data[DATA_W - 2: 0];
+            r_data  <= (i_mode_parity) ? ~^i_data : ^i_data;
         end
     end
     assign  o_data = r_data;
