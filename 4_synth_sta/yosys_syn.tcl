@@ -8,7 +8,7 @@
 set TOP_MODULE vsuart
 set LIB_DIR $::env(PDK_ROOT)/sky130B/libs.ref
 set LIB $LIB_DIR/sky130_fd_sc_ms/lib/sky130_fd_sc_ms__tt_025C_1v80.lib
-set DEBUG 1
+set DEBUG 0
 
 if {$DEBUG == 1} {
     yosys debug -on
@@ -102,4 +102,5 @@ yosys tee -a $LOG stat -liberty $LIB
 #yosys tee -a $LOG select -module vsuart
 yosys tee -a $LOG check -mapped
 yosys tee -a $LOG write_verilog -noattr -noexpr vsuart_gate.v
+
 
