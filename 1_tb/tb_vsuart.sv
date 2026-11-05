@@ -8,7 +8,7 @@ module tb_vsuart;
     
     clk_rst_if clk_rst_vif();
     apb_mst_if apb_mst_vif(clk_rst_vif.apb_clk);
-    assign apb_mst_vif.rst_n = clk_rst_vif.rst_n & clk_rst_if.preset_n;
+    assign apb_mst_vif.rst_n = clk_rst_vif.rst_n & clk_rst_vif.preset_n;
 
     uart_if uart_vif(.clk(clk_rst_vif.uart_clk), .rst_n(clk_rst_vif.rst_n));
 

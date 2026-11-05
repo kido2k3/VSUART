@@ -85,7 +85,7 @@ class vsuart_base_seq extends uvm_sequence;
     endtask
 
     // task: apb reset
-    virtual task init_rst(int interval_time = 8, int rst_time = 60);
+    virtual task apb_rst(int interval_time = 8, int rst_time = 60);
         r_seq.req.interval_time = interval_time;
         r_seq.req.rst_time = rst_time;
         r_seq.req.rst_type = rst_item::APB_RST;
