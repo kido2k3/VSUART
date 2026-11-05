@@ -23,6 +23,7 @@ class vsuart_tx_basic_seq extends vsuart_base_seq;
 
         init_rst(13, 10000);
         config_default();
+        cfg.enable_continous = 1;
 
         burst = apb_mst_wdata_burst_seq::type_id::create("burst");
         burst.payload = payload;

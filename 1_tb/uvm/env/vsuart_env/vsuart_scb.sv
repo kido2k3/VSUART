@@ -19,8 +19,8 @@ class vsuart_scb extends uvm_scoreboard;
     uvm_analysis_imp_uart_rx #(uart_item, vsuart_scb) uart_rx_ap_imp;
     uvm_analysis_imp_ifs #(ifs_item, vsuart_scb) ifs_ap_imp;
     uvm_analysis_imp_rst #(rst_item, vsuart_scb) rst_ap_imp;
-    // uart cfg: to get data width for compare mask
-    uart_cfg u_cfg;
+    
+    vsuart_cfg cfg;
     
     // queue of data
     mailbox #(_apb_item) mb_apb_wr_data;    // apb write -> expect on uart tx
@@ -32,6 +32,9 @@ class vsuart_scb extends uvm_scoreboard;
     uvm_phase run_ph;
     int tx_pending;
 
+    // contain end time of previous transaction index 0 = RX, index 1 = TX.
+    time previous_end_time[2] = '{default: 0};
+
     // reset event: restart compare threads
     event rst_ev;
 
@@ -41,9 +44,8 @@ class vsuart_scb extends uvm_scoreboard;
 
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
-        // get uart cfg
-        if (! uvm_config_db #(uart_cfg) :: get (this, "", "uart_cfg", u_cfg)) begin
-            `uvm_fatal ("NOT_CFG", "UART configured not found")
+        if (!uvm_config_db #(vsuart_cfg)::get(this, "", "cfg", cfg)) begin
+            `uvm_fatal("NOT_CFG", "VSUART configuration not found")
         end
         // create analysis port
         apb_mst_ap_imp = new("apb_mst_ap_imp", this);
@@ -99,7 +101,7 @@ class vsuart_scb extends uvm_scoreboard;
 
     // compare data with data width mask
     function void data_cmp(string dir, _apb_item apb, uart_item uart);
-        bit [8:0] mask = (u_cfg.data_width == UART_DATA_9) ? 9'h1ff : 9'h0ff;
+        bit [8:0] mask = (cfg.u_cfg.data_width == UART_DATA_9) ? 9'h1ff : 9'h0ff;
         bit [8:0] apb_data = apb.data[8:0] & mask;
         bit [8:0] uart_data = uart.data & mask;
         if (apb_data == uart_data) begin
@@ -109,19 +111,21 @@ class vsuart_scb extends uvm_scoreboard;
         end
     endfunction
 
-    // handle data received from apb monitor
+    // handle data received from apb monitor and write data to apb mailbox
     virtual function void write_apb_mst(_apb_item rcv_item);
         `uvm_info("SCB apb mst", $sformatf("received data:%s", rcv_item.sprint), UVM_HIGH)
         
-        // Report errors for all addresses; failed accesses must not enter data queues.
+        // Optionally report errors; failed accesses must not enter data queues.
         if (rcv_item.slverr) begin
-            `uvm_error("SCB_APB_SLVERR", $sformatf("APB %s slave error: addr=0x%04h data=0x%08h",
-                       rcv_item.trans_type.name(), rcv_item.addr, rcv_item.data))
+            if (cfg.check_pslverr) begin
+                `uvm_error("SCB_APB_SLVERR", $sformatf("APB %s slave error: addr=0x%04h data=0x%08h",
+                           rcv_item.trans_type.name(), rcv_item.addr, rcv_item.data))
+            end
             return;
         end
 
-        // only data access, skip transfer aborted by reset
-        if (rcv_item.addr != DATA_ADDR) return;
+        // only data access
+        if (rcv_item.addr != DATA_ADDR) return; 
 
         //Write trans
         if (rcv_item.trans_type == _apb_item::WRITE) begin
@@ -137,23 +141,43 @@ class vsuart_scb extends uvm_scoreboard;
     endfunction
 
     function void check_uart_errors(string dir, uart_item item);
-        if (item.parity_error)
+        if (cfg.check_parity_error && item.parity_error)
             `uvm_error("SCB_UART_PARITY", $sformatf("UART %s parity error: data=0x%03h", dir, item.data))
-        if (item.frame_error)
+        if (cfg.check_frame_error && item.frame_error)
             `uvm_error("SCB_UART_FRAME", $sformatf("UART %s frame error: data=0x%03h", dir, item.data))
     endfunction
 
-    // function: handle data received from uart TX monitor
+    function void check_uart_continuity(bit is_tx, uart_item item);
+        string dir;
+        dir = is_tx ? "TX" : "RX";
+        if (!cfg.enable_continous) begin
+            previous_end_time[0] = 0;
+            previous_end_time[1] = 0;
+            return;
+        end
+        if (previous_end_time[is_tx] != 0) begin
+            // Continuous frames must meet exactly, with no gap or overlap.
+            if (item.start_time !== previous_end_time[is_tx])
+                `uvm_error("SCB_UART_CONTINUITY", $sformatf(
+                    "UART %s not continuous: previous_end=%0t start=%0t (expected exact equality)",
+                    dir, previous_end_time[is_tx], item.start_time))
+        end
+        previous_end_time[is_tx] = item.end_time;
+    endfunction
+
+    // handle data received from uart TX monitor and write data to uart_tx mail box
     virtual function void write_uart_tx(uart_item rcv_item);
         `uvm_info("SCB uart tx", $sformatf("received data:%s", rcv_item.sprint), UVM_HIGH)
         check_uart_errors("TX", rcv_item);
+        check_uart_continuity(1'b1, rcv_item);
         void'(mb_uart_tx_data.try_put(rcv_item));
     endfunction
 
-    // function: handle data received from uart RX monitor
+    // function: handle data received from uart RX monitor and write data to uart_rx mail box
     virtual function void write_uart_rx(uart_item rcv_item);
         `uvm_info("SCB uart rx", $sformatf("received data:%s", rcv_item.sprint), UVM_HIGH)
         check_uart_errors("RX", rcv_item);
+        check_uart_continuity(1'b0, rcv_item);
         
         void'(mb_uart_rx_data.try_put(rcv_item));
     endfunction
@@ -167,6 +191,8 @@ class vsuart_scb extends uvm_scoreboard;
     virtual function void write_rst(rst_item rcv_item);
         _apb_item apb;
         uart_item uart;
+        previous_end_time[0] = 0;
+        previous_end_time[1] = 0;
         while (mb_apb_wr_data.try_get(apb));
         while (mb_apb_rd_data.try_get(apb));
         while (mb_uart_tx_data.try_get(uart));

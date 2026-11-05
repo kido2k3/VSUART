@@ -10,10 +10,23 @@ class vsuart_cfg extends uvm_object;
     uart_cfg u_cfg;
     ral_cfg r_cfg;
     
+    bit check_pslverr = 1;
+    bit check_parity_error = 1;
+    bit check_frame_error  = 1;
+    bit enable_continous  = 0;
+    
+    real tolerance = 0.02;
+
     `uvm_object_utils_begin(vsuart_cfg)
         `uvm_field_object(c_cfg, UVM_ALL_ON)
         `uvm_field_object(r_cfg, UVM_ALL_ON)
         `uvm_field_object(u_cfg, UVM_ALL_ON)
+        `uvm_field_int(check_pslverr, UVM_ALL_ON)
+        `uvm_field_int(check_parity_error, UVM_ALL_ON)
+        `uvm_field_int(check_frame_error, UVM_ALL_ON)
+        `uvm_field_int(enable_continous, UVM_ALL_ON)
+        `uvm_field_real(tolerance, UVM_ALL_ON)
+
     `uvm_object_utils_end
     
     function new(string name = "vsuart_cfg");
