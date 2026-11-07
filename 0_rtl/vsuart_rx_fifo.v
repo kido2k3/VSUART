@@ -38,15 +38,15 @@ module vsuart_rx_fifo #(
     wire [P_PTR_W - 1 : 0] g_wptr; 
     wire [P_PTR_W - 1 : 0] g_rptr;
     // binary of read pointer in apb domain
-    wire [P_PTR_W - 1 : 0] b_rptr_sync;
+    wire [P_PTR_W - 2 : 0] b_rptr_sync;
     // counter for finding 3/4
-    wire [P_PTR_W - 1 : 0] cnt;
+    wire [P_PTR_W - 2 : 0] cnt;
     wire not_less_075;
 //---------------------------------------------------------------------------
     genvar i;
     // convert gray read pointer to bin in apb domain
     generate
-        for(i=0; i<P_PTR_W; i=i+1) begin
+        for(i=0; i<P_PTR_W-1; i=i+1) begin
             assign b_rptr_sync[i] = ^(g_rptr_sync >> i);
         end
     endgenerate
@@ -55,11 +55,11 @@ module vsuart_rx_fifo #(
     // fifo full when [P_PTR_W - 1] = 1 and [P_PTR_W - 2 : 0] = 0
     assign cnt = b_wptr - b_rptr_sync;
     // not less than 3/4
-    assign not_less_075 =   (cnt[P_PTR_W - 1] && ~|cnt[P_PTR_W - 2 : 0]) ? 1'b1 :
-                            cnt[P_PTR_W - 2 : 0] >= DEPTH_075[P_PTR_W - 2 : 0];
+    assign not_less_075 =   (!o_empty && cnt==0) ? 1'b1 :
+                            cnt >= DEPTH_075[P_PTR_W - 2 : 0];
     assign o_r_ifs[0] = !o_empty;
     assign o_r_ifs[1] = not_less_075;
-    assign o_r_ifs[2] = cnt[P_PTR_W - 1] && ~|cnt[P_PTR_W - 2 : 0];
+	cdc_unit ifs_txifs0_cdc(.clk(rclk), .rst_n(rrst_n), .i_data(o_full), .o_data(o_r_ifs[2]));
 //---------------------------------------------------------------------------
     //write pointer to read clock domain
     synchronizer #(
