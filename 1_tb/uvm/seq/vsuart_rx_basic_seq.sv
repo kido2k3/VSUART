@@ -21,7 +21,6 @@ class vsuart_rx_basic_seq extends vsuart_base_seq;
       `uvm_fatal(get_type_name, "uart_cfg randomize failed")
     else begin
       `uvm_info("updated_cfg_trizrd", $sformatf("Update new configure to:\n%s", cfg.sprint), UVM_LOW)
-      uvm_config_db #(vsuart_cfg)::set(null, "*", "cfg", cfg);
     end
     config_default();
     uart_wdata();
@@ -44,8 +43,6 @@ class vsuart_rx_basic_seq extends vsuart_base_seq;
       rx_cnt ++;
       `uvm_info("trizrd frame", $sformatf("frame num = %0d", rx_cnt), UVM_LOW) // 41,7 ns
     end
-
-    wait_rx_fifo_not_empty();
 
     if (rx_cnt != frame_num)
       `uvm_error(get_type_name, $sformatf("Lost frame: %0d/%0d", rx_cnt, frame_num))

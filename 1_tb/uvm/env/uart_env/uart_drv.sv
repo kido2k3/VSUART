@@ -50,7 +50,7 @@ task drive_item(uart_item item);
     if (cfg.clks_per_bit < 2)
         `uvm_fatal("DRV_CFG", $sformatf("clks_per_bit=%0d, cfg not calculated yet", cfg.clks_per_bit))
     build_frame(bits, item);
-    `uvm_info("DRV_RX", $sformatf("t=%0t drive %0d bits, cpb=%0d, data=%0h",
+    `uvm_info("DRV_RX", $sformatf("t=%0t drive %0d bits, cpb=%0d, data=%0b",
               $time, bits.size(), cfg.clks_per_bit, item.data), UVM_LOW)
     //@(vif.drv_if);
     foreach (bits[i]) begin

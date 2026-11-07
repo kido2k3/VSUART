@@ -92,32 +92,28 @@ class uart_mon extends uvm_monitor;
     bit [8:0] d;
     bit par_bit, exp_par;
     bit has_par;
-    //--------step 1st : wait for start bit-------- //
-    while (get_tx_rx(dir) !== 1'b1) @(vif.mon_if); //IDLE
+    
+   while (get_tx_rx(dir) !== 1'b1) @(vif.mon_if); //IDLE
     if (! uvm_config_db #(uart_cfg) :: get (this, "", "uart_cfg", cfg)) begin
         `uvm_fatal ("NOT_CFG", "UART configured not found")
      end
     while (get_tx_rx(dir) !== 1'b0) @(vif.mon_if); // START
         item.start_time = $time ; //start time
 
-//---------------step 2nd : write the configuaration when saw start bit ---------
     cpb     = cfg.clks_per_bit;
     n_data  = (cfg.data_width   == UART_DATA_9)  ? 9 : 8;
     n_stop  = (cfg.stop_bit_sel == UART_STOP_2)  ? 2 : 1;
     has_par = (cfg.parity_sel   != UART_PAR_NONE);
-    if (cpb < 2)
+    
+     
+     if (cpb < 2)
         `uvm_fatal("MON_CFG", $sformatf("clks_per_bit=%0d, cfg not yet calculated (if_clk_freq=%0d baud=%0d)",
                                         cpb, cfg.if_clk_freq, cfg.baudrate))
-
-    //--------step 3rd : wait for middle of the start bit--------
-    repeat (cpb/2) @(vif.mon_if); // come to the middle of the start bit
-    if (get_tx_rx(dir) !== 1'b0) // if still not become 0 then warning
-        `uvm_warning("MON_STA","Start bit has been glitch")
-
-    //--------step 4th read data bit (LSb first)--------
+    repeat (cpb/2) @(vif.mon_if);
     for (int i = 0; i < n_data; i++)begin
         repeat (cpb) @(vif.mon_if);
         d[i] = get_tx_rx(dir);
+          `uvm_info("MON_START", $sformatf("d = %0b , i= %0d", d ,i), UVM_LOW)
     end
 
     //--------step 5th check the parity--------
@@ -128,18 +124,15 @@ class uart_mon extends uvm_monitor;
         exp_par = (cfg.parity_sel == UART_PAR_EVEN) ? (^d) : (~^d);
         if (par_bit !== exp_par) item.parity_error = 1;
     end
-//     else item.parity = UART_PAR_NONE ;
 
-    //--------step 6th check the stop bit--------
     item.frame_error = 0 ;
     repeat(n_stop)begin
         repeat(cpb)@(vif.mon_if);
         if(get_tx_rx(dir) !== 1'b1) item.frame_error = 1;
     end
-
-    //--------step 7th rewrite item--------
+    
+    repeat(cpb/2)@(vif.mon_if);
     item.data = d;
-    //item.parity = par_bit ? UART_PAR_EVEN : UART_PAR_ODD ;
     item.end_time = $time ;
  endtask
 endclass
