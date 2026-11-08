@@ -29,7 +29,8 @@ module vsuart_apb_slv #(
     output  [REG_ADDR_W - 1 : 0]        o_reg_addr,
     output  [DATA_W - 1 : 0]            o_reg_wdata,
     output  [DATA_W - 1 : 0]            o_reg_wmask,
-    output                              o_reg_wen, // 1: write, 0: read
+    output                              o_reg_wen, // 1: write, 0: reserved
+    output                              o_reg_ren, // 1: read,  0: reserved
     input   [DATA_W - 1 : 0]            i_reg_rdata,
     input                               i_reg_ready, 
     input                               i_reg_slverr,
@@ -72,6 +73,7 @@ module vsuart_apb_slv #(
     assign o_reg_wmask = (~_rst_n) ? 0 : strb_mask;
     assign o_reg_wdata = (~_rst_n) ? 0 : i_pwdata;
     assign o_reg_wen = i_pwrite & i_penable & i_psel & o_pready & _rst_n;
+    assign o_reg_ren = ~i_pwrite & i_penable & i_psel & o_pready & _rst_n;
     assign o_reg_addr = (~_rst_n) ? 0 : reg_addr;
 //---------------------------------------------------------------------------
     // UART SIDE

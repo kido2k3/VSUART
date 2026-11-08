@@ -14,7 +14,8 @@ module vsuart_reg #(
 	input   [REG_ADDR_W - 1   : 0]      i_reg_addr,
 	input   [REG_DATA_W - 1   : 0]      i_reg_wdata,
 	input   [REG_DATA_W - 1   : 0]      i_reg_wmask,
-	input                               i_reg_wen, // 1: write, 0: read
+	input                               i_reg_ren, // 1: read,  0: reserved
+	input                               i_reg_wen, // 1: write, 0: reserved
 	output  [REG_DATA_W - 1   : 0]      o_reg_rdata,
 	output                              o_reg_ready, 
 	output                              o_reg_slverr,
@@ -184,7 +185,7 @@ module vsuart_reg #(
 		.i_wmask(wmask_sta),
 		// USER USE
 		.i_addr_clr(i_reg_addr),
-		.i_ren_clr(~i_reg_wen),
+		.i_ren_clr(i_reg_ren),
 		.o_rdata(reg_sta)
 	);
 

@@ -44,6 +44,7 @@ module vsuart #(
 	wire  [DATA_W - 1 : 0]            reg_wdata;
 	wire  [DATA_W - 1 : 0]            reg_wmask;
 	wire                              reg_wen; // 1: write, 0: read
+	wire                              reg_ren; // 1: read,  0: read
 	wire  [DATA_W - 1 : 0]            reg_rdata;
 	wire                              reg_ready; 
 	wire                              reg_slverr;
@@ -138,8 +139,10 @@ module vsuart #(
 		.o_reg_addr      (reg_addr),
 		.o_reg_wdata     (reg_wdata),
 		.o_reg_wmask     (reg_wmask),
-		// 1: write, 0: read
+		// 1: write, 0: reserved
 		.o_reg_wen       (reg_wen),
+		// 1: read,  0: reserved
+		.o_reg_ren       (reg_ren),
 		.i_reg_rdata     (reg_rdata),
 		.i_reg_ready     (reg_ready),
 		.i_reg_slverr    (reg_slverr),
@@ -164,8 +167,10 @@ module vsuart #(
 		.i_reg_addr      (reg_addr),
 		.i_reg_wdata     (reg_wdata),
 		.i_reg_wmask     (reg_wmask),
-		// 1: write, 0: read
+		// 1: write, 0: reserved
 		.i_reg_wen       (reg_wen),
+		// 1: read,  0: reserved
+		.i_reg_ren       (reg_ren),
 		.o_reg_rdata     (reg_rdata),
 		.o_reg_ready     (reg_ready),
 		.o_reg_slverr    (reg_slverr),
