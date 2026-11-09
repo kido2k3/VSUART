@@ -14,22 +14,8 @@ class vsuart_csr_rw_access_seq extends vsuart_base_seq;
 
     // Compare with the requested value, independently of the predictor mirror.
     virtual task check_uen(input bit [2:0] expected);
-        uvm_status_e   access_status;
-        uvm_reg_data_t rdata;
-
-        ral.MODE.UEN.write(access_status, expected, .path(UVM_FRONTDOOR), .parent(this));
-        if (access_status != UVM_IS_OK)
-            `uvm_error("BIT_BASH_UEN", $sformatf("UEN=%03b write failed: %s",
-                       expected, access_status.name()))
-
-        ral.MODE.UEN.read(access_status, rdata, .path(UVM_FRONTDOOR), .parent(this));
-        if (access_status != UVM_IS_OK)
-            `uvm_error("BIT_BASH_UEN", $sformatf("UEN=%03b read failed: %s",
-                       expected, access_status.name()))
-        else if (rdata !== uvm_reg_data_t'(expected))
-            `uvm_error("BIT_BASH_UEN", $sformatf("UEN readback: expected %03b, got 0x%0h",
-                       expected, rdata))
-
+        uart_enable(expected);
+        check_field(ral.MODE.UEN, expected);
         `uvm_info("UEN_SWEEP", $sformatf("Checked UEN=%03b", expected), UVM_LOW)
     endtask
 

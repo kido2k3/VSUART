@@ -8,6 +8,7 @@ class vsuart_tx_basic_test extends base_test;
     virtual function void build_phase(uvm_phase phase);
         set_type_override_by_type(vsuart_base_seq::get_type(), vsuart_tx_basic_seq::get_type());
         super.build_phase(phase);
+        cfg.enable_continous = 1;
         // Section 6 defaults PRS=1, BRG=728, BSEL=1 target 9600 at 112 MHz.
         cfg.set_sys_freq(112);
     endfunction

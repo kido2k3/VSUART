@@ -13,28 +13,8 @@ class vsuart_tx_frame_formats_seq extends vsuart_base_seq;
 
     // Check TX done through TRSTA = 1 when the transmitter is idle.
     task wait_tx_done();
-        int idle = 0;
-
-        fork
-            begin
-                uvm_reg_data_t mode_value;
-
-                //check TRSTA = 0 to make sure transmit occur and TRSTA = 1 to make sure transmiter is idle
-                for (idle = 0; idle <= 1; idle++) begin
-                    do begin
-                        ral.STA.read(status, value, .parent(this));
-                        value = (value >> 1) & 1;
-                        if (status != UVM_IS_OK)
-                            `uvm_fatal("TX_STATUS", "Cannot read TX completion status")
-                    end while (value != idle);
-                end
-            end
-            begin
-                #3ms;
-                `uvm_error("TX_STATUS", $sformatf("Timeout waiting for TRSTA=%0d", idle[0]))
-            end
-        join_any
-        disable fork;
+        wait_field(ral.STA.TRSTA, 0);
+        wait_field(ral.STA.TRSTA, 1);
     endtask
 
     task single_format_transfer();
@@ -45,7 +25,6 @@ class vsuart_tx_frame_formats_seq extends vsuart_base_seq;
             `uvm_fatal(get_type_name, "uart_cfg randomize failed")
         else begin
             `uvm_info("updated_cfg", $sformatf("Update new configure to:\n%s", cfg.sprint), UVM_LOW)
-            uvm_config_db #(vsuart_cfg)::set(null, "*", "cfg", cfg);
         end
         config_datamode(cfg.u_cfg);
         // Write one character to TX FIFO and finish it before changing format.
