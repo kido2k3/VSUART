@@ -9,7 +9,13 @@ package ifs_pkg;
     import uvm_pkg::*;
     `include "uvm_macros.svh"
 
-    `include "ifs_item.sv"
-    `include "ifs_mon.sv"
-    `include "ifs_agt.sv"
+    // Named event keys for uvm_event_pool
+    parameter string EV_TX_IRQ  = "vsuart_tx_irq";
+    parameter string EV_RX_IRQ  = "vsuart_rx_irq";
+    parameter string EV_ERR_IRQ = "vsuart_err_irq";
+
+    `include "irq_item.sv"
+    `include "irq_mon.sv"
+    `include "irq_agt.sv"
+    `include "ifs_env.sv"
 endpackage
