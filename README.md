@@ -133,6 +133,7 @@ yosys -c yosys_syn.tcl
 ## 🧪 Supported Tests (T.B.D)
 [pass]: https://img.shields.io/badge/PASS-brightgreen
 [fail]: https://img.shields.io/badge/FAIL-red
+
 | Test Name |  Purpose | Status |
 |------------|--|--------|
 | `uart_reset_test` | Verify DUT reset behavior and default register values. | ![][pass] |
