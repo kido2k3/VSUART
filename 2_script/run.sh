@@ -201,7 +201,6 @@ xrun_run(){
     # add wave
     if [[ $wave -eq 1 ]]; then
         xrun_ops="${xrun_ops} +define+WAVE +define+XRUN"
-    echo "phong"
     fi
     # add coverage
     if [[ $cov -eq 1 ]]; then
@@ -300,7 +299,8 @@ file_gen(){
     # test: base first, then the others
     add_files "../1_tb/uvm/test" "*base*" "$tb_file"
     add_files "../1_tb/uvm/test" "*" "$tb_file" "base"
-    # check
+    # checker
+    add_files "../1_tb/sva" "*checker.sv" "$tb_file"
     echo "---- suspicious lines in .f files: start with - or contain a space ----"
     grep -nE '^-| ' $src_file $tb_file
     echo "---- end of check ----"
