@@ -296,15 +296,15 @@ class vsuart_base_seq extends uvm_sequence;
         update_reg(ral.BRG);
         update_reg(ral.IE);
 
--       if (cfg != null) begin
--           cfg.u_cfg.data_width   = UART_DATA_8;
--           cfg.u_cfg.parity_sel   = UART_PAR_ODD;
--           cfg.u_cfg.stop_bit_sel = UART_STOP_1;
--           cfg.u_cfg.baudrate     = 9600;
--           cfg.u_cfg.clks_per_bit_cal();
--           uvm_config_db #(vsuart_cfg) :: set (null, "*", "cfg", cfg);
--           `uvm_info("updated_cfg", $sformatf("Update new configure to:\n%s", cfg.sprint), UVM_LOW)
--       end
+        if (cfg != null) begin
+            cfg.u_cfg.data_width   = UART_DATA_8;
+            cfg.u_cfg.parity_sel   = UART_PAR_ODD;
+            cfg.u_cfg.stop_bit_sel = UART_STOP_1;
+            cfg.u_cfg.baudrate     = 9600;
+            cfg.u_cfg.clks_per_bit_cal();
+            uvm_config_db #(vsuart_cfg) :: set (null, "*", "cfg", cfg);
+            `uvm_info("updated_cfg", $sformatf("Update new configure to:\n%s", cfg.sprint), UVM_LOW)
+        end
 
         uart_enable();
 
