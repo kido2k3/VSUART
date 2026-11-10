@@ -39,14 +39,121 @@ class vsuart_base_seq extends uvm_sequence;
         apb_rdata_seq = apb_mst_rdata_seq::type_id::create("apb_rdata_seq");
     endfunction
     
+
+    // Read a register and check against expected value
+    virtual task check_reg(input uvm_reg rg, input uvm_reg_data_t expected);
+        uvm_status_e   access_status;
+        uvm_reg_data_t actual;
+        rg.read(access_status, actual, .path(UVM_FRONTDOOR), .parent(this));
+        if (access_status != UVM_IS_OK) begin
+            `uvm_error("REG_READ", {rg.get_full_name(), " read failed"})
+            return;
+        end
+        if (actual !== expected)
+            `uvm_error("REG_CHECK", $sformatf("%s actual=0x%0h expected=0x%0h",
+                       rg.get_full_name(), actual, expected))
+    endtask
+
+    // Frontdoor read of a register, returns the value seen on the bus
+    virtual task read_reg(input uvm_reg rg, output uvm_reg_data_t val);
+        uvm_status_e access_status;
+        rg.read(access_status, val, .path(UVM_FRONTDOOR), .parent(this));
+        if (access_status != UVM_IS_OK)
+            `uvm_error("REG_READ", {rg.get_full_name(), " read failed"})
+    endtask
+
+    // Check a field against its bits in an already read register value
+    virtual function void expect_field(input uvm_reg_data_t reg_val, input uvm_reg_field fld,
+                                       input uvm_reg_data_t expected);
+        uvm_reg_data_t actual;
+        actual = (reg_val >> fld.get_lsb_pos()) & ((uvm_reg_data_t'(1) << fld.get_n_bits()) - 1);
+        if (actual !== expected)
+            `uvm_error("REG_CHECK", $sformatf("%s actual=0x%0h expected=0x%0h (reg_val=0x%0h)",
+                       fld.get_full_name(), actual, expected, reg_val))
+    endfunction
+
+    // Read a single register field and check against expected value
+    virtual task check_field(input uvm_reg_field fld, input uvm_reg_data_t expected);
+        uvm_reg_data_t reg_val;
+        if (fld == null) begin
+            `uvm_error("REG_NULL", "Passed field is null")
+            return;
+        end
+        read_reg(fld.get_parent(), reg_val);
+        expect_field(reg_val, fld, expected);
+    endtask
+
+    // Poll register until masked bits match expected.   
+    virtual task wait_reg_bits(input uvm_reg rg,
+                               input uvm_reg_data_t expected,
+                               input uvm_reg_data_t mask,
+                               input time timeout = 3ms);
+        uvm_status_e access_status;
+        uvm_reg_data_t actual;
+        fork
+            begin
+                fork
+                    begin
+                        do begin
+                            rg.read(access_status, actual, .path(UVM_FRONTDOOR), .parent(this));
+                            if (access_status != UVM_IS_OK)
+                                `uvm_fatal("REG_READ", {rg.get_full_name(), " polling read failed"})
+                            if (rg == ral.STA && (actual & 'h58) !== 0)
+                                `uvm_error("STA_ERROR", $sformatf("STA error bits sampled during polling: 0x%0h", actual))
+                        end while ((actual & mask) !== (expected & mask));
+                    end
+                    begin
+                        #(timeout);
+                        `uvm_fatal("REG_TIMEOUT", $sformatf("%s expected=0x%0h mask=0x%0h last=0x%0h",
+                                   rg.get_full_name(), expected, mask, actual))
+                    end
+                join_any
+                disable fork;
+            end
+        join
+    endtask
+
+    // Poll a specific register field until it matches expected.
+    virtual task wait_field(input uvm_reg_field fld,
+                            input uvm_reg_data_t expected,
+                            input time timeout = 3ms);
+        uvm_reg_data_t mask = ((1 << fld.get_n_bits()) - 1) << fld.get_lsb_pos();
+        wait_reg_bits(fld.get_parent(), expected << fld.get_lsb_pos(), mask, timeout);
+    endtask
+
     // task: wait for rx fifo have data
-    task wait_rx_fifo_not_empty;
-        do begin
-            // wait until read fifo having data
-            //ral.STA.RBDSTA.read(status, value, .parent(this));
-            ral.STA.read(status, value, .parent(this));
-            value = ral.STA.RBDSTA.get_mirrored_value();
-        end while (value == 0);
+    virtual task wait_rx_fifo_not_empty();
+        wait_field(ral.STA.RBDSTA, 1);
+    endtask
+
+
+    // Clear an interrupt flag field in IFS (W1C).
+    virtual task clear_irq(input uvm_reg_field fld);
+        uvm_status_e access_status;
+        ral.IFS.write(access_status, uvm_reg_data_t'(1) << fld.get_lsb_pos(), .path(UVM_FRONTDOOR), .parent(this));
+        if (access_status != UVM_IS_OK)
+            `uvm_error("IRQ_CLEAR", {fld.get_full_name(), " W1C clear failed"})
+    endtask
+
+    // Check interrupt state via global uvm_event_pool (EV_TX_IRQ, EV_RX_IRQ, EV_ERR_IRQ).
+    virtual function void check_irq(string ev_name, bit expected);
+        uvm_event ev = uvm_event_pool::get_global(ev_name);
+        if (ev.is_on() !== expected)
+            `uvm_error("IRQ_CHECK", $sformatf("%s actual=%0b expected=%0b", ev_name, ev.is_on(), expected))
+    endfunction
+
+    // Read one RX FIFO entry into actual and check the APB response.
+    // Set expected_slverr=1 for a expected empty-FIFO read.
+    virtual task read_rx_data(output uvm_reg_data_t actual,
+                              input bit expected_slverr = 0);
+        apb_mst_rdata_seq rd;
+        rd = apb_mst_rdata_seq::type_id::create("rd");
+        if (!rd.randomize()) `uvm_fatal("RX_READ", "Read sequence randomization failed")
+        rd.start(a_seqr, this);
+        actual = rd.rsp.data;
+        if (rd.rsp.status != UVM_TLM_OK_RESPONSE || rd.rsp.slverr != expected_slverr)
+            `uvm_error("RX_READ", $sformatf("RX read status=%s PSLVERR=%b expected=%b",
+                       rd.rsp.status.name(), rd.rsp.slverr, expected_slverr))
     endtask
 
     // task: write data into dut rx
@@ -57,8 +164,8 @@ class vsuart_base_seq extends uvm_sequence;
 
     // task: apb master read data
     virtual task apb_rd_data();
-        assert(apb_rdata_seq.randomize());
-        apb_rdata_seq.start(a_seqr);
+        uvm_reg_data_t actual;
+        read_rx_data(actual);
     endtask
 
     // task: apb master write data
@@ -66,12 +173,12 @@ class vsuart_base_seq extends uvm_sequence;
         assert(apb_wdata_seq.randomize());
         apb_wdata_seq.start(a_seqr);
     endtask
+
     // task: during operating reset
     virtual task operate_rst(int interval_time = 8, int rst_time = 60);
         r_seq.req.interval_time = interval_time;
         r_seq.req.rst_time = rst_time;
         r_seq.req.rst_type = rst_item::NO_CLK_PENDING;
-        // run
         r_seq.start(r_seqr);
     endtask
 
@@ -80,7 +187,6 @@ class vsuart_base_seq extends uvm_sequence;
         r_seq.req.interval_time = interval_time;
         r_seq.req.rst_time = rst_time;
         r_seq.req.rst_type = rst_item::CLK_PENDING;
-        // run
         r_seq.start(r_seqr);
     endtask
 
@@ -89,14 +195,14 @@ class vsuart_base_seq extends uvm_sequence;
         r_seq.req.interval_time = interval_time;
         r_seq.req.rst_time = rst_time;
         r_seq.req.rst_type = rst_item::APB_RST;
-        // run
         r_seq.start(r_seqr);
     endtask
 
     // task: write rg if its desired value differs from the mirror
     virtual task update_reg(uvm_reg rg);
-        rg.update(status, .parent(this));
-        if (status != UVM_IS_OK) `uvm_error(get_type_name, {rg.get_name(), " update failed"})
+        uvm_status_e access_status;
+        rg.update(access_status, .parent(this));
+        if (access_status != UVM_IS_OK) `uvm_error(get_type_name, {rg.get_name(), " update failed"})
     endtask
 
 
@@ -161,22 +267,15 @@ class vsuart_base_seq extends uvm_sequence;
     // task: disable the UART and read MODE.UEN back from the DUT to make sure
     // it is 0 before the protected fields (MODE, PRS, BRG, ...) are written
     virtual task check_uen_disabled();
-        uvm_status_e   status;
-        uvm_reg_data_t uen;
         if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
-        ral.MODE.UEN.read(status, uen, .parent(this));
-        if (status != UVM_IS_OK) `uvm_error(get_type_name, "UEN read failed")
-        else if (uen != 0)
-            `uvm_error(get_type_name, $sformatf("UEN=%b after disable, expected 000", 3'(uen)))
-        else
-            `uvm_info(get_type_name, "UEN=000 checked, UART disabled", UVM_HIGH)
+        check_field(ral.MODE.UEN, 3'b000);
     endtask
 
     // task: default register setting
     //   MODE: BSEL=1 (4x), PDSEL=01 (8-bit odd), SPSEL=0 (1 stop)
     //   CR  : TXISEL=00, RXISEL=00 (interrupt per character)
     //   PRS=1, BRG=728 (9600 bps), IE: TXTE=RXTE=ERRIE=1
-    // The UART agent (cfg.u_cfg) is set to the same frame format and baud rate.
+    // The UART agent (cfg.u_cfg) gets the same format in base_test::set_default_uart_cfg()
     virtual task config_default();
         if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
         uart_disable();
@@ -208,6 +307,7 @@ class vsuart_base_seq extends uvm_sequence;
         end
 
         uart_enable();
+
     endtask
 
     // task: program only MODE.PDSEL/SPSEL
@@ -221,9 +321,7 @@ class vsuart_base_seq extends uvm_sequence;
                   2'(ral.MODE.PDSEL.get()), ral.MODE.SPSEL.get()), UVM_HIGH)
 
         uart_enable();
-        // read to make sure RX transfer when DUT ready
-        ral.MODE.UEN.read(status, value, .parent(this));
-
+        check_field(ral.MODE.UEN, 3'b111);
     endtask
 
 

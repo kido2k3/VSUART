@@ -17,7 +17,7 @@ class vsuart_env extends uvm_env;
     clk_rst_agt clk_rst;
     apb_mst_agt apb_agt;
     uart_agt    uart;
-    ifs_agt     ifs;
+    ifs_env     ifs;
     ral_env     reg_env;  // register model + adapter + predictor
     vsuart_cfg  cfg;
     vsuart_scb  scb;
@@ -46,7 +46,7 @@ class vsuart_env extends uvm_env;
         clk_rst  = clk_rst_agt::type_id::create("clk_rst", this);
         apb_agt  = apb_mst_agt::type_id::create("apb_agt", this);
         uart     = uart_agt::type_id::create("uart", this);
-        ifs      = ifs_agt::type_id::create("ifs", this);
+        ifs      = ifs_env::type_id::create("ifs", this);
         reg_env  = ral_env::type_id::create("reg_env", this);
         scb      = vsuart_scb::type_id::create("scb", this);
 
@@ -69,7 +69,7 @@ class vsuart_env extends uvm_env;
         uart.mon.as_tx_port.connect(scb.uart_tx_ap_imp);
         uart.mon.as_rx_port.connect(scb.uart_rx_ap_imp);
         clk_rst.mon.as_port.connect(scb.rst_ap_imp);
-        ifs.mon.as_port.connect(scb.ifs_ap_imp);
+        ifs.ap.connect(scb.ifs_ap_imp);
         `uvm_info("connect_phase", "Exit...", UVM_LOW)
     endfunction
 endclass

@@ -17,7 +17,7 @@ class vsuart_scb extends uvm_scoreboard;
     uvm_analysis_imp_apb_mst #(_apb_item, vsuart_scb) apb_mst_ap_imp;
     uvm_analysis_imp_uart_tx #(uart_item, vsuart_scb) uart_tx_ap_imp;
     uvm_analysis_imp_uart_rx #(uart_item, vsuart_scb) uart_rx_ap_imp;
-    uvm_analysis_imp_ifs #(ifs_item, vsuart_scb) ifs_ap_imp;
+    uvm_analysis_imp_ifs #(irq_item, vsuart_scb) ifs_ap_imp;
     uvm_analysis_imp_rst #(rst_item, vsuart_scb) rst_ap_imp;
     
     vsuart_cfg cfg;
@@ -189,7 +189,7 @@ class vsuart_scb extends uvm_scoreboard;
     endfunction
 
     // function: handle data received from ifs monitor
-    virtual function void write_ifs(ifs_item rcv_item);
+    virtual function void write_ifs(irq_item rcv_item);
     endfunction
 
     // function: handle data received from clk_rst monitor

@@ -19,7 +19,7 @@ module tb_vsuart;
         .sys_clk    (clk_rst_vif.sys_clk),
         .rst_n      (clk_rst_vif.rst_n),
         .pclk       (clk_rst_vif.apb_clk),
-        .preset_n   (clk_rst_vif.rst_n),
+        .preset_n   (apb_mst_vif.rst_n),
         .i_paddr    (apb_mst_vif.paddr[15:0]),
         .i_psel     (apb_mst_vif.psel),
         .i_penable  (apb_mst_vif.penable),
