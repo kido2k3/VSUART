@@ -163,7 +163,7 @@ class vsuart_scb extends uvm_scoreboard;
             // Continuous frames must meet exactly, with no gap or overlap.
             int temp = item.start_time - previous_end_time[is_tx];
             temp = abs_int(temp);
-            if (temp*1.0 / (1.0/cfg.u_cfg.baudrate) < cfg.tolerance)
+            if (temp*1.0 / (1.0/cfg.u_cfg.baudrate) > cfg.tolerance)
                 `uvm_error("SCB_UART_CONTINUITY", $sformatf(
                     "UART %s not continuous: previous_end=%0t start=%0t (expected exact equality)",
                     dir, previous_end_time[is_tx], item.start_time))
