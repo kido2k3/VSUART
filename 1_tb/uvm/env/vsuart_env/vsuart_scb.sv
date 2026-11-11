@@ -147,26 +147,29 @@ class vsuart_scb extends uvm_scoreboard;
             `uvm_error("SCB_UART_FRAME", $sformatf("UART %s frame error: data=0x%03h", dir, item.data))
     endfunction
 
-    function automatic int unsigned abs_int(int val);
-    return (val < 0) ? -val : val;
-    endfunction
-
+    // function: check continuous frames must follow each other
     function void check_uart_continuity(bit is_tx, uart_item item);
-        string dir;
-        dir = is_tx ? "TX" : "RX";
+        string   dir = is_tx ? "TX" : "RX";
+        realtime bit_period, gap;
+
         if (!cfg.enable_continous) begin
-            previous_end_time[0] = 0;
-            previous_end_time[1] = 0;
+            previous_end_time = '{default: 0};
             return;
         end
+
+        // bypass first frame
         if (previous_end_time[is_tx] != 0) begin
-            // Continuous frames must meet exactly, with no gap or overlap.
-            int temp = item.start_time - previous_end_time[is_tx];
-            temp = abs_int(temp);
-            if (temp*1.0 / (1.0/cfg.u_cfg.baudrate) > cfg.tolerance)
+            // bit period 
+            bit_period = 1s / cfg.u_cfg.baudrate;
+            gap        = (item.start_time > previous_end_time[is_tx])
+                       ? item.start_time - previous_end_time[is_tx]
+                       : previous_end_time[is_tx] - item.start_time;
+
+            if (gap > cfg.tolerance * bit_period)
                 `uvm_error("SCB_UART_CONTINUITY", $sformatf(
-                    "UART %s not continuous: previous_end=%0t start=%0t (expected exact equality)",
-                    dir, previous_end_time[is_tx], item.start_time))
+                    "UART %s not continuous: previous_end=%0t start=%0t gap=%0.3f bit (max %0.3f)",
+                    dir, previous_end_time[is_tx], item.start_time,
+                    gap / bit_period, cfg.tolerance))
         end
         previous_end_time[is_tx] = item.end_time;
     endfunction
