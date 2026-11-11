@@ -13,6 +13,7 @@ class irq_mon extends uvm_monitor;
     string event_name = "irq_ev";
     uvm_event irq_ev;
 
+    bit check_interrupt_pending = 0; // set by ifs_env; 0 = do not flag pending IRQ at end of test
     bit level;
     int unsigned n_rise;
     int unsigned n_fall;
@@ -31,6 +32,7 @@ class irq_mon extends uvm_monitor;
 
         void'(uvm_config_db#(string)::get(this, "", "irq_name", irq_name));
         void'(uvm_config_db#(string)::get(this, "", "event_name", event_name));
+        void'(uvm_config_db#(bit)::get(this, "", "check_interrupt_pending", check_interrupt_pending));
 
         // Connect to named event in global pool
         irq_ev = uvm_event_pool::get_global(event_name);
@@ -75,7 +77,7 @@ class irq_mon extends uvm_monitor;
     // Catch any interrupt left pending (unserviced) at end of simulation
     virtual function void check_phase(uvm_phase phase);
         super.check_phase(phase);
-        if (level) begin
+        if (check_interrupt_pending && level) begin
             `uvm_error("PENDING_IRQ", $sformatf("[%s_IRQ] Interrupt line still pending (asserted high) at end of test!", irq_name))
         end
     endfunction

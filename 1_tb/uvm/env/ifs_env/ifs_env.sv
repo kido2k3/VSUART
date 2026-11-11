@@ -8,6 +8,10 @@ class ifs_env extends uvm_env;
 
     virtual ifs_if vif;
 
+    // 1: report an error if any interrupt is still pending at end of test (default 0: disabled)
+    // Override from a test: uvm_config_db#(bit)::set(this, "env.ifs", "check_interrupt_pending", 1);
+    bit check_interrupt_pending = 0;
+
     // 3 agent -> 3 interrupt
     irq_agt tx_agt;
     irq_agt rx_agt;
@@ -29,6 +33,9 @@ class ifs_env extends uvm_env;
         if (!uvm_config_db#(virtual ifs_if)::get(this, "", "ifs_vif", vif)) begin
             `uvm_fatal("NOT_IF", "ifs_vif not found in ifs_env")
         end
+
+        void'(uvm_config_db#(bit)::get(this, "", "check_interrupt_pending", check_interrupt_pending));
+        uvm_config_db#(bit)::set(this, "*_agt*", "check_interrupt_pending", check_interrupt_pending);
 
         // Pass single-wire sub-interfaces to each individual agent
         uvm_config_db#(virtual irq_if)::set(this, "tx_agt*",  "vif", vif.tx_if);
