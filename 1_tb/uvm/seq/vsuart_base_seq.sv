@@ -208,12 +208,11 @@ class vsuart_base_seq extends uvm_sequence;
 
     // task: program the frame format and baud rate of cfg into the registers
     //   MODE.PDSEL <- data_width + parity_sel, MODE.SPSEL <- stop_bit_sel
-    //   MODE.BSEL, PRS, BRG <- baudrate and cfg.c_cfg sys_clk (see find_divisors)
+    //   MODE.BSEL, BRG <- baudrate and cfg.c_cfg sys_clk (see find_divisors)
     // These fields are write-protected while the UART is enabled, so the UART is
     // disabled first.
     virtual task configure(uart_cfg cfg);
         bit        bsel;
-        bit [3:0]  prs;
         bit [15:0] brg;
         int unsigned cpb, actual, actual_baud, sys_hz;
         if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
@@ -225,8 +224,8 @@ class vsuart_base_seq extends uvm_sequence;
         // sys_clk cycles per bit for the requested baud rate, rounded
         cpb = (sys_hz + cfg.baudrate / 2) / cfg.baudrate;
 
-        void'(find_divisors(cpb, bsel, prs, brg));
-        actual      = bit_time(bsel, prs, brg);
+        void'(find_divisors(cpb, bsel, brg));
+        actual      = bit_time(bsel, brg);
         actual_baud = (sys_hz + actual / 2) / actual;
         if (actual_baud != cfg.baudrate) begin
             // no exact divisors: the DUT runs at the closest baud rate, so the
@@ -237,15 +236,13 @@ class vsuart_base_seq extends uvm_sequence;
         ral.MODE.BSEL.set(bsel);
         ral.MODE.PDSEL.set(pdsel_of(cfg));
         ral.MODE.SPSEL.set(cfg.stop_bit_sel == UART_STOP_2);
-        ral.PRS.PRS.set(prs);
         ral.BRG.BRG.set(brg);
         update_reg(ral.MODE);
-        update_reg(ral.PRS);
         update_reg(ral.BRG);
 
 
-        `uvm_info(get_type_name, $sformatf("configured: BSEL=%0d PRS=%0d BRG=%0d PDSEL=%b SPSEL=%0d (baudrate=%0d)",
-                  bsel, prs, brg, 2'(ral.MODE.PDSEL.get()), ral.MODE.SPSEL.get(), cfg.baudrate), UVM_MEDIUM)
+        `uvm_info(get_type_name, $sformatf("configured: BSEL=%0d BRG=%0d PDSEL=%b SPSEL=%0d (baudrate=%0d)",
+                  bsel, brg, 2'(ral.MODE.PDSEL.get()), ral.MODE.SPSEL.get(), cfg.baudrate), UVM_MEDIUM)
     endtask
 
     // task: MODE.UEN = uen (bit 0 TX, bit 1 RX, bit 2 core). Only byte 0 is
@@ -265,7 +262,7 @@ class vsuart_base_seq extends uvm_sequence;
     endtask
 
     // task: disable the UART and read MODE.UEN back from the DUT to make sure
-    // it is 0 before the protected fields (MODE, PRS, BRG, ...) are written
+    // it is 0 before the protected fields (MODE, BRG, ...) are written
     virtual task check_uen_disabled();
         if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
         check_field(ral.MODE.UEN, 3'b000);
@@ -274,25 +271,28 @@ class vsuart_base_seq extends uvm_sequence;
     // task: default register setting
     //   MODE: BSEL=1 (4x), PDSEL=01 (8-bit odd), SPSEL=0 (1 stop)
     //   CR  : TXISEL=00, RXISEL=00 (interrupt per character)
-    //   PRS=1, BRG=728 (9600 bps), IE: TXTE=RXTE=ERRIE=1
+    //   BRG : 9600 bps with OS=4 for the configured sys_clk,
+    //         BRG = round(Fsys_clk / (4 * 9600)) - 1 (112 MHz: 2916, 200 MHz: 5207,
+    //         spec tables 3-6/3-7)
+    //   IE  : TXTE=RXTE=ERRIE=1
     // The UART agent (cfg.u_cfg) gets the same format in base_test::set_default_uart_cfg()
     virtual task config_default();
+        int unsigned sys_hz = 112_000_000;
         if (ral == null) `uvm_fatal(get_type_name, "ral not connected")
         uart_disable();
+        if (cfg != null) sys_hz = cfg.c_cfg._sys_freq * 1_000_000;
 
         ral.MODE.BSEL.set(1'b1);
         ral.MODE.PDSEL.set(2'b01);
         ral.MODE.SPSEL.set(1'b0);
         ral.CR.TXISEL.set(2'b00);
         ral.CR.RXISEL.set(2'b00);
-        ral.PRS.PRS.set(4'd1);
-        ral.BRG.BRG.set(16'd728);
+        ral.BRG.BRG.set(16'((sys_hz + 4 * 9600 / 2) / (4 * 9600) - 1));
         ral.IE.TXTE.set(1'b1);
         ral.IE.RXTE.set(1'b1);
         ral.IE.ERRIE.set(1'b1);
         update_reg(ral.MODE);
         update_reg(ral.CR);
-        update_reg(ral.PRS);
         update_reg(ral.BRG);
         update_reg(ral.IE);
 
@@ -325,42 +325,36 @@ class vsuart_base_seq extends uvm_sequence;
     endtask
 
 
-    // function: BSEL/PRS/BRG giving the bit time closest to cpb 
-    //   Fu_clk = Fsys_clk / (2 * (PRS + 1)),  BRG = Fu_clk / (OverSampling * baud) - 1
-    //   => cpb = Fu_clk/BRG = 2 * (PRS + 1) * OverSampling * (BRG + 1),
-    //  OS = 16 (BSEL=0) or 4 (BSEL=1)
-    // For each BSEL/PRS, BRG + 1 = cpb / div rounded, limited to 2..65536 (BRG = 0
+    // function: BSEL/BRG giving the bit time closest to cpb
+    //   BRG = Fsys_clk / (OverSampling * baud) - 1   (spec v0.05, no prescaler)
+    //   => cpb = OverSampling * (BRG + 1),  OS = 16 (BSEL=0) or 4 (BSEL=1)
+    // For each BSEL, BRG + 1 = cpb / OS rounded, limited to 2..65536 (BRG = 0
     // is not allowed). Returns the deviation |actual - cpb| in sys_clk cycles
-    // (0: exact). Equal deviations keep the first one: OS = 16 first, then the
-    // smallest PRS.
+    // (0: exact). Equal deviations keep the first one: OS = 16 first.
     protected function int unsigned find_divisors(int unsigned cpb, output bit bsel,
-                                                  output bit [3:0] prs, output bit [15:0] brg);
-        int unsigned os, div, n, actual, err;
+                                                  output bit [15:0] brg);
+        int unsigned os, n, actual, err;
         int unsigned best_err = '1;
         for (int b = 0; b < 2; b++) begin
             os = b ? 4 : 16;
-            for (int p = 0; p < 16; p++) begin
-                div = 2 * (p + 1) * os;
-                n   = (cpb + div / 2) / div;  // BRG + 1, rounded
-                if (n < 2)     n = 2;
-                if (n > 65536) n = 65536;
-                actual = div * n;
-                err    = (actual > cpb) ? actual - cpb : cpb - actual;
-                if (err < best_err) begin
-                    best_err = err;
-                    bsel = b;
-                    prs  = p;
-                    brg  = n - 1;
-                    if (err == 0) return 0;
-                end
+            n  = (cpb + os / 2) / os;  // BRG + 1, rounded
+            if (n < 2)     n = 2;
+            if (n > 65536) n = 65536;
+            actual = os * n;
+            err    = (actual > cpb) ? actual - cpb : cpb - actual;
+            if (err < best_err) begin
+                best_err = err;
+                bsel = b;
+                brg  = n - 1;
+                if (err == 0) return 0;
             end
         end
         return best_err;
     endfunction
 
-    // function: sys_clk cycles per bit programmed by BSEL/PRS/BRG
-    protected function int unsigned bit_time(bit bsel, bit [3:0] prs, bit [15:0] brg);
-        return 2 * (prs + 1) * (bsel ? 4 : 16) * (brg + 1);
+    // function: sys_clk cycles per bit programmed by BSEL/BRG
+    protected function int unsigned bit_time(bit bsel, bit [15:0] brg);
+        return (bsel ? 4 : 16) * (brg + 1);
     endfunction
 
     // function: PDSEL for the frame format

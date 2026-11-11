@@ -22,22 +22,22 @@ class vsuart_apb_reset_seq extends vsuart_base_seq;
         apb_rst(pclk_cyc / 2, 10 * pclk_cyc);
         check_field(ral.MODE.UEN, 3'b111);
 
-        //APB reset during ACCESS phase of a PRS write (PSTRB=4'b0001)
+        //APB reset during ACCESS phase of a BRG write (PRS is reserved/RO since spec v0.05)
         uart_disable();
         fork
             begin
-                ral.PRS.write(status, $urandom(), .parent(this));
+                ral.BRG.write(status, $urandom_range(65535, 1), .parent(this));
                 if (status == UVM_IS_OK)
-                    `uvm_error("APB_RESET_ABORT", "Interrupted PRS write unexpectedly completed")
+                    `uvm_error("APB_RESET_ABORT", "Interrupted BRG write unexpectedly completed")
             end
             apb_rst(2 * pclk_cyc, 10 * pclk_cyc); // Assert PRESETn in ACCESS phase
         join
 
 
         //Write new random value and verify readback
-        assert(ral.PRS.randomize());
-        update_reg(ral.PRS);
-        check_field(ral.PRS.PRS, ral.PRS.PRS.get());
+        assert(ral.BRG.randomize());
+        update_reg(ral.BRG);
+        check_field(ral.BRG.BRG, ral.BRG.BRG.get());
         uart_enable();
     endtask
 endclass

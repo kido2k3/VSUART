@@ -10,7 +10,7 @@ class ral_blk extends uvm_reg_block;
   rand ral_reg_mode MODE;         // +0x00
   rand ral_reg_cr   CR;           // +0x04
   ral_reg_sta       STA;          // +0x08
-  rand ral_reg_prs  PRS;          // +0x0c
+  ral_reg_prs       PRS;          // +0x0c (reserved, RO)
   rand ral_reg_brg  BRG;          // +0x10
   rand ral_reg_ie   IE;           // +0x14
   ral_reg_ifs       IFS;          // +0x18
@@ -29,6 +29,7 @@ class ral_blk extends uvm_reg_block;
     DIR: coverpoint is_read { bins WRITE = {0}; bins READ = {1}; }
     ADDR_X_DIR: cross ADDR, DIR {
       ignore_bins sta_wr = binsof(ADDR.STA) && binsof(DIR.WRITE);  // STA is read only
+      ignore_bins prs_wr = binsof(ADDR.PRS) && binsof(DIR.WRITE);  // PRS is reserved, read only
     }
   endgroup
 
@@ -68,7 +69,7 @@ class ral_blk extends uvm_reg_block;
     PRS=ral_reg_prs::type_id::create("PRS");
     PRS.configure(this);
     PRS.build();
-    default_map.add_reg(PRS,'h0c,"RW");
+    default_map.add_reg(PRS,'h0c,"RO");
 
     BRG=ral_reg_brg::type_id::create("BRG");
     BRG.configure(this);
