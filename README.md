@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/vsuart_logo.png" width="120" alt="VSUART Logo"/>
+<img src="./assets/vsuart_logo.png" width="350" alt="VSUART Logo"/>
 
 # VSUART
 
