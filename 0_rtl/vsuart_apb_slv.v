@@ -89,7 +89,7 @@ module vsuart_apb_slv #(
 //---------------------------------------------------------------------------
     // APB SIDE
     assign o_pready = ~_rst_n | (i_reg_ready & i_tx_ready & i_rx_ready) | ~i_reg_uen_2;
-    assign o_prdata = (~_rst_n) ? 0 : (data_addr) ? {{(DATA_W-FIFO_DATA_W){1'b0}},i_rx_rdata} : i_reg_rdata;
+    assign o_prdata = (~_rst_n || i_rx_empty) ? 0 : (data_addr) ? {{(DATA_W-FIFO_DATA_W){1'b0}},i_rx_rdata} : i_reg_rdata;
     assign o_pslverr = (~_rst_n) ? 0 : 
         (data_addr) ? (~i_pwrite & i_penable & i_psel & i_rx_empty) : i_reg_slverr;
 //---------------------------------------------------------------------------
