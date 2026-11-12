@@ -37,8 +37,6 @@ module vsuart_reg #(
 	input  i_sta_rista,
 	input  i_sta_rbosta,
 	input  i_sta_rbdsta,
-	// prs register
-	output [3 : 0] o_prs_prs,
 	// brg register
 	output [15 : 0] o_brg_brg,
 	// INTERRUPT SIDE
@@ -73,8 +71,6 @@ module vsuart_reg #(
 	wire uart_disabled;
 	wire wr_disabled_mode;
 	wire wren_mode;
-	wire wr_disabled_prs;
-	wire wren_prs;
 	wire wr_disabled_brg;
 	wire wren_brg;
 	reg reg_slverr;
@@ -88,8 +84,6 @@ module vsuart_reg #(
 	wire [REG_DATA_W-1:0] reg_sta;
 	wire [REG_DATA_W-1:0] wmask_sta;
 	wire [REG_DATA_W-1:0] wdata_sta;
-	// prs register
-	wire [REG_DATA_W-1:0] reg_prs;
 	// brg register
 	wire [REG_DATA_W-1:0] reg_brg;
 	// ie register
@@ -189,23 +183,6 @@ module vsuart_reg #(
 		.o_rdata(reg_sta)
 	);
 
-	// reg_prs model
-	wr_reg #(
-		.ADDR_W(REG_ADDR_W),
-		.DATA_W(REG_DATA_W),
-		.ADDR(`VSUART_PRS_ADDR),
-		.MASK(`VSUART_PRS_MASK),
-		.POR_VAL(`VSUART_PRS_POR)
-	) u_reg_prs(
-		.clk(clk),
-		.rst_n(rst_n),
-		.i_addr(i_reg_addr),
-		.i_wen(wren_prs),
-		.i_wdata(i_reg_wdata),
-		.i_wmask(i_reg_wmask),
-		.o_rdata(reg_prs)
-	);
-
 	// reg_brg model
 	wr_reg #(
 		.ADDR_W(REG_ADDR_W),
@@ -274,8 +251,6 @@ module vsuart_reg #(
 	assign o_cr_txisel = reg_cr[1:0];
 	assign o_cr_rxisel = reg_cr[9:8];
 	// sta register
-	// prs register
-	assign o_prs_prs = reg_prs[3:0];
 	// brg register
 	assign o_brg_brg = reg_brg[15:0];
 //---------------------------------------------------------------------------
@@ -298,7 +273,6 @@ module vsuart_reg #(
 				`VSUART_MODE_ADDR: begin reg_rdata = reg_mode; end
 				`VSUART_CR_ADDR: begin reg_rdata = reg_cr; end
 				`VSUART_STA_ADDR: begin reg_rdata = reg_sta; end
-				`VSUART_PRS_ADDR: begin reg_rdata = reg_prs; end
 				`VSUART_BRG_ADDR: begin reg_rdata = reg_brg; end
 				`VSUART_IE_ADDR: begin reg_rdata = reg_ie; end
 				`VSUART_IFS_ADDR: begin reg_rdata = reg_ifs; end
@@ -353,11 +327,6 @@ module vsuart_reg #(
 		&& |{i_reg_wmask[8], i_reg_wmask[17:16], i_reg_wmask[24]} 
 		&& i_reg_wen;
 	assign wren_mode = (wr_disabled_mode) ? uart_disabled : i_reg_wen;
-	// write enable for prs
-	assign wr_disabled_prs = (i_reg_addr == `VSUART_PRS_ADDR) 
-		&& |{i_reg_wmask[3:0]} 
-		&& i_reg_wen;
-	assign wren_prs = (wr_disabled_prs) ? !reg_mode[2] : i_reg_wen;
 	// write enable for brg
 	assign wr_disabled_brg = (i_reg_addr == `VSUART_BRG_ADDR) 
 		&& |{i_reg_wmask[15:0]} 
@@ -365,9 +334,7 @@ module vsuart_reg #(
 	assign wren_brg = (wr_disabled_brg) ? uart_disabled : i_reg_wen;
 	// slverr
 	always @(*) begin
-		if(wr_disabled_prs & reg_mode[2]) begin
-			reg_slverr = 1;
-		end else if(wr_disabled_mode & !uart_disabled) begin
+		if(wr_disabled_mode & !uart_disabled) begin
 			reg_slverr = 1;
 		end else if(wr_disabled_brg & !uart_disabled) begin
 			reg_slverr = 1;

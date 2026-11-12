@@ -26,7 +26,6 @@
 ../0_rtl/vsuart_tx_brg.v
 ../0_rtl/vsuart_rx_brg.v
 ../0_rtl/vsuart_reg.v
-../0_rtl/vsuart_prs.v
 ../0_rtl/vsuart_ifs.v
 ../0_rtl/vsuart_tx.v
 ../0_rtl/vsuart_rx.v

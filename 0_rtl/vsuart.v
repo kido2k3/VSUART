@@ -66,8 +66,6 @@ module vsuart #(
 	wire  sta_rista;
 	wire  sta_rbosta;
 	wire  sta_rbdsta;
-	// prs register
-	wire [3 : 0] prs_prs;
 	// brg register
 	wire [15 : 0] brg_brg;
 	// INTERRUPT SIDE
@@ -82,8 +80,7 @@ module vsuart #(
 	wire  reg_ifs_txifs;
 	wire  reg_ifs_rxifs;
 	wire  reg_ifs_errifs;
-	// uart clk
-	wire u_clk;
+	// uart tx
 	wire                        tx_wen;
 	wire [FIFO_DATA_W - 1  : 0] tx_wdata;
 	wire                        tx_ready;
@@ -192,8 +189,6 @@ module vsuart #(
 		.i_sta_rista     (sta_rista),
 		.i_sta_rbosta    (sta_rbosta),
 		.i_sta_rbdsta    (sta_rbdsta),
-		// prs register
-		.o_prs_prs       (prs_prs),
 		// brg register
 		.o_brg_brg       (brg_brg),
 		// INTERRUPT SIDE
@@ -224,14 +219,6 @@ module vsuart #(
 		.o_rxifs         (o_rxifs),
 		.o_errifs        (o_errifs)
 	);
-	// prescaler
-	vsuart_prs u_vsuart_prs (
-		.clk      (sys_clk),
-		.rst_n    (rst_n),
-		.i_en     (mode_uen[2]),
-		.i_prs    (prs_prs),
-		.u_clk    (u_clk)
-	);
 	// synchronizer apb to uart
 	vsuart_sync_a2u #(
 		.FIFO_DEPTH      (FIFO_DEPTH),
@@ -248,7 +235,7 @@ module vsuart #(
 		.o_sta_tbsta     (sta_tbsta),
 		.o_rx_ready      (rx_ready),
 		// tx side
-		.u_clk           (u_clk),
+		.u_clk           (sys_clk),
 		.o_tx_en         (tx_en),
 		.i_tx_ren        (tx_ren),
 		.o_tx_empty      (tx_empty),
@@ -265,7 +252,7 @@ module vsuart #(
 		// global reset
 		.rst_n           (rst_n),
 		// tx side
-		.u_clk           (u_clk),
+		.u_clk           (sys_clk),
 		.i_ifs_txifs0    (ifs_txifs0),
 		.i_ifs_txifs1    (ifs_txifs1),
 		.i_ifs_txifs2    (ifs_txifs2),
@@ -303,7 +290,7 @@ module vsuart #(
 	vsuart_tx #(
 		.FIFO_DATA_W     (FIFO_DATA_W)
 	) u_vsuart_tx (
-		.clk             (u_clk),
+		.clk             (sys_clk),
 		.rst_n           (rst_n),
 		// fifo
 		.i_tx_en         (tx_en),
@@ -328,7 +315,7 @@ module vsuart #(
 	vsuart_rx #(
 		.FIFO_DATA_W     (FIFO_DATA_W)
 	) u_vsuart_rx (
-		.clk             (u_clk),
+		.clk             (sys_clk),
 		.rst_n           (rst_n),
 		.i_rx_en         (rx_en),
 		// fifo
