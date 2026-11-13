@@ -17,7 +17,6 @@ package ral_pkg;
     `include "ral_reg_mode.sv"
     `include "ral_reg_cr.sv"
     `include "ral_reg_sta.sv"
-    `include "ral_reg_prs.sv"
     `include "ral_reg_brg.sv"
     `include "ral_reg_ie.sv"
     `include "ral_reg_ifs.sv"

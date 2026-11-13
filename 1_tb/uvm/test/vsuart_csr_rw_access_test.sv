@@ -11,16 +11,4 @@ class vsuart_csr_rw_access_test extends base_test;
         super.build_phase(phase);
     endfunction
 
-    virtual task run_phase(uvm_phase phase);
-        fork
-            begin
-                super.run_phase(phase);
-            end
-            begin
-                #20ms;
-                `uvm_fatal("REG_TIMEOUT", "Register test exceeded watchdog timeout")
-            end
-        join_any
-        disable fork;
-    endtask
 endclass

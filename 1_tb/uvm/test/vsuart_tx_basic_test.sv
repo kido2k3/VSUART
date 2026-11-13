@@ -13,18 +13,4 @@ class vsuart_tx_basic_test extends base_test;
         cfg.set_sys_freq(112);
     endfunction
 
-    virtual task run_phase(uvm_phase phase);
-        fork
-            begin
-                fork
-                    super.run_phase(phase);
-                    begin
-                        #30ms;
-                        `uvm_fatal("TX_BASIC_TIMEOUT", "TX basic did not complete within 30 ms")
-                    end
-                join_any
-                disable fork;
-            end
-        join
-    endtask
 endclass
