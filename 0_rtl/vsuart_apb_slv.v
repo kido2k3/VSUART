@@ -53,6 +53,8 @@ module vsuart_apb_slv #(
     wire    [REG_ADDR_W - 1 : 0]  reg_addr;
     // check address of data: 16'hFFFF
     wire    data_addr;
+    // data from rx fifo
+    wire [DATA_W - 1 : 0] fifo_data;
     // for mask generation from strb
     wire    [DATA_W - 1   : 0]    strb_mask;
     // for generation
@@ -89,7 +91,8 @@ module vsuart_apb_slv #(
 //---------------------------------------------------------------------------
     // APB SIDE
     assign o_pready = ~_rst_n | (i_reg_ready & i_tx_ready & i_rx_ready) | ~i_reg_uen_2;
-    assign o_prdata = (~_rst_n || i_rx_empty) ? 0 : (data_addr) ? {{(DATA_W-FIFO_DATA_W){1'b0}},i_rx_rdata} : i_reg_rdata;
+    assign fifo_data = i_rx_empty ? 0 : {{(DATA_W-FIFO_DATA_W){1'b0}},i_rx_rdata};
+    assign o_prdata = (~_rst_n) ? 0 : (data_addr) ? fifo_data : i_reg_rdata;
     assign o_pslverr = (~_rst_n) ? 0 : 
         (data_addr) ? (~i_pwrite & i_penable & i_psel & i_rx_empty) : i_reg_slverr;
 //---------------------------------------------------------------------------
