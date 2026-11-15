@@ -20,7 +20,8 @@ class base_test extends uvm_test;
     virtual function void build_phase(uvm_phase phase);
         `uvm_info("build_phase", "Entered...", UVM_LOW)
         super.build_phase(phase);
-        
+        // default run_phase timeout
+        uvm_top.set_timeout(20ms, 1);
         // override here
         //...
         
@@ -46,7 +47,6 @@ class base_test extends uvm_test;
         `uvm_info("end_of_elaboration_phase", "Entered...", UVM_LOW)
         
         uvm_top.print_topology();
-        uvm_top.set_timeout(20ms, 1);
         `uvm_info("default_cfg", cfg.sprint(), UVM_LOW)
 
         `uvm_info("end_of_elaboration_phase", "Exiting...", UVM_LOW)

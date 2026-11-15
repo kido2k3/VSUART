@@ -83,42 +83,27 @@ class vsuart_base_seq extends uvm_sequence;
         expect_field(reg_val, fld, expected);
     endtask
 
-    // Poll register until masked bits match expected.   
+    // Poll register until masked bits match expected.
+    // No local timeout: a hang is caught by the UVM run_phase timeout (base_test).
     virtual task wait_reg_bits(input uvm_reg rg,
                                input uvm_reg_data_t expected,
-                               input uvm_reg_data_t mask,
-                               input time timeout = 3ms);
+                               input uvm_reg_data_t mask);
         uvm_status_e access_status;
         uvm_reg_data_t actual;
-        fork
-            begin
-                fork
-                    begin
-                        do begin
-                            rg.read(access_status, actual, .path(UVM_FRONTDOOR), .parent(this));
-                            if (access_status != UVM_IS_OK)
-                                `uvm_fatal("REG_READ", {rg.get_full_name(), " polling read failed"})
-                            if (rg == ral.STA && (actual & 'h58) !== 0)
-                                `uvm_error("STA_ERROR", $sformatf("STA error bits sampled during polling: 0x%0h", actual))
-                        end while ((actual & mask) !== (expected & mask));
-                    end
-                    begin
-                        #(timeout);
-                        `uvm_fatal("REG_TIMEOUT", $sformatf("%s expected=0x%0h mask=0x%0h last=0x%0h",
-                                   rg.get_full_name(), expected, mask, actual))
-                    end
-                join_any
-                disable fork;
-            end
-        join
+        do begin
+            rg.read(access_status, actual, .path(UVM_FRONTDOOR), .parent(this));
+            if (access_status != UVM_IS_OK)
+                `uvm_fatal("REG_READ", {rg.get_full_name(), " polling read failed"})
+            if (rg == ral.STA && (actual & 'h58) !== 0)
+                `uvm_error("STA_ERROR", $sformatf("STA error bits sampled during polling: 0x%0h", actual))
+        end while ((actual & mask) !== (expected & mask));
     endtask
 
     // Poll a specific register field until it matches expected.
     virtual task wait_field(input uvm_reg_field fld,
-                            input uvm_reg_data_t expected,
-                            input time timeout = 3ms);
+                            input uvm_reg_data_t expected);
         uvm_reg_data_t mask = ((1 << fld.get_n_bits()) - 1) << fld.get_lsb_pos();
-        wait_reg_bits(fld.get_parent(), expected << fld.get_lsb_pos(), mask, timeout);
+        wait_reg_bits(fld.get_parent(), expected << fld.get_lsb_pos(), mask);
     endtask
 
     // task: wait for rx fifo have data
