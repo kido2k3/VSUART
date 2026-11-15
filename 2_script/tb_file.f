@@ -41,3 +41,4 @@
 ../1_tb/uvm/test/vsuart_tx_basic_test.sv
 ../1_tb/uvm/test/vsuart_tx_frame_formats_test.sv
 ../1_tb/sva/vsuart_reset_checker.sv
+../1_tb/sva/vsuart_tx_checker.sv
