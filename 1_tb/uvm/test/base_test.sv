@@ -12,6 +12,7 @@ class base_test extends uvm_test;
     `uvm_component_utils(base_test) 
     vsuart_cfg cfg;
     vsuart_env env;
+    virtual sva_if sva_vif;   // SVA enables/counters, all enabled by default
     vsuart_base_seq seq;
     function new(string name = "base_test", uvm_component parent = null);
         super.new(name, parent);
@@ -33,6 +34,10 @@ class base_test extends uvm_test;
         cfg.set_sys_freq(200);
         //...
         
+        // SVA control interface: all checks enabled, a test disables what it must
+        if (!uvm_config_db #(virtual sva_if)::get(this, "", "sva_vif", sva_vif))
+            `uvm_fatal("NOVIF", "sva_vif not found")
+
         // set configuration here
         uvm_config_db #(vsuart_cfg) :: set (this, "*", "cfg", cfg);
         //...
@@ -55,6 +60,8 @@ class base_test extends uvm_test;
     virtual function void connect_phase(uvm_phase phase);
         `uvm_info("connect_phase", "Entered...", UVM_LOW)
         connect_env_with_seq();
+        // after every build_phase: a derived test may have changed sys_freq
+        sva_vif.sys_freq_mhz = cfg.c_cfg._sys_freq;
         `uvm_info("connect_phase", "Exit...", UVM_LOW)
     endfunction
 
@@ -65,6 +72,7 @@ class base_test extends uvm_test;
         seq.u_seqr = env.uart.sqr;
         seq.ral    = env.reg_env.ral;
         seq.cfg    = cfg;
+        seq.sva_vif = sva_vif;
     endfunction
     // run phase
     virtual task run_phase (uvm_phase phase);

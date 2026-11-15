@@ -16,6 +16,7 @@ class vsuart_base_seq extends uvm_sequence;
     // register model (env.reg_env.ral) and vsuart configuration
     ral_blk        ral;
     vsuart_cfg     cfg;
+    virtual sva_if sva_vif;   // SVA enables / targets, set by base_test
 
     // sequence
     rst_base_seq r_seq;

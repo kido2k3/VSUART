@@ -3,6 +3,8 @@
 // include vsuart package
 `include "vsuart_pkg.sv"
 import vsuart_pkg::*;
+// SVA control interface (not picked up by run.sh -gen, included here)
+`include "sva_if.sv"
 
 module tb_vsuart;
     
@@ -13,6 +15,9 @@ module tb_vsuart;
     uart_if uart_vif(.clk(clk_rst_vif.uart_clk), .rst_n(clk_rst_vif.rst_n));
 
     ifs_if ifs_vif(.clk(clk_rst_vif.apb_clk), .rst_n(clk_rst_vif.rst_n));
+
+    // enables and counters of the bound SVA checkers
+    sva_if sva_vif();
 
     // DUT: the APB address is 16-bit, the agent drives the lower bits of paddr
     vsuart u_dut (
@@ -53,6 +58,7 @@ module tb_vsuart;
         uvm_config_db #(virtual apb_mst_if)::set(null, "*", "apb_mst_vif", apb_mst_vif);
         uvm_config_db #(virtual uart_if)::set(null, "*", "uart_vif", uart_vif);
         uvm_config_db #(virtual ifs_if)::set(null, "*", "ifs_vif", ifs_vif);
+        uvm_config_db #(virtual sva_if)::set(null, "*", "sva_vif", sva_vif);
 
         // run test
         run_test();

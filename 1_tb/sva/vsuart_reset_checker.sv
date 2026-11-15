@@ -1,8 +1,8 @@
 //===========================================================================
-//-- Author          : manhndd
-//-- Name            : vsuart_reset_checker
-//-- Description     : SVA checker verifying default values of all internal registers and top-level output pins.
-//-- History         : ver.1.00 (26/11/08) 
+//-- Author         : manhndd
+//-- Name           : vsuart_reset_checker
+//-- Description    : SVA checker of register and output pin reset values
+//-- History        : ver.1.00 (26/11/08) 1st release
 //===========================================================================
 
 import uvm_pkg::*;
@@ -27,7 +27,10 @@ module vsuart_reset_checker #(
   input logic                  o_tx,
   input logic                  o_txifs,
   input logic                  o_rxifs,
-  input logic                  o_errifs
+  input logic                  o_errifs,
+
+  // SVA control
+  sva_if                       sva
 );
 
   // Expected Reset Values for Registers
@@ -50,46 +53,46 @@ module vsuart_reset_checker #(
 
 
   property p_reset_value(act, exp);
-    @(negedge rst_n) 1 |=> @(posedge clk) (act === exp);
+    @(negedge rst_n) sva.rst_chk_en |=> @(posedge clk) (act === exp);
   endproperty
 
   // Register Reset Assertions
   A_CHECK_RESET_MODE: assert property (p_reset_value(vsuart_reg_mode, EXP_RESET_MODE))
-    else $error("[SVA FAIL] vsuart_reg_mode reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_mode), EXP_RESET_MODE);
+    else `uvm_error("SVA_RESET", $sformatf("vsuart_reg_mode reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_mode), EXP_RESET_MODE))
 
   A_CHECK_RESET_CR: assert property (p_reset_value(vsuart_reg_cr, EXP_RESET_CR))
-    else $error("[SVA FAIL] vsuart_reg_cr reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_cr), EXP_RESET_CR);
+    else `uvm_error("SVA_RESET", $sformatf("vsuart_reg_cr reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_cr), EXP_RESET_CR))
 
   A_CHECK_RESET_STA: assert property (p_reset_value(vsuart_reg_sta, EXP_RESET_STA))
-    else $error("[SVA FAIL] vsuart_reg_sta reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_sta), EXP_RESET_STA);
+    else `uvm_error("SVA_RESET", $sformatf("vsuart_reg_sta reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_sta), EXP_RESET_STA))
 
   A_CHECK_RESET_BRG: assert property (p_reset_value(vsuart_reg_brg, EXP_RESET_BRG))
-    else $error("[SVA FAIL] vsuart_reg_brg reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_brg), EXP_RESET_BRG);
+    else `uvm_error("SVA_RESET", $sformatf("vsuart_reg_brg reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_brg), EXP_RESET_BRG))
 
   A_CHECK_RESET_IE: assert property (p_reset_value(vsuart_reg_ie, EXP_RESET_IE))
-    else $error("[SVA FAIL] vsuart_reg_ie reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_ie), EXP_RESET_IE);
+    else `uvm_error("SVA_RESET", $sformatf("vsuart_reg_ie reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_ie), EXP_RESET_IE))
 
   A_CHECK_RESET_IFS: assert property (p_reset_value(vsuart_reg_ifs, EXP_RESET_IFS))
-    else $error("[SVA FAIL] vsuart_reg_ifs reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_ifs), EXP_RESET_IFS);
+    else `uvm_error("SVA_RESET", $sformatf("vsuart_reg_ifs reset mismatch: act=0x%0h, exp=0x%0h", $sampled(vsuart_reg_ifs), EXP_RESET_IFS))
 
   // Output Pin Reset Assertions
   A_CHECK_RESET_PREADY: assert property (p_reset_value(o_pready, EXP_RESET_PREADY))
-    else $error("[SVA FAIL] o_pready reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_pready), EXP_RESET_PREADY);
+    else `uvm_error("SVA_RESET", $sformatf("o_pready reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_pready), EXP_RESET_PREADY))
 
   A_CHECK_RESET_PSLVERR: assert property (p_reset_value(o_pslverr, EXP_RESET_PSLVERR))
-    else $error("[SVA FAIL] o_pslverr reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_pslverr), EXP_RESET_PSLVERR);
+    else `uvm_error("SVA_RESET", $sformatf("o_pslverr reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_pslverr), EXP_RESET_PSLVERR))
 
   A_CHECK_RESET_TX: assert property (p_reset_value(o_tx, EXP_RESET_TX))
-    else $error("[SVA FAIL] o_tx reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_tx), EXP_RESET_TX);
+    else `uvm_error("SVA_RESET", $sformatf("o_tx reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_tx), EXP_RESET_TX))
 
   A_CHECK_RESET_TXIFS: assert property (p_reset_value(o_txifs, EXP_RESET_TXIFS))
-    else $error("[SVA FAIL] o_txifs reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_txifs), EXP_RESET_TXIFS);
+    else `uvm_error("SVA_RESET", $sformatf("o_txifs reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_txifs), EXP_RESET_TXIFS))
 
   A_CHECK_RESET_RXIFS: assert property (p_reset_value(o_rxifs, EXP_RESET_RXIFS))
-    else $error("[SVA FAIL] o_rxifs reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_rxifs), EXP_RESET_RXIFS);
+    else `uvm_error("SVA_RESET", $sformatf("o_rxifs reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_rxifs), EXP_RESET_RXIFS))
 
   A_CHECK_RESET_ERRIFS: assert property (p_reset_value(o_errifs, EXP_RESET_ERRIFS))
-    else $error("[SVA FAIL] o_errifs reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_errifs), EXP_RESET_ERRIFS);
+    else `uvm_error("SVA_RESET", $sformatf("o_errifs reset mismatch: act=0x%0h, exp=0x%0h", $sampled(o_errifs), EXP_RESET_ERRIFS))
 
   // Cover properties: reset state reached (non-vacuous) for registers and pins
   C_ALL_REG_RESET_OK: cover property (
@@ -134,6 +137,7 @@ bind tb_vsuart vsuart_reset_checker u_vsuart_reset_checker (
   .o_tx             (u_dut.o_tx),
   .o_txifs          (u_dut.o_txifs),
   .o_rxifs          (u_dut.o_rxifs),
-  .o_errifs         (u_dut.o_errifs)
+  .o_errifs         (u_dut.o_errifs),
+  .sva              (sva_vif)
 );
 //===========================================================================
