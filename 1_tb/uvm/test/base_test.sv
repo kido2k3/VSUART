@@ -22,7 +22,7 @@ class base_test extends uvm_test;
         `uvm_info("build_phase", "Entered...", UVM_LOW)
         super.build_phase(phase);
         // default run_phase timeout
-        uvm_top.set_timeout(20ms, 1);
+        uvm_top.set_timeout(1s, 1);
         // override here
         //...
         
@@ -31,7 +31,7 @@ class base_test extends uvm_test;
             cfg = vsuart_cfg::type_id::create("cfg");
         end
 
-        cfg.set_sys_freq(200);
+        cfg.set_sys_freq(112);
         //...
         
         // SVA control interface: all checks enabled, a test disables what it must
