@@ -29,9 +29,12 @@ class vsuart_brg_range_seq extends vsuart_base_seq;
         update_reg(ral.BRG);
         check_field(ral.BRG.BRG, brg);
         uart_enable();
+
+        cfg.u_cfg.baudrate = baud;
+        cfg.u_cfg.clks_per_bit_cal();
+        uvm_config_db #(vsuart_cfg) :: set (null, "*", "cfg", cfg);
         sva_vif.target_baud = baud;
 
-        
         repeat (2) apb_wr_data();
 
         wait_field(ral.STA.TRSTA, 0);
