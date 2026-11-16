@@ -28,18 +28,29 @@ find_log() {
 mkdir -p regression log
 printf 'test\tseed\tresult\tuvm_error\tuvm_fatal\texit_code\n' > regression/summary.tsv
 
+# uvm_count <log> <ERROR|FATAL> -> prints the count of that severity
+# Use the report summary line "UVM_ERROR : N" when present. The summary is
+# printed at UVM_LOW, so with -verb UVM_NONE it is missing; then count the
+# message lines ("UVM_ERROR <file>(<line>) @ ..."), which print at any verbosity.
+uvm_count() {
+    local log=$1 sev=$2 line
+    line=$(grep -E "^UVM_${sev} *: *[0-9]+" "$log" | tail -1 || true)
+    if [[ -n $line ]]; then
+        grep -oE '[0-9]+' <<< "$line" | tail -1
+    else
+        grep -cE "^UVM_${sev} +[^ :]" "$log" || true
+    fi
+}
+
 # classify_result <log> <exit_code> -> sets: result, uvm_err, uvm_fat
-# UVM prints "UVM_ERROR : N" / "UVM_FATAL : N" in the final report summary;
-# the simulator exit code alone is unreliable (it stays 0 even with UVM errors).
+# The simulator exit code alone is unreliable (it stays 0 even with UVM errors).
 classify_result() {
-    local log=$1 rc=$2 line
+    local log=$1 rc=$2
     uvm_err=''
     uvm_fat=''
     if [[ -s $log ]]; then
-        line=$(grep -E '^UVM_ERROR *: *[0-9]+' "$log" | tail -1 || true)
-        [[ -n $line ]] && uvm_err=$(grep -oE '[0-9]+' <<< "$line" | tail -1)
-        line=$(grep -E '^UVM_FATAL *: *[0-9]+' "$log" | tail -1 || true)
-        [[ -n $line ]] && uvm_fat=$(grep -oE '[0-9]+' <<< "$line" | tail -1)
+        uvm_err=$(uvm_count "$log" ERROR)
+        uvm_fat=$(uvm_count "$log" FATAL)
     fi
     if [[ ! -s $log ]]; then
         result='FAIL'
