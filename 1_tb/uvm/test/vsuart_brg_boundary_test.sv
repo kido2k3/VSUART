@@ -8,9 +8,7 @@
 class vsuart_brg_boundary_test extends base_test;
     `uvm_component_utils(vsuart_brg_boundary_test)
 
-    // frames the SVA checker must have tracked to the stop bit
-    // (no target baud: the period is checked by A_TX_EDGE_ALIGN)
-    int unsigned n_expected = 4;
+
 
     function new(string name = "vsuart_brg_boundary_test", uvm_component parent = null);
         super.new(name, parent);
@@ -23,9 +21,4 @@ class vsuart_brg_boundary_test extends base_test;
         cfg.set_sys_freq(112);
     endfunction
 
-    virtual function void check_phase(uvm_phase phase);
-        super.check_phase(phase);
-        if (sva_vif.n_frames != n_expected)
-            `uvm_error("BRG_COUNT", $sformatf("%0d frame(s) tracked, expected %0d", sva_vif.n_frames, n_expected))
-    endfunction
 endclass

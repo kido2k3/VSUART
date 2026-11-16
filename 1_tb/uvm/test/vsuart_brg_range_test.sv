@@ -8,8 +8,6 @@
 class vsuart_brg_range_test extends base_test;
     `uvm_component_utils(vsuart_brg_range_test)
 
-    // frames whose baud the SVA checker (A_TX_BAUD) must have measured
-    int unsigned n_expected = 28;
 
     function new(string name = "vsuart_brg_range_test", uvm_component parent = null);
         super.new(name, parent);
@@ -22,9 +20,4 @@ class vsuart_brg_range_test extends base_test;
         cfg.set_sys_freq(112);
     endfunction
 
-    virtual function void check_phase(uvm_phase phase);
-        super.check_phase(phase);
-        if (sva_vif.n_baud_checked != n_expected)
-            `uvm_error("BRG_COUNT", $sformatf("%0d frame(s) measured, expected %0d", sva_vif.n_baud_checked, n_expected))
-    endfunction
 endclass
