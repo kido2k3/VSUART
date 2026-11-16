@@ -14,7 +14,7 @@
 `define PARITY		5'b01000
 `define STOP_BIT 	5'b10000
 // Common defines
-`define FIFO_DEPTH 32
+`define FIFO_DEPTH 128
 `define FIFO_DATA_W 9
 `define ADDR_W 16
 `define DATA_W 32
