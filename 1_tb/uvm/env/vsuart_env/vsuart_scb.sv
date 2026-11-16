@@ -57,7 +57,7 @@ class vsuart_scb extends uvm_scoreboard;
         mb_apb_wr_data = new();
         mb_apb_rd_data = new();
         mb_uart_tx_data = new();
-        mb_uart_rx_data = new();
+        mb_uart_rx_data = new(`FIFO_DEPTH);
     endfunction
 
     task run_phase(uvm_phase phase);
@@ -187,8 +187,9 @@ class vsuart_scb extends uvm_scoreboard;
         `uvm_info("SCB uart rx", $sformatf("received data:%s", rcv_item.sprint), UVM_HIGH)
         check_uart_errors("RX", rcv_item);
         check_uart_continuity(1'b0, rcv_item);
-        
-        void'(mb_uart_rx_data.try_put(rcv_item));
+        if (!mb_uart_rx_data.try_put(rcv_item)) begin
+            `uvm_info("SCB RX", $sformatf("RX FIFO full (%0d), dropping overflow frame data=0x%03h",  `FIFO_DEPTH, rcv_item.data), UVM_LOW)
+        end
     endfunction
 
     // function: handle data received from ifs monitor
