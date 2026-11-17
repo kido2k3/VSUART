@@ -28,6 +28,7 @@
 ../1_tb/uvm/seq/vsuart_rx_fifo_underflow_seq.sv
 ../1_tb/uvm/seq/vsuart_rx_frame_formats_seq.sv
 ../1_tb/uvm/seq/vsuart_tx_basic_seq.sv
+../1_tb/uvm/seq/vsuart_tx_fifo_status_seq.sv
 ../1_tb/uvm/seq/vsuart_tx_frame_formats_seq.sv
 ../1_tb/uvm/seq/vsuart_brg_range_seq.sv
 ../1_tb/uvm/seq/vsuart_brg_boundary_seq.sv
@@ -46,5 +47,6 @@
 ../1_tb/uvm/test/vsuart_brg_range_140m_test.sv
 ../1_tb/uvm/test/vsuart_brg_boundary_test.sv
 ../1_tb/uvm/test/vsuart_brg_boundary_140m_test.sv
+../1_tb/uvm/test/vsuart_tx_fifo_status_test.sv
 ../1_tb/sva/vsuart_reset_checker.sv
 ../1_tb/sva/vsuart_tx_checker.sv
