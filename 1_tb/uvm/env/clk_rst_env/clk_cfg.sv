@@ -11,8 +11,8 @@ class clk_cfg extends uvm_object;
     string sys_freq = "112MHz";
     int _apb_freq = 72;
     string apb_freq = "72MHz";
-    const int _uart_freq = 12;
-    const string uart_freq = "12MHz";
+    const int _uart_freq = 24;
+    const string uart_freq = "24MHz";
 
     `uvm_object_utils_begin(clk_cfg)
         `uvm_field_string(sys_freq, UVM_ALL_ON)
