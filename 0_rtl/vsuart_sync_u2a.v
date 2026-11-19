@@ -9,6 +9,7 @@ module vsuart_sync_u2a #(
 )(
 	// global reset
 	input                               rst_n,
+    input                               i_rx_fifo_rst_n,
 	// tx side
 	input								u_clk,
 	input								i_ifs_txifs0,
@@ -62,6 +63,7 @@ module vsuart_sync_u2a #(
 	wire pos_ifs_rxifs2; 
     // fifo signal
     wire fifo_empty;
+    wire fifo_rst_n;
 //---------------------------------------------------------------------------
 	// edge_det start
 	edge_det #(.MODE(1)) u_ifs_txifs0(.clk(pclk), .rst_n(rst_n), .i_data(ifs_txifs0), .o_data(pos_ifs_txifs0));
@@ -104,13 +106,13 @@ module vsuart_sync_u2a #(
 	) u_vsuart_rx_fifo (
 		// WRITE INTERFACE: i_ (input), w_ (write)
 		.wclk          (u_clk),
-		.wrst_n        (rst_n),
+		.wrst_n        (i_rx_fifo_rst_n),
 		.w_en          (i_rx_wen),
 		.i_data        (i_rx_wdata),
 		.o_full        (o_rx_full),
 		// READ INTERFACE (APB SIDE)
 		.rclk          (pclk),
-		.rrst_n        (rst_n),
+        .rrst_n        (i_rx_fifo_rst_n),
 		.r_en          (i_rx_ren),
 		.o_r_ifs       (ifs_rxifs),
 		.o_empty       (fifo_empty),

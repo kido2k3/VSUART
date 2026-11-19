@@ -25,12 +25,14 @@ module vsuart_sync_a2u #(
     output [FIFO_DATA_W - 1   :0]       o_tx_rdata,
     output                              o_ifs_txifs3,
     // rx side
+    output                              o_rx_fifo_rst_n,
     output                              o_rx_en
 );
 // LOCAL VARIABLE HERE-------------------------------------------------------
     wire tx_en;
     wire rx_en;
     wire tx_wen;
+    wire fifo_rst_n;
 //---------------------------------------------------------------------------
     // tx enable
     assign tx_en = i_mode_uen[0] & i_mode_uen[2];
@@ -48,6 +50,7 @@ module vsuart_sync_a2u #(
 
     // rx enable
     assign rx_en = i_mode_uen[1] & i_mode_uen[2];
+    assign o_rx_fifo_rst_n = rx_en & rst_n;
     cdc_unit_hs u_rx_sync (
         // WRITE SIDE
         .w_clk        (pclk),
@@ -62,6 +65,7 @@ module vsuart_sync_a2u #(
     
     // tx_wen only trigger when tx enable
     assign tx_wen = i_tx_wen & tx_en;
+    assign fifo_rst_n = tx_en & rst_n;
     // tx fifo
     asc_fifo #(
         .P_DEPTH      (FIFO_DEPTH),
@@ -69,13 +73,13 @@ module vsuart_sync_a2u #(
     ) u_tx_fifo (
         // WRITE INTERFACE: i_ (input), w_ (write)
         .wclk        (pclk),
-        .wrst_n      (rst_n),
+        .wrst_n      (fifo_rst_n),
         .w_en        (tx_wen),
         .i_data      (i_tx_wdata),
         .o_full      (o_sta_tbsta),
         // READ INTERFACE
         .rclk        (u_clk),
-        .rrst_n      (rst_n),
+        .rrst_n      (fifo_rst_n),
         .r_en        (i_tx_ren),
         .o_empty     (o_tx_empty),
         .o_data      (o_tx_rdata)

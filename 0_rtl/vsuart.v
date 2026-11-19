@@ -109,6 +109,7 @@ module vsuart #(
 	wire  								rx_sta_rista;
 	wire  								rx_sta_rbosta;
     wire                                fifo_empty;
+    wire                                rx_fifo_rst_n;
 //     initial begin
 //         $display("hello world");
 //     end
@@ -242,6 +243,7 @@ module vsuart #(
 		.o_tx_rdata      (tx_rdata),
 		.o_ifs_txifs3    (ifs_txifs3),
 		// rx side
+		.o_rx_fifo_rst_n (rx_fifo_rst_n),
 		.o_rx_en         (rx_en)
 	);
 	// synchronizer uart to apb
@@ -251,6 +253,7 @@ module vsuart #(
 	) u_vsuart_sync_u2a (
 		// global reset
 		.rst_n           (rst_n),
+		.i_rx_fifo_rst_n (rx_fifo_rst_n),
 		// tx side
 		.u_clk           (sys_clk),
 		.i_ifs_txifs0    (ifs_txifs0),
