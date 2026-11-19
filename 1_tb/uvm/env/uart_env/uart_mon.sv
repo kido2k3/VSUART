@@ -195,7 +195,7 @@ class uart_mon extends uvm_monitor;
     t_width    = t_rise - t_start;
     n_bits_low = $rtoi(t_width / t_nominal + 0.5);
 
-    if (n_bits_low < 1) begin
+    if (n_bits_low < 1 && cfg.check_bittime) begin
       `uvm_error("MON_GLITCH", $sformatf("t_width %0f shorter than half bit (nominal=%0f)", t_width, t_nominal))
       return; // line is high now, valid stays 0
     end

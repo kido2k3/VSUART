@@ -33,6 +33,7 @@
 ../1_tb/uvm/seq/vsuart_tx_frame_formats_seq.sv
 ../1_tb/uvm/seq/vsuart_brg_range_seq.sv
 ../1_tb/uvm/seq/vsuart_brg_boundary_seq.sv
+../1_tb/uvm/seq/vsuart_pslverr_locked_write_seq.sv
 ../1_tb/uvm/test/base_test.sv
 ../1_tb/uvm/test/vsuart_apb_reset_test.sv
 ../1_tb/uvm/test/vsuart_csr_rw_access_test.sv
@@ -48,6 +49,7 @@
 ../1_tb/uvm/test/vsuart_brg_range_140m_test.sv
 ../1_tb/uvm/test/vsuart_brg_boundary_test.sv
 ../1_tb/uvm/test/vsuart_brg_boundary_140m_test.sv
+../1_tb/uvm/test/vsuart_pslverr_locked_write_test.sv
 ../1_tb/uvm/test/vsuart_tx_fifo_status_test.sv
 ../1_tb/uvm/test/vsuart_tx_fifo_overflow_test.sv
 ../1_tb/sva/vsuart_reset_checker.sv
