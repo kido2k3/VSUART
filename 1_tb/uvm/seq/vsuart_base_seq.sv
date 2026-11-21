@@ -156,7 +156,9 @@ class vsuart_base_seq extends uvm_sequence;
     endtask
 
     // task: write data into dut rx
-    virtual task uart_wdata();
+    virtual task uart_wdata(bit prerr=0, bit frerr=0);
+        uart_seq.seq_item.parity_error = prerr;
+        uart_seq.seq_item.frame_error = frerr;
         assert(uart_seq.randomize() with {});
         uart_seq.start(u_seqr);
     endtask
