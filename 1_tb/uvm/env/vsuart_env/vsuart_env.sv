@@ -67,6 +67,9 @@ class vsuart_env extends uvm_env;
         // register layer <-> clk_rst agent: mirror reset on rst_n release
         clk_rst.mon.as_port.connect(reg_env.rst_sub.analysis_export);
         
+        // scb uses the register model (ral is built in reg_env.build_phase)
+        scb.ral = reg_env.ral;
+
         // scb <-> mon
         apb_agt.mon.as_port.connect(scb.apb_mst_ap_imp);
         uart.mon.as_tx_port.connect(scb.uart_tx_ap_imp);
