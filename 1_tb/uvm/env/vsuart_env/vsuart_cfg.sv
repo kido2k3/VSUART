@@ -14,6 +14,7 @@ class vsuart_cfg extends uvm_object;
     bit check_parity_error = 1;
     bit check_frame_error  = 1;
     bit enable_continous  = 0;
+    bit check_interrupt_pending = 0;   // 1: error if an IRQ line is still high at end of test
     
     real tolerance = 0.02;
 
@@ -25,6 +26,7 @@ class vsuart_cfg extends uvm_object;
         `uvm_field_int(check_parity_error, UVM_ALL_ON)
         `uvm_field_int(check_frame_error, UVM_ALL_ON)
         `uvm_field_int(enable_continous, UVM_ALL_ON)
+        `uvm_field_int(check_interrupt_pending, UVM_ALL_ON)
         `uvm_field_real(tolerance, UVM_ALL_ON)
 
     `uvm_object_utils_end

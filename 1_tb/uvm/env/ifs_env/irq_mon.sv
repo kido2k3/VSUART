@@ -13,7 +13,7 @@ class irq_mon extends uvm_monitor;
     string event_name = "irq_ev";
     uvm_event irq_ev;
 
-    bit check_interrupt_pending = 0; // set by ifs_env; 0 = do not flag pending IRQ at end of test
+    bit check_interrupt_pending = 0; // config_db; 0 = do not flag pending IRQ at end of test
     bit level;
     int unsigned n_rise;
     int unsigned n_fall;

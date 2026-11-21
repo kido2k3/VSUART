@@ -42,6 +42,9 @@ class vsuart_env extends uvm_env;
         // set ral cfg
         uvm_config_db #(ral_cfg) :: set (this, "reg_env", "ral_cfg", cfg.r_cfg);
 
+        // pending interrupt check at end of test, read by every irq_mon
+        uvm_config_db #(bit) :: set (this, "ifs.*", "check_interrupt_pending", cfg.check_interrupt_pending);
+
         // initialize
         clk_rst  = clk_rst_agt::type_id::create("clk_rst", this);
         apb_agt  = apb_mst_agt::type_id::create("apb_agt", this);
