@@ -3,8 +3,6 @@
 //-- Name           : vsuart_tx_checker
 //-- Description    : SVA checker of the TX line: frame structure and baud rate
 //-- History        : ver.1.00 (26/11/13) 1st release (vsuart_brg_checker)
-//--                : ver.2.00 (26/11/14) frame tracker, structural checks, enables in sva_if
-//--                : ver.3.00 (26/11/14) A_BRG_PERIOD replaced by A_TX_BAUD (any data, tolerance)
 //===========================================================================
 
 import uvm_pkg::*;

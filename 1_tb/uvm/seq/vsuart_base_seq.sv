@@ -28,6 +28,11 @@ class vsuart_base_seq extends uvm_sequence;
     uvm_status_e status;
     uvm_reg_data_t value;
 
+    // last read_reg() result, reused by check_field() at the same sim time
+    protected uvm_reg        last_rd_reg;
+    protected uvm_reg_data_t last_rd_val;
+    protected time           last_rd_time;
+
     // default baudrate
     int unsigned baud = 9600;
     // sequence length
@@ -61,6 +66,9 @@ class vsuart_base_seq extends uvm_sequence;
         rg.read(access_status, val, .path(UVM_FRONTDOOR), .parent(this));
         if (access_status != UVM_IS_OK)
             `uvm_error("REG_READ", {rg.get_full_name(), " read failed"})
+        last_rd_reg  = rg;
+        last_rd_val  = val;
+        last_rd_time = $time;
     endtask
 
     // Check a field against its bits in an already read register value
@@ -73,14 +81,19 @@ class vsuart_base_seq extends uvm_sequence;
                        fld.get_full_name(), actual, expected, reg_val))
     endfunction
 
-    // Read a single register field and check against expected value
+    // Read a single register field and check against expected value.
+    // Back-to-back checks on the same register (no time spent in between)
+    // reuse the last read value instead of issuing another APB read.
     virtual task check_field(input uvm_reg_field fld, input uvm_reg_data_t expected);
         uvm_reg_data_t reg_val;
         if (fld == null) begin
             `uvm_error("REG_NULL", "Passed field is null")
             return;
         end
-        read_reg(fld.get_parent(), reg_val);
+        if (fld.get_parent() == last_rd_reg && $time == last_rd_time)
+            reg_val = last_rd_val;
+        else
+            read_reg(fld.get_parent(), reg_val);
         expect_field(reg_val, fld, expected);
     endtask
 
