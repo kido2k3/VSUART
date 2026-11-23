@@ -15,11 +15,11 @@ class vsuart_rx_irq_seq extends vsuart_base_seq;
     task rxifs_check;
         `uvm_info("SEQ", "check interrupt rx field is triggered", UVM_LOW)
         check_field(ral.IFS.RXIFS, 1);
-        check_irq("EV_RX_IRQ", 1);
+        check_irq(EV_RX_IRQ, 1);
         `uvm_info("SEQ", "clear irq", UVM_LOW)
         clear_irq(ral.IFS.RXIFS);
         check_field(ral.IFS.RXIFS, 0);
-        check_irq("EV_RX_IRQ", 0);
+        check_irq(EV_RX_IRQ, 0);
     endtask
 
     virtual task body();

@@ -56,7 +56,7 @@ class vsuart_tx_fifo_overflow_seq extends vsuart_base_seq;
         end
         // check TXIFS=1
         check_field(ral.IFS.TXIFS, 1);
-        check_irq("EV_TX_IRQ", 1);
+        check_irq(EV_TX_IRQ, 1);
         // clear TXIFS
         clear_irq(ral.IFS.TXIFS);
     endtask
