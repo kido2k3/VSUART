@@ -47,6 +47,7 @@
 ../1_tb/uvm/seq/vsuart_tx_irq_seq.sv
 ../1_tb/uvm/seq/vsuart_irq_w1c_clear_seq.sv
 ../1_tb/uvm/seq/vsuart_rx_enable_disable_seq.sv
+../1_tb/uvm/seq/vsuart_rx_baud_mismatch_seq.sv
 ../1_tb/uvm/test/base_test.sv
 ../1_tb/uvm/test/vsuart_apb_reset_test.sv
 ../1_tb/uvm/test/vsuart_brg_boundary_test.sv
@@ -72,3 +73,4 @@
 ../1_tb/uvm/test/vsuart_rx_enable_disable_test.sv
 ../1_tb/sva/vsuart_reset_checker.sv
 ../1_tb/sva/vsuart_tx_checker.sv
+../1_tb/uvm/test/vsuart_rx_baud_mismatch_test.sv
