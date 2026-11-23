@@ -20,10 +20,8 @@ class vsuart_tx_irq_seq extends vsuart_base_seq;
     endtask
 
     task set_txisel(bit [1:0] txisel);
-        uart_disable();
         ral.CR.TXISEL.set(txisel);
         update_reg(ral.CR);
-        uart_enable();
         check_no_irq();
     endtask
 
@@ -44,14 +42,14 @@ class vsuart_tx_irq_seq extends vsuart_base_seq;
         init_rst(13, 10000);
         config_default();
 
-        // F2.4.4.1 TXISEL=00: IRQ when a character moves to the shift register, none at end of frame
+        //IRQ when a character moves to the shift register, none at end of frame
         set_txisel(2'b00);
         apb_wr_data();
         wait_tx_irq(1'b0);
         wait_field(ral.STA.TRSTA, 1);
         check_no_irq();
 
-        // F2.4.4.2 TXISEL=10: IRQ when TX FIFO becomes empty
+        //IRQ when TX FIFO becomes empty
         set_txisel(2'b10);
         apb_wr_data();
         wait_tx_irq(1'b0);
@@ -60,7 +58,7 @@ class vsuart_tx_irq_seq extends vsuart_base_seq;
         wait_field(ral.STA.TRSTA, 1);
         check_no_irq();
 
-        // F2.4.4.3 TXISEL=01: IRQ after the stop bit of the last character (4 characters)
+        //TXISEL=01: IRQ after the stop bit of the last character (4 characters)
         set_txisel(2'b01);
         repeat (4) apb_wr_data();
         wait_tx_irq(1'b1);
