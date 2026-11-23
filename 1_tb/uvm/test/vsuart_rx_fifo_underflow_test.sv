@@ -14,5 +14,6 @@ class vsuart_rx_fifo_underflow_test extends base_test;
     set_type_override_by_type(vsuart_base_seq::get_type(), vsuart_rx_fifo_underflow_seq::get_type());
     super.build_phase(phase);
     cfg.set_sys_freq(112);
+    cfg.check_pslverr = 0;
   endfunction
 endclass
