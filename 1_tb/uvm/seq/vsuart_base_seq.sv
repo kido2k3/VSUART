@@ -98,18 +98,25 @@ class vsuart_base_seq extends uvm_sequence;
     endtask
 
     // Poll register until masked bits match expected.
-    // No local timeout: a hang is caught by the UVM run_phase timeout (base_test).
     virtual task wait_reg_bits(input uvm_reg rg,
                                input uvm_reg_data_t expected,
                                input uvm_reg_data_t mask);
         uvm_status_e access_status;
         uvm_reg_data_t actual;
+        uvm_reg_field  err_flds[$]; 
+
+        err_flds.push_back(ral.STA.RBOSTA);
+        if (cfg == null || cfg.check_parity_error) err_flds.push_back(ral.STA.PRERR);
+        if (cfg == null || cfg.check_frame_error)  err_flds.push_back(ral.STA.FRERR);
         do begin
             rg.read(access_status, actual, .path(UVM_FRONTDOOR), .parent(this));
             if (access_status != UVM_IS_OK)
                 `uvm_fatal("REG_READ", {rg.get_full_name(), " polling read failed"})
-            if (rg == ral.STA && (actual & 'h58) !== 0)
-                `uvm_error("STA_ERROR", $sformatf("STA error bits sampled during polling: 0x%0h", actual))
+            if (rg == ral.STA)
+                foreach (err_flds[i])
+                    if (actual[err_flds[i].get_lsb_pos()] !== 1'b0)
+                        `uvm_error("STA_ERROR", $sformatf("%s=1 sampled during polling (STA=0x%0h)",
+                                   err_flds[i].get_name(), actual))
         end while ((actual & mask) !== (expected & mask));
     endtask
 

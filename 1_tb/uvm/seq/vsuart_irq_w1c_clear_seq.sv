@@ -35,7 +35,14 @@ class vsuart_irq_w1c_clear_seq extends vsuart_base_seq;
         check_field(ral.IFS.ERRIFS, errifs);
     endtask
 
-    // task: APB write IFS register with different data, strb
+    // task: RAL field write, IFS fields are individually accessible -> PSTRB = byte lanes of fld
+    task clear_ifs_field(uvm_reg_field fld);
+        uvm_status_e status;
+        fld.write(status, 1, .path(UVM_FRONTDOOR), .parent(this));
+        if (status != UVM_IS_OK) `uvm_error("IFS_CLR", {fld.get_full_name(), " field write failed"})
+    endtask
+
+    // task: APB write IFS register with different data, strb (RAL cannot generate strb=0)
     task apb_ifs_wr(int data, int strb);
         assert(ifs_wr_seq.randomize() with{
             seq_item.addr == 'h18;
@@ -57,10 +64,9 @@ class vsuart_irq_w1c_clear_seq extends vsuart_base_seq;
         uart_wdata(1, 1);
         
         `uvm_info("SEQ", "wait for idle state", UVM_LOW)
-        //wait_field(ral.STA.FRERR, 1);
-        //wait_field(ral.STA.TISTA, 1);
-        //wait_field(ral.STA.RISTA, 1);
-        check_field(ral.STA.FRERR, 1);
+        wait_field(ral.STA.FRERR, 1);
+        wait_field(ral.STA.TISTA, 1);
+        wait_field(ral.STA.RISTA, 1);
 
         `uvm_info("SEQ", "check point 1: all ifs must be triggered", UVM_LOW)
         ifs_check(1, 1, 1);
@@ -68,13 +74,13 @@ class vsuart_irq_w1c_clear_seq extends vsuart_base_seq;
         apb_ifs_wr('1, 'h0);
         ifs_check(1, 1, 1);
         `uvm_info("SEQ", "check point 3: clear txifs only", UVM_LOW)
-        apb_ifs_wr('h0000_0001, 'b0001);
+        clear_ifs_field(ral.IFS.TXIFS);   // PSTRB = 0001
         ifs_check(1, 0, 1);
         `uvm_info("SEQ", "check point 4: clear rxifs only", UVM_LOW)
-        apb_ifs_wr('h0000_0100, 'b0010);
+        clear_ifs_field(ral.IFS.RXIFS);   // PSTRB = 0010
         ifs_check(0, 0, 1);
         `uvm_info("SEQ", "check point 5: clear errifs only", UVM_LOW)
-        apb_ifs_wr('h0001_0000, 'b0100);
+        clear_ifs_field(ral.IFS.ERRIFS);  // PSTRB = 0100
         ifs_check(0, 0, 0);
     endtask
 endclass
