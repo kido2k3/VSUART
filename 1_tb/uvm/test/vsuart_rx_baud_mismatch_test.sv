@@ -16,9 +16,8 @@ class vsuart_rx_baud_mismatch_test extends base_test;
     virtual function void build_phase(uvm_phase phase);
         set_type_override_by_type(vsuart_base_seq::get_type(), vsuart_rx_baud_mismatch_seq::get_type());
         super.build_phase(phase);
-        uvm_top.set_timeout(60ms, 1);
+        uvm_top.set_timeout(300ms, 1);
         cfg.set_sys_freq(112);
-        cfg.enable_continous = 1;
     endfunction
 
 endclass

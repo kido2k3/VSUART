@@ -35,6 +35,8 @@ class vsuart_base_seq extends uvm_sequence;
 
     // default baudrate
     int unsigned baud = 9600;
+    // standard baud rates for range testing
+    int unsigned bauds[] = '{2400, 4800, 9600, 19200, 38400, 76800, 115200};
     // sequence length
     int unsigned seq_len = 50;
     function new(string name = "vsuart_base_seq");
@@ -379,6 +381,23 @@ class vsuart_base_seq extends uvm_sequence;
             default      : return 2'b00;
         endcase
     endfunction
+
+    task set_dut_baud(bit bsel, int unsigned baud);
+        int unsigned os     = bsel ? 4 : 16;
+        int unsigned sys_hz = cfg.c_cfg._sys_freq * 1_000_000;
+        bit [15:0]   brg    = 16'((sys_hz + os * baud / 2) / (os * baud) - 1);
+
+        uart_disable();
+        check_uen_disabled();
+        ral.MODE.BSEL.set(bsel);
+        ral.BRG.BRG.set(brg);
+        update_reg(ral.MODE);
+        update_reg(ral.BRG);
+        check_field(ral.MODE.BSEL, bsel);
+        check_field(ral.BRG.BRG, brg);
+        uart_enable();
+        check_field(ral.MODE.UEN, 3'b111);
+    endtask
     
     virtual task body();
         `uvm_info(get_type_name, "Body entered...", UVM_LOW)
