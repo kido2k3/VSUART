@@ -25,7 +25,7 @@ class vsuart_rx_enable_disable_seq extends vsuart_base_seq;
         fork
             repeat (n_char) uart_wdata();
             begin
-                wait_field(ral.STA.RISTA, 0);
+                wait_field(ral.STA.RBDSTA, 1);
                 uart_enable(3'b101);
             end
         join
