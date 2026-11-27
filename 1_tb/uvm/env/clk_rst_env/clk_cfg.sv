@@ -36,7 +36,7 @@ class clk_cfg extends uvm_object;
     endfunction
     // function: set system frequency
     function void set_sys_freq(int freq);
-        if(freq inside {112, 140}) begin
+        if(freq inside {40, 112, 140}) begin
             _sys_freq = freq;
             get_string(sys_freq, _sys_freq);
         end else begin
@@ -46,7 +46,7 @@ class clk_cfg extends uvm_object;
     
     // function: set apb frequency
     function void set_apb_freq(int freq);
-        if(freq inside {72}) begin
+        if(freq inside {10, 39, 72, 100}) begin
             _apb_freq = freq;
             get_string(apb_freq, _apb_freq);
         end else begin
