@@ -93,7 +93,7 @@ class base_test extends uvm_test;
         if (svr.get_severity_count(UVM_ERROR) > 0) 
             `uvm_error("Result", "Test Failed\n")
         else
-            `uvm_info("Result", "Test Passed\n", UVM_LOW)
-        `uvm_info("final_phase", "Exiting...", UVM_LOW)
+            `uvm_info("Result", "Test Passed\n", UVM_NONE)
+        `uvm_info("final_phase", "Exiting...", UVM_NONE)
     endfunction: final_phase
 endclass
