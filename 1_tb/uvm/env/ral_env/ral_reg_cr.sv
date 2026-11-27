@@ -32,7 +32,7 @@ class ral_reg_cr extends base_ral_reg;
   endfunction
 
   virtual function void build();
-    // make_vsuart_field: name, width, lsb, access, reset, volatile, rand[, indv]
+    // make_vsuart_field: name, width, lsb, access, reset, volatile, rand[, indv=1]
     TXISEL     = make_vsuart_field("TXISEL",       2,  0, "RW",  'h0, 0, 1);
     RSVD_7_2   = make_vsuart_field("RSVD_7_2",     6,  2, "RO",  'h0, 0, 0);
     RXISEL     = make_vsuart_field("RXISEL",       2,  8, "RW",  'h0, 0, 1);

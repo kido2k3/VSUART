@@ -46,7 +46,7 @@ class ral_reg_sta extends base_ral_reg;
   endfunction
 
   virtual function void build();
-    // make_vsuart_field: name, width, lsb, access, reset, volatile, rand[, indv]
+    // make_vsuart_field: name, width, lsb, access, reset, volatile, rand[, indv=1]
     TBSTA     = make_vsuart_field("TBSTA",       1,  0, "RO",  'h0, 1, 0);
     TRSTA     = make_vsuart_field("TRSTA",       1,  1, "RO",  'h1, 1, 0);
     TISTA     = make_vsuart_field("TISTA",       1,  2, "RO",  'h1, 1, 0);

@@ -39,12 +39,12 @@ class ral_reg_ifs extends base_ral_reg;
   endfunction
 
   virtual function void build();
-    // make_vsuart_field: name, width, lsb, access, reset, volatile, rand[, indv]
-    TXIFS      = make_vsuart_field("TXIFS",        1,  0, "W1C", 'h0, 1, 0, 1);
+    // make_vsuart_field: name, width, lsb, access, reset, volatile, rand[, indv=1]
+    TXIFS      = make_vsuart_field("TXIFS",        1,  0, "W1C", 'h0, 1, 0);
     RSVD_7_1   = make_vsuart_field("RSVD_7_1",     7,  1, "RO",  'h0, 0, 0);
-    RXIFS      = make_vsuart_field("RXIFS",        1,  8, "W1C", 'h0, 1, 0, 1);
+    RXIFS      = make_vsuart_field("RXIFS",        1,  8, "W1C", 'h0, 1, 0);
     RSVD_15_9  = make_vsuart_field("RSVD_15_9",    7,  9, "RO",  'h0, 0, 0);
-    ERRIFS     = make_vsuart_field("ERRIFS",       1, 16, "W1C", 'h0, 1, 0, 1);
+    ERRIFS     = make_vsuart_field("ERRIFS",       1, 16, "W1C", 'h0, 1, 0);
     RSVD_31_17 = make_vsuart_field("RSVD_31_17",  15, 17, "RO",  'h0, 0, 0);
   endfunction
 endclass

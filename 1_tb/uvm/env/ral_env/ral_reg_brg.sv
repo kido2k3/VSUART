@@ -35,7 +35,7 @@ class ral_reg_brg extends base_ral_reg;
   endfunction
 
   virtual function void build();
-    // make_vsuart_field: name, width, lsb, access, reset, volatile, rand[, indv]
+    // make_vsuart_field: name, width, lsb, access, reset, volatile, rand[, indv=1]
     BRG        = make_vsuart_field("BRG",         16,  0, "RW",  'h1, 0, 1);
     RSVD_31_16 = make_vsuart_field("RSVD_31_16",  16, 16, "RO",  'h0, 0, 0);
   endfunction

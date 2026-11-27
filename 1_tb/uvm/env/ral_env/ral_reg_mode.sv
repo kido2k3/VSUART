@@ -40,8 +40,8 @@ class ral_reg_mode extends base_ral_reg;
   endfunction
 
   virtual function void build();
-    // make_vsuart_field: name, width, lsb, access, reset, volatile, rand[, indv]
-    UEN        = make_vsuart_field("UEN",          3,  0, "RW",  'h0, 0, 1, 1);
+    // make_vsuart_field: name, width, lsb, access, reset, volatile, rand[, indv=1]
+    UEN        = make_vsuart_field("UEN",          3,  0, "RW",  'h0, 0, 1);
     RSVD_7_3   = make_vsuart_field("RSVD_7_3",     5,  3, "RO",  'h0, 0, 0);
     BSEL       = make_vsuart_field("BSEL",         1,  8, "RW",  'h0, 0, 1);
     RSVD_15_9  = make_vsuart_field("RSVD_15_9",    7,  9, "RO",  'h0, 0, 0);

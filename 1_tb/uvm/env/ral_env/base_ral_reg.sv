@@ -11,11 +11,12 @@ class base_ral_reg extends uvm_reg;
   endfunction
 
   // create + configure one field of this register (has_reset = 1).
-  // indv = 1 only for a field written alone on its own byte lane (MODE.UEN).
+  // indv = 1: field.write() drives only the byte lanes of the field (PSTRB);
+  // every VSUART field sits alone on its byte lane (only RO RSVD bits share it).
   protected function uvm_reg_field make_vsuart_field(
       string name, int unsigned width, int unsigned lsb,
       string access, uvm_reg_data_t reset, bit volatile_field, bit random_field,
-      bit indv = 0);
+      bit indv = 1);
 
     uvm_reg_field field;
 
